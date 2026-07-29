@@ -4,7 +4,7 @@ provider "aws" {
 
 terraform {
   backend "s3" {
-    bucket = "mountainconnect-terraform-state"
+    bucket = "jejak-terraform-state"
     key    = "infrastructure/terraform.tfstate"
     region = "ap-southeast-1"
   }
@@ -133,8 +133,8 @@ resource "aws_db_instance" "main" {
   allocated_storage      = 100
   storage_type           = "gp3"
   storage_encrypted      = true
-  db_name                = "mountainconnect"
-  username               = "mountainconnect_admin"
+  db_name                = "jejak"
+  username               = "jejak_admin"
   password               = random_password.db_password.result
   db_subnet_group_name   = aws_db_subnet_group.main.name
   vpc_security_group_ids = [aws_security_group.api.id]
@@ -403,7 +403,7 @@ resource "aws_secretsmanager_secret_version" "db" {
     password = random_password.db_password.result
     host     = aws_db_instance.main.address
     port     = aws_db_instance.main.port
-    dbname   = "mountainconnect"
+    dbname   = "jejak"
   })
 }
 

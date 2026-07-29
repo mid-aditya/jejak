@@ -1,13 +1,13 @@
-# MountainConnect ID
+# Jejak
 ### Platform Terintegrasi untuk Ekosistem Pendakian Indonesia
 
-![MountainConnect ID](https://img.shields.io/badge/version-1.0.0--alpha-green) ![Node](https://img.shields.io/badge/node-20+-green) ![React Native](https://img.shields.io/badge/react--native-0.73+-blue) ![Next.js](https://img.shields.io/badge/next.js-14-black) ![NestJS](https://img.shields.io/badge/nestjs-10-red)
+![Jejak](https://img.shields.io/badge/version-1.0.0--alpha-green) ![Node](https://img.shields.io/badge/node-20+-green) ![React Native](https://img.shields.io/badge/react--native-0.73+-blue) ![Next.js](https://img.shields.io/badge/next.js-14-black) ![NestJS](https://img.shields.io/badge/nestjs-10-red)
 
 ---
 
 ## 🌄 Gambaran Umum
 
-**MountainConnect ID** adalah ekosistem digital terpadu yang menghubungkan solo traveler, open trip organizer, basecamp, dan pengelola taman nasional di Indonesia. Platform ini dirancang dengan arsitektur **offline-first** untuk beroperasi di area minim sinyal, dengan fitur keselamatan real-time sebagai prioritas utama.
+**Jejak** adalah ekosistem digital terpadu yang menghubungkan solo traveler, open trip organizer, basecamp, dan pengelola taman nasional di Indonesia. Platform ini dirancang dengan arsitektur **offline-first** untuk beroperasi di area minim sinyal, dengan fitur keselamatan real-time sebagai prioritas utama.
 
 ### Target Pengguna
 - Solo traveler (pemula hingga expert)
@@ -21,7 +21,7 @@
 ## 🏗️ Arsitektur
 
 ```
-mountainconnect-app/
+jejak-app/
 ├── backend/           # NestJS microservices API
 │   ├── src/
 │   │   ├── modules/   # Auth, User, Mountain, Trip, Emergency, Weather, Marketplace, Community, Notification
@@ -133,7 +133,7 @@ mountainconnect-app/
 ### 0. Database MySQL
 Buat database sekali:
 ```sql
-CREATE DATABASE mountainconnect CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
+CREATE DATABASE jejak CHARACTER SET utf8mb4 COLLATE utf8mb4_unicode_ci;
 ```
 
 ### 1. Backend (NestJS)
@@ -226,7 +226,7 @@ Detail: [docs/DEPLOYMENT_RUNBOOK.md](docs/DEPLOYMENT_RUNBOOK.md)
 
 ## 📝 Lisensi
 
-MIT License — MountainConnect ID Team 2026
+MIT License — Jejak Team 2026
 
 ---
 

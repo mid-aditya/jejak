@@ -1,8 +1,8 @@
 {
-  "name": "mountainconnect-backend",
+  "name": "jejak-backend",
   "version": "1.0.0",
-  "description": "MountainConnect ID Backend - NestJS Microservices",
-  "author": "MountainConnect Team",
+  "description": "Jejak Backend - NestJS Microservices",
+  "author": "Jejak Team",
   "license": "MIT",
   "scripts": {
     "prebuild": "rimraf dist",

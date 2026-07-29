@@ -1,12 +1,12 @@
-# MountainConnect ID - API Specification
+# Jejak - API Specification
 
 ## Base URL
 
 | Environment | Base URL |
 |-------------|----------|
-| Development | `https://api-dev.mountainconnect.id/v1` |
-| Staging | `https://api-staging.mountainconnect.id/v1` |
-| Production | `https://api.mountainconnect.id/v1` |
+| Development | `https://api-dev.jejak.id/v1` |
+| Staging | `https://api-staging.jejak.id/v1` |
+| Production | `https://api.jejak.id/v1` |
 
 ## Authentication
 
@@ -213,7 +213,7 @@ Error format:
 
 ## WebSocket Events
 
-Connect to `wss://ws.mountainconnect.id/v1` with Bearer auth.
+Connect to `wss://ws.jejak.id/v1` with Bearer auth.
 
 | Event | Direction | Description |
 |-------|-----------|-------------|

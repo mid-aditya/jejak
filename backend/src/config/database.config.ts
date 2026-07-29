@@ -7,7 +7,7 @@ export const databaseConfig = (configService: ConfigService): TypeOrmModuleOptio
   port: configService.get<number>('DB_PORT', 3306),
   username: configService.get('DB_USERNAME', 'root'),
   password: configService.get('DB_PASSWORD', ''),
-  database: configService.get('DB_DATABASE', 'mountainconnect'),
+  database: configService.get('DB_DATABASE', 'jejak'),
   charset: 'utf8mb4',
   entities: [__dirname + '/../**/*.entity{.ts,.js}'],
   migrations: [__dirname + '/../migrations/*{.ts,.js}'],

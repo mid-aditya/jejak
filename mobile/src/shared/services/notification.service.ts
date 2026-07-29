@@ -24,8 +24,8 @@ export interface NotificationPayload {
 }
 
 class NotificationService {
-  private channelId = 'mountainconnect_main';
-  private channelSos = 'mountainconnect_sos';
+  private channelId = 'jejak_main';
+  private channelSos = 'jejak_sos';
   private appState: AppStateStatus = 'active';
 
   // ── Initialize ────────────────────────────────────────────────────────────────
@@ -79,7 +79,7 @@ class NotificationService {
       PushNotification.createChannel(
         {
           channelId: this.channelId,
-          channelName: 'MountainConnect',
+          channelName: 'Jejak',
           channelDescription: 'General notifications',
           importance: 4, // High
           vibrate: true,

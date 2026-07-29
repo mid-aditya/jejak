@@ -81,7 +81,7 @@ export default function LandingPage() {
   return (
     <>
       <Head>
-        <title>MountainConnect ID - Admin Login</title>
+        <title>Jejak - Admin Login</title>
         <meta name="viewport" content="width=device-width, initial-scale=1" />
       </Head>
 
@@ -93,7 +93,7 @@ export default function LandingPage() {
               <MountainIcon className="w-6 h-6 text-white" />
             </div>
             <span className="text-xl font-bold text-gray-900">
-              MountainConnect ID
+              Jejak
             </span>
           </div>
         </header>
@@ -126,7 +126,7 @@ export default function LandingPage() {
                       type="email"
                       value={email}
                       onChange={(e) => setEmail(e.target.value)}
-                      placeholder="admin@mountainconnect.id"
+                      placeholder="admin@jejak.id"
                       className="w-full pl-10 pr-4 py-2.5 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-primary-500 focus:border-transparent"
                       required
                     />

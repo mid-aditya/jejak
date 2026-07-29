@@ -21,7 +21,7 @@ export class JwtStrategy extends PassportStrategy(Strategy) {
     super({
       jwtFromRequest: ExtractJwt.fromAuthHeaderAsBearerToken(),
       ignoreExpiration: false,
-      secretOrKey: configService.get('JWT_SECRET', 'mountainconnect-secret-key'),
+      secretOrKey: configService.get('JWT_SECRET', 'jejak-secret-key'),
     });
   }
 

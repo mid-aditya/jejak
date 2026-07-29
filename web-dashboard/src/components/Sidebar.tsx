@@ -68,7 +68,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           </div>
           {!collapsed && (
             <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">MountainConnect</p>
+              <p className="text-sm font-bold text-gray-900 truncate">Jejak</p>
               <p className="text-xs text-gray-500 truncate">Admin Panel</p>
             </div>
           )}

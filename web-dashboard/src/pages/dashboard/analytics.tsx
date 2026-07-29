@@ -93,7 +93,7 @@ const AnalyticsPage: NextPage = () => {
 
   return (
     <>
-      <Head><title>Analytics - MountainConnect ID</title></Head>
+      <Head><title>Analytics - Jejak</title></Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

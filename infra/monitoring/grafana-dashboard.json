@@ -1,8 +1,8 @@
 {
-  "title": "MountainConnect ID - API Overview",
-  "uid": "mountainconnect-overview",
+  "title": "Jejak - API Overview",
+  "uid": "jejak-overview",
   "version": 1,
-  "tags": ["mountainconnect", "api", "production"],
+  "tags": ["jejak", "api", "production"],
   "timezone": "browser",
   "schemaVersion": 38,
   "time": { "from": "now-6h", "to": "now" },
@@ -79,7 +79,7 @@
       "title": "DB Connection Pool",
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 8, "x": 8, "y": 12 },
-      "targets": [{ "expr": "pg_stat_activity_count{datname=\"mountainconnect\"}", "legendFormat": "DB Connections" }]
+      "targets": [{ "expr": "pg_stat_activity_count{datname=\"jejak\"}", "legendFormat": "DB Connections" }]
     },
     {
       "id": 10,
@@ -87,8 +87,8 @@
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 4, "x": 16, "y": 12 },
       "targets": [
-        { "expr": "rate(process_cpu_seconds_total{job=\"mountainconnect-api\"}[5m])", "legendFormat": "API" },
-        { "expr": "rate(process_cpu_seconds_total{job=\"mountainconnect-worker\"}[5m])", "legendFormat": "Worker" }
+        { "expr": "rate(process_cpu_seconds_total{job=\"jejak-api\"}[5m])", "legendFormat": "API" },
+        { "expr": "rate(process_cpu_seconds_total{job=\"jejak-worker\"}[5m])", "legendFormat": "Worker" }
       ]
     },
     {
@@ -97,8 +97,8 @@
       "type": "timeseries",
       "gridPos": { "h": 8, "w": 4, "x": 20, "y": 12 },
       "targets": [
-        { "expr": "process_resident_memory_bytes{job=\"mountainconnect-api\"}", "legendFormat": "API" },
-        { "expr": "process_resident_memory_bytes{job=\"mountainconnect-worker\"}", "legendFormat": "Worker" }
+        { "expr": "process_resident_memory_bytes{job=\"jejak-api\"}", "legendFormat": "API" },
+        { "expr": "process_resident_memory_bytes{job=\"jejak-worker\"}", "legendFormat": "Worker" }
       ],
       "fieldConfig": { "defaults": { "unit": "bytes" } }
     }

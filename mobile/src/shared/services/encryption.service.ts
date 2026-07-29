@@ -1,7 +1,7 @@
 import CryptoJS from "crypto-js";
 import { MMKV } from "react-native-mmkv";
 
-const STORAGE_KEY = "mountainconnect_encryption";
+const STORAGE_KEY = "jejak_encryption";
 const storage = new MMKV({ id: "encryption-storage" });
 
 class EncryptionService {

@@ -104,7 +104,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           {/* Header */}
           <View style={styles.header}>
             <Text style={styles.logo}>🏔️</Text>
-            <Text style={styles.title}>MountainConnect</Text>
+            <Text style={styles.title}>Jejak</Text>
             <Text style={styles.subtitle}>Masuk ke akun Anda</Text>
           </View>
 

@@ -2,7 +2,7 @@
 
 Folder ini sebelumnya berisi manifest Kubernetes yang memakai **image Docker dari AWS ECR**.
 
-MountainConnect ID **tidak lagi menggunakan Docker atau container registry** untuk deploy aplikasi.
+Jejak **tidak lagi menggunakan Docker atau container registry** untuk deploy aplikasi.
 
 Gunakan deploy native:
 

@@ -13,12 +13,12 @@ rule_files:
   - "alerts/*.yml"
 
 scrape_configs:
-  - job_name: 'mountainconnect-api'
+  - job_name: 'jejak-api'
     kubernetes_sd_configs:
       - role: pod
         namespaces:
           names:
-            - mountainconnect
+            - jejak
     relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_tier]
         action: keep
@@ -38,12 +38,12 @@ scrape_configs:
     scheme: http
     scrape_interval: 15s
 
-  - job_name: 'mountainconnect-worker'
+  - job_name: 'jejak-worker'
     kubernetes_sd_configs:
       - role: pod
         namespaces:
           names:
-            - mountainconnect
+            - jejak
     relabel_configs:
       - source_labels: [__meta_kubernetes_pod_label_tier]
         action: keep
@@ -61,7 +61,7 @@ scrape_configs:
   - job_name: 'redis'
     static_configs:
       - targets:
-          - 'mountainconnect-staging-redis.xxxxxxxx.ap-southeast-1.elasticache.amazonaws.com:9121'
+          - 'jejak-staging-redis.xxxxxxxx.ap-southeast-1.elasticache.amazonaws.com:9121'
     metrics_path: '/metrics'
     scrape_interval: 30s
 
@@ -74,10 +74,10 @@ scrape_configs:
 
 # Alert Rules
 groups:
-  - name: mountainconnect-alerts
+  - name: jejak-alerts
     rules:
       - alert: HighLatency
-        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="mountainconnect-api"}[5m])) by (le, path)) > 2
+        expr: histogram_quantile(0.95, sum(rate(http_request_duration_seconds_bucket{job="jejak-api"}[5m])) by (le, path)) > 2
         for: 5m
         labels:
           severity: warning
@@ -95,7 +95,7 @@ groups:
           description: "Error rate is {{ $value | humanizePercentage }}"
 
       - alert: ServiceDown
-        expr: up{job="mountainconnect-api"} == 0
+        expr: up{job="jejak-api"} == 0
         for: 1m
         labels:
           severity: critical
@@ -122,7 +122,7 @@ groups:
           description: "Queue depth is {{ $value }}"
 
       - alert: DBConnectionsHigh
-        expr: pg_stat_activity_count{datname="mountainconnect"} > 50
+        expr: pg_stat_activity_count{datname="jejak"} > 50
         for: 5m
         labels:
           severity: warning

@@ -17,7 +17,7 @@ import offlineReducer from './slices/offlineSlice';
 import emergencyReducer from './slices/emergencySlice';
 
 // MMKV instance for faster persistent storage
-export const storage = new MMKV({ id: 'mountainconnect-storage' });
+export const storage = new MMKV({ id: 'jejak-storage' });
 
 // Custom MMKV storage adapter for redux-persist
 const mmkvStorage = {

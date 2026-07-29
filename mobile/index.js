@@ -12,4 +12,4 @@ LogBox.ignoreLogs([
   'VirtualizedLists should never be nested',
 ]);
 
-AppRegistry.registerComponent(appName || 'MountainConnectApp', () => App);
+AppRegistry.registerComponent(appName || 'JejakApp', () => App);

@@ -48,7 +48,7 @@ const UsersPage: NextPage = () => {
     { id: '3', name: 'Budi Santoso', email: 'budi@example.com', role: 'user', verificationLevel: 1, joinedAt: '2024-03-20', lastActive: '2024-08-18', tripsCount: 3, status: 'active' },
     { id: '4', name: 'Diana Putri', email: 'diana@example.com', role: 'moderator', verificationLevel: 3, joinedAt: '2023-01-05', lastActive: '2024-08-22', tripsCount: 0, status: 'active' },
     { id: '5', name: 'Rizky Pratama', email: 'rizky@example.com', role: 'user', verificationLevel: 0, joinedAt: '2024-08-15', lastActive: '2024-08-21', tripsCount: 1, status: 'active' },
-    { id: '6', name: 'Admin Utama', email: 'admin@mountainconnect.id', role: 'admin', verificationLevel: 3, joinedAt: '2022-01-01', lastActive: '2024-08-22', tripsCount: 0, status: 'active' },
+    { id: '6', name: 'Admin Utama', email: 'admin@jejak.id', role: 'admin', verificationLevel: 3, joinedAt: '2022-01-01', lastActive: '2024-08-22', tripsCount: 0, status: 'active' },
     { id: '7', name: 'Hiker Bandit', email: 'bandit@example.com', role: 'user', verificationLevel: 1, joinedAt: '2024-02-28', lastActive: '2024-07-15', tripsCount: 8, status: 'banned' },
     { id: '8', name: 'TN Officer', email: 'tn@gunung.id', role: 'tn_admin', verificationLevel: 3, joinedAt: '2023-03-15', lastActive: '2024-08-22', tripsCount: 0, status: 'active' },
   ]);
@@ -139,7 +139,7 @@ const UsersPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Users - MountainConnect ID</title>
+        <title>Users - Jejak</title>
       </Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">

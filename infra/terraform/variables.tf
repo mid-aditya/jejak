@@ -1,7 +1,7 @@
 variable "project_name" {
   description = "Project name for resource naming"
   type        = string
-  default     = "mountainconnect"
+  default     = "jejak"
 }
 
 variable "environment" {
@@ -43,7 +43,7 @@ variable "redis_node_type" {
 variable "domain_name" {
   description = "Root domain name"
   type        = string
-  default     = "mountainconnect.id"
+  default     = "jejak.id"
 }
 
 variable "allowed_ips" {

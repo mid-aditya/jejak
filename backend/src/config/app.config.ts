@@ -24,7 +24,7 @@ export interface AppConfig {
 }
 
 export const getAppConfig = (configService: ConfigService): AppConfig => ({
-  jwtSecret: configService.get('JWT_SECRET', 'mountainconnect-secret-key-change-in-production'),
+  jwtSecret: configService.get('JWT_SECRET', 'jejak-secret-key-change-in-production'),
   jwtExpiry: configService.get('JWT_EXPIRY', '15m'),
   jwtRefreshExpiry: configService.get('JWT_REFRESH_EXPIRY', '7d'),
   redisUrl: configService.get('REDIS_URL', 'redis://localhost:6379'),

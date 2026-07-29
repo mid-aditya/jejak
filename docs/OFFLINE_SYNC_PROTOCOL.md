@@ -2,7 +2,7 @@
 
 ## Overview
 
-MountainConnect ID supports offline-first operation for hikers in areas without network coverage. This document describes the synchronization protocol between the mobile application and backend services.
+Jejak supports offline-first operation for hikers in areas without network coverage. This document describes the synchronization protocol between the mobile application and backend services.
 
 ## Conflict Resolution Strategy
 

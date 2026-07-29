@@ -139,7 +139,7 @@ const DashboardPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Dashboard - MountainConnect ID</title>
+        <title>Dashboard - Jejak</title>
       </Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">

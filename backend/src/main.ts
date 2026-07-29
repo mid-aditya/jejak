@@ -23,8 +23,8 @@ async function bootstrap() {
   );
 
   const config = new DocumentBuilder()
-    .setTitle("MountainConnect ID API")
-    .setDescription("MountainConnect API")
+    .setTitle("Jejak API")
+    .setDescription("Jejak API")
     .setVersion("1.0")
     .addBearerAuth()
     .build();
@@ -34,7 +34,7 @@ async function bootstrap() {
 
   const port = process.env.PORT || 4000;
   await app.listen(port);
-  console.log(`MountainConnect API running on http://localhost:${port}/api/v1`);
+  console.log(`Jejak API running on http://localhost:${port}/api/v1`);
   console.log(`Swagger docs at http://localhost:${port}/api/docs`);
 }
 

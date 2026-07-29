@@ -1,4 +1,4 @@
-# Deployment Runbook - MountainConnect ID
+# Deployment Runbook - Jejak
 
 > **Kebijakan:** Proyek ini **tidak memakai Docker**, Docker Compose, ECR, ECS, atau Kubernetes container. Deploy memakai **Node.js native** (build + PM2 atau systemd) di VM/EC2.
 
@@ -14,8 +14,8 @@
 
 ```bash
 export ENVIRONMENT=staging   # atau production
-export PROJECT_NAME=mountainconnect
-export DEPLOY_PATH=/opt/mountainconnect
+export PROJECT_NAME=jejak
+export DEPLOY_PATH=/opt/jejak
 ```
 
 Salin dan sesuaikan env:
@@ -70,24 +70,24 @@ pm2 startup   # ikuti instruksi agar auto-start saat reboot
 
 ```bash
 git pull
-cd backend && npm ci --omit=dev && npm run build && pm2 reload mountainconnect-api
-cd ../web-dashboard && npm ci && npm run build && pm2 reload mountainconnect-dashboard
+cd backend && npm ci --omit=dev && npm run build && pm2 reload jejak-api
+cd ../web-dashboard && npm ci && npm run build && pm2 reload jejak-dashboard
 ```
 
 ## Deploy alternatif: systemd
 
-Contoh unit API (`/etc/systemd/system/mountainconnect-api.service`):
+Contoh unit API (`/etc/systemd/system/jejak-api.service`):
 
 ```ini
 [Unit]
-Description=MountainConnect API
+Description=Jejak API
 After=network.target mysql.service redis.service
 
 [Service]
 Type=simple
 User=www-data
-WorkingDirectory=/opt/mountainconnect/backend
-EnvironmentFile=/opt/mountainconnect/backend/.env
+WorkingDirectory=/opt/jejak/backend
+EnvironmentFile=/opt/jejak/backend/.env
 ExecStart=/usr/bin/node dist/main.js
 Restart=on-failure
 
@@ -97,7 +97,7 @@ WantedBy=multi-user.target
 
 ```bash
 sudo systemctl daemon-reload
-sudo systemctl enable --now mountainconnect-api
+sudo systemctl enable --now jejak-api
 ```
 
 Ulangi pola serupa untuk dashboard: `npm run start` di folder `web-dashboard` setelah `npm run build`.
@@ -123,7 +123,7 @@ Production: gunakan migrasi TypeORM (setelah folder `migrations/` ditambahkan) a
 
 ```bash
 # Backup manual
-mysqldump -u root -p mountainconnect > backup-$(date +%Y%m%d).sql
+mysqldump -u root -p jejak > backup-$(date +%Y%m%d).sql
 ```
 
 ### RDS (AWS)
@@ -150,8 +150,8 @@ Pastikan `REDIS_HOST` / `REDIS_PORT` di `backend/.env` mengarah ke instance Redi
 
 ```bash
 git checkout <commit-sebelumnya>
-cd backend && npm ci --omit=dev && npm run build && pm2 reload mountainconnect-api
-cd ../web-dashboard && npm ci && npm run build && pm2 reload mountainconnect-dashboard
+cd backend && npm ci --omit=dev && npm run build && pm2 reload jejak-api
+cd ../web-dashboard && npm ci && npm run build && pm2 reload jejak-dashboard
 ```
 
 Restore database dari dump jika migrasi schema gagal.

@@ -3,9 +3,9 @@ const nextConfig = {
   output: "standalone",
   images: {
     domains: [
-      "mountainconnect.id",
-      "api.mountainconnect.id",
-      "assets.mountainconnect.id",
+      "jejak.id",
+      "api.jejak.id",
+      "assets.jejak.id",
       "lh3.googleusercontent.com",
       "avatars.githubusercontent.com",
     ],

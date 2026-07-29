@@ -12,7 +12,7 @@ describe('API Contract Tests', () => {
       const res = await request(BASE_URL)
         .post('/auth/register')
         .send({
-          email: `test_${Date.now()}@mountainconnect.id`,
+          email: `test_${Date.now()}@jejak.id`,
           password: 'TestPassword123!',
           name: 'Test User',
         });
@@ -30,7 +30,7 @@ describe('API Contract Tests', () => {
       const res = await request(BASE_URL)
         .post('/auth/login')
         .send({
-          email: 'test@mountainconnect.id',
+          email: 'test@jejak.id',
           password: 'TestPassword123!',
         });
 

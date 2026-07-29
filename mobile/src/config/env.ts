@@ -1,11 +1,11 @@
-// Environment configuration for MountainConnect ID mobile app
+// Environment configuration for Jejak mobile app
 // Switch values based on __DEV__ (React Native's built-in dev flag)
 
 const DevConfig = {
-  API_BASE_URL: 'https://dev-api.mountainconnect.id/v1',
+  API_BASE_URL: 'https://dev-api.jejak.id/v1',
   MAPBOX_TOKEN: 'pk.mapbox-dev-token-placeholder',
-  SOCKET_URL: 'https://dev-socket.mountainconnect.id',
-  MAPBOX_STYLE_URL: 'mapbox://styles/mountainconnect/clmx0dev001',
+  SOCKET_URL: 'https://dev-socket.jejak.id',
+  MAPBOX_STYLE_URL: 'mapbox://styles/jejak/clmx0dev001',
   featureFlags: {
     enableMarketplace: true,
     enableForum: true,
@@ -19,10 +19,10 @@ const DevConfig = {
 };
 
 const ProdConfig = {
-  API_BASE_URL: 'https://api.mountainconnect.id/v1',
+  API_BASE_URL: 'https://api.jejak.id/v1',
   MAPBOX_TOKEN: 'pk.mapbox-prod-token-placeholder',
-  SOCKET_URL: 'https://socket.mountainconnect.id',
-  MAPBOX_STYLE_URL: 'mapbox://styles/mountainconnect/clmx0prod001',
+  SOCKET_URL: 'https://socket.jejak.id',
+  MAPBOX_STYLE_URL: 'mapbox://styles/jejak/clmx0prod001',
   featureFlags: {
     enableMarketplace: true,
     enableForum: true,

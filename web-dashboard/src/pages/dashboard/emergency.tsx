@@ -78,7 +78,7 @@ const EmergencyPage: NextPage = () => {
 
   return (
     <>
-      <Head><title>Emergency - MountainConnect ID</title></Head>
+      <Head><title>Emergency - Jejak</title></Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex items-center justify-between">

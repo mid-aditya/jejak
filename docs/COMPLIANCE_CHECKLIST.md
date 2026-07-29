@@ -1,4 +1,4 @@
-# Compliance Checklist - MountainConnect ID
+# Compliance Checklist - Jejak
 
 ## Indonesian Laws Compliance
 
@@ -45,7 +45,7 @@
 
 - [ ] Designate Data Protection Officer (Penanggung Jawab Pelindungan Data)
 - [ ] Publish DPO contact information
-- [ ] DPO can be contacted: dpo@mountainconnect.id
+- [ ] DPO can be contacted: dpo@jejak.id
 - [ ] DPO duties documented and trained
 - [ ] DPO independence ensured
 

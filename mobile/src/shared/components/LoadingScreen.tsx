@@ -16,7 +16,7 @@ interface LoadingScreenProps {
 }
 
 const LoadingScreen: React.FC<LoadingScreenProps> = ({
-  message = 'MountainConnect',
+  message = 'Jejak',
   progress,
   onFinish,
 }) => {
@@ -81,7 +81,7 @@ const LoadingScreen: React.FC<LoadingScreenProps> = ({
         </View>
 
         {/* App Name */}
-        <Text style={styles.title}>MountainConnect</Text>
+        <Text style={styles.title}>Jejak</Text>
         <Text style={styles.subtitle}>Indonesia</Text>
 
         {/* Tagline */}

@@ -1,4 +1,4 @@
-# Infrastructure — MountainConnect ID
+# Infrastructure — Jejak
 
 Proyek ini **tidak menggunakan Docker**, Docker Compose, ECR, atau Kubernetes berbasis container.
 

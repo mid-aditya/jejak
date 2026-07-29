@@ -163,7 +163,7 @@ const MountainsPage: NextPage = () => {
 
   return (
     <>
-      <Head><title>Mountains - MountainConnect ID</title></Head>
+      <Head><title>Mountains - Jejak</title></Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

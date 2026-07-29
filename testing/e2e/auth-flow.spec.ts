@@ -3,7 +3,7 @@ import { test, expect, Page } from '@playwright/test';
 test.describe('Authentication Flow', () => {
   let page: Page;
   const testUser = {
-    email: `testuser_${Date.now()}@mountainconnect.id`,
+    email: `testuser_${Date.now()}@jejak.id`,
     password: 'TestPassword123!',
     name: 'Test User',
   };

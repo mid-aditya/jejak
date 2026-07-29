@@ -2,7 +2,7 @@
 module.exports = {
   apps: [
     {
-      name: 'mountainconnect-api',
+      name: 'jejak-api',
       script: 'dist/main.js',
       cwd: __dirname,
       instances: 1,

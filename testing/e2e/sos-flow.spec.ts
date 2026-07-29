@@ -8,7 +8,7 @@ test.describe('SOS Emergency Flow', () => {
 
     // Login as test user
     await page.goto('/');
-    await page.fill('input[type="email"]', 'test@mountainconnect.id');
+    await page.fill('input[type="email"]', 'test@jejak.id');
     await page.fill('input[type="password"]', 'TestPassword123!');
     await page.click('button[type="submit"]');
     await page.waitForURL(/\/dashboard/);
@@ -96,7 +96,7 @@ test.describe('SOS Emergency Flow', () => {
 
     // Login as admin
     await adminPage.goto('/');
-    await adminPage.fill('input[type="email"]', 'admin@mountainconnect.id');
+    await adminPage.fill('input[type="email"]', 'admin@jejak.id');
     await adminPage.fill('input[type="password"]', 'AdminPassword123!');
     await adminPage.click('button[type="submit"]');
     await adminPage.waitForURL(/\/dashboard/);

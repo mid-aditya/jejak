@@ -165,7 +165,7 @@ class LocationService {
     if (!hasPermission) {
       Alert.alert(
         'Izin Lokasi',
-        'MountainConnect butuh akses lokasi untuk tracking pendakian Anda.',
+        'Jejak butuh akses lokasi untuk tracking pendakian Anda.',
         [{ text: 'OK' }],
       );
       return;
@@ -285,7 +285,7 @@ class LocationService {
     const endTime = new Date(trail[trail.length - 1].timestamp).toISOString();
 
     const gpx = `<?xml version="1.0" encoding="UTF-8"?>
-<gpx version="1.1" creator="MountainConnect"
+<gpx version="1.1" creator="Jejak"
   xmlns="http://www.topografix.com/GPX/1/1"
   xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
   xsi:schemaLocation="http://www.topografix.com/GPX/1/1 http://www.topografix.com/GPX/1/1/gpx.xsd">

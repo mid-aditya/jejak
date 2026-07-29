@@ -1,7 +1,7 @@
 {
-  "name": "mountainconnect-app",
+  "name": "jejak-app",
   "version": "1.0.0",
-  "description": "MountainConnect ID - Outdoor Adventure & Emergency Response Mobile App",
+  "description": "Jejak - Outdoor Adventure & Emergency Response Mobile App",
   "private": true,
   "scripts": {
     "start": "react-native start",
