@@ -81,7 +81,7 @@ export class User extends BaseEntity {
   @Index()
   isActive: boolean;
 
-  @Column({ name: 'last_login', type: 'timestamp with time zone', nullable: true })
+  @Column({ name: 'last_login', type: 'datetime', nullable: true })
   lastLogin: Date | null;
 
   @Column({ type: 'json', nullable: true })

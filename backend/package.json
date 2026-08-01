@@ -18,7 +18,8 @@
     "test:watch": "jest --watch",
     "test:cov": "jest --coverage",
     "test:debug": "node --inspect-brk -r tsconfig-paths/register -r ts-node/register node_modules/.bin/jest --runInBand",
-    "test:e2e": "jest --config ./test/jest-e2e.json"
+    "test:e2e": "jest --config ./test/jest-e2e.json",
+    "seed": "ts-node -r tsconfig-paths/register src/seed.ts"
   },
   "dependencies": {
     "@nestjs/bullmq": "^10.1.1",
@@ -42,6 +43,8 @@
     "compression": "^1.7.4",
     "ioredis": "^5.3.2",
     "mysql2": "^3.22.3",
+    "better-sqlite3": "^11.0.0",
+    "@types/better-sqlite3": "^7.6.8",
     "passport": "^0.7.0",
     "passport-jwt": "^4.0.1",
     "passport-local": "^1.0.0",

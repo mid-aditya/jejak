@@ -11,6 +11,22 @@ export interface MountainDTO {
   description?: string;
   imageUrl?: string;
   routes?: RouteDTO[];
+  estimatedDuration?: number;
+  latitude?: number;
+  longitude?: number;
+  permits?: {
+    required: boolean;
+    prices?: { local: number; foreign: number };
+    url?: string;
+  };
+  rules?: string;
+  weatherInfo?: {
+    avgTemp?: number;
+    rainyDays?: number;
+    bestSeason?: string;
+    humidity?: number;
+  };
+  isActive?: boolean;
 }
 
 export interface RouteDTO {
@@ -22,6 +38,15 @@ export interface RouteDTO {
   elevationGain: number;
   startPoint: string;
   mountainId: string;
+  waypoints?: Array<{
+    name: string;
+    lat: number;
+    lng: number;
+    elevation: number;
+    isWaterSource: boolean;
+    isRestPost: boolean;
+    isDangerZone: boolean;
+  }>;
 }
 
 export interface DifficultyScaleItem {

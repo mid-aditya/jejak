@@ -90,7 +90,6 @@ export default function LandingPage() {
   const [trailSearch, setTrailSearch] = useState("");
   const [diffFilter, setDiffFilter] = useState<number>(0);
   const [sortMode, setSortMode] = useState<SortMode>("default");
-  const [selectedTrail, setSelectedTrail] = useState<TrailItem | null>(null);
   const [compareA, setCompareA] = useState<TrailItem | null>(null);
   const [compareB, setCompareB] = useState<TrailItem | null>(null);
   const [articleSearch, setArticleSearch] = useState("");
@@ -428,7 +427,7 @@ export default function LandingPage() {
             {!trailsLoading && !trailsError && (
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
                 {pagedTrails.map((trail) => (
-                  <div key={trail.id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => setSelectedTrail(selectedTrail?.id === trail.id ? null : trail)}>
+                  <div key={trail.id} className="group bg-white rounded-2xl border border-gray-100 overflow-hidden hover:shadow-xl hover:-translate-y-1 transition-all duration-300 cursor-pointer" onClick={() => router.push(`/mountains/${trail.mountainId}`)}>
                     <div className={`h-2 ${trail.image}`} />
                     <div className="p-5">
                       <div className="flex items-start justify-between mb-2">
@@ -449,17 +448,7 @@ export default function LandingPage() {
                         </span>
                         <span className="badge bg-gray-100 text-gray-600">⭐ {trail.rating}</span>
                       </div>
-                      {selectedTrail?.id === trail.id && (
-                        <div className="mt-4 pt-4 border-t border-gray-100 space-y-3 animate-fade-in">
-                          <p className="text-sm text-gray-700">{trail.description}</p>
-                          <div><p className="text-xs font-semibold text-gray-500 uppercase mb-1">Basecamp</p><p className="text-sm text-gray-700">{trail.basecamp}</p></div>
-                          <div><p className="text-xs font-semibold text-gray-500 uppercase mb-1">Start Point</p><p className="text-sm text-gray-700">{trail.startPoint}</p></div>
-                          <div className="flex items-center justify-between pt-2">
-                            <span className="text-xs text-gray-400">⬆ Elevation Gain: {trail.elevationGain}m</span>
-                            <span className="text-xs text-gray-400">{trail.reviews} ulasan</span>
-                          </div>
-                        </div>
-                      )}
+
                     </div>
                   </div>
                 ))}
