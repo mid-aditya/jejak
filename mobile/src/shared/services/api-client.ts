@@ -46,20 +46,36 @@ apiClient.interceptors.request.use(
       config.headers.Authorization = `Bearer ${token}`;
     }
 
+    // Booking endpoints identify the user via this header
+    if (state.auth.user?.id && config.headers) {
+      config.headers['X-User-Id'] = state.auth.user.id;
+    }
+
     // Inject device token
     const deviceToken = state.auth.deviceToken;
     if (deviceToken && config.headers) {
       config.headers['X-Device-Token'] = deviceToken;
     }
 
+    // Payloads replayed from the offline queue were already encrypted before
+    // being queued — never encrypt them a second time.
+    const skipEncryption =
+      config.headers?.['X-Skip-Encryption'] === 'true' ||
+      config.headers?.['X-Skip-Encryption'] === true;
+
     // Encrypt sensitive data
     const sensitiveFields = ['password', 'emergencyContacts', 'medicalInfo', 'location'];
-    const hasSensitiveData = sensitiveFields.some((field) =>
-      config.data && typeof config.data === 'object' && field in config.data,
-    );
+    const hasSensitiveData = !skipEncryption &&
+      sensitiveFields.some((field) =>
+        config.data && typeof config.data === 'object' && field in config.data,
+      );
 
     if (hasSensitiveData) {
       const encryptionKey = await encryptionService.getOrCreateKey();
+      // The backend decrypts these fields using this per-device key.
+      if (config.headers) {
+        config.headers['X-Encryption-Key'] = encryptionKey;
+      }
       if (config.data && typeof config.data === 'object') {
         const dataToEncrypt = { ...config.data };
         sensitiveFields.forEach((field) => {
@@ -145,8 +161,8 @@ apiClient.interceptors.response.use(
       }
     }
 
-    // Handle network errors - queue for offline sync
-    if (!error.response && error.message !== 'Network Error') {
+    // Handle network errors - queue mutations for offline sync
+    if (!error.response) {
       const isOnline = store.getState().offline.isOnline;
       const isMutation =
         originalRequest.method === 'post' ||

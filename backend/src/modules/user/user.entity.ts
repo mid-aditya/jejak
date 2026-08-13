@@ -62,6 +62,18 @@ export class User extends BaseEntity {
   @Column({ type: 'json', nullable: true })
   emergencyContact: EmergencyContact | null;
 
+  // Multiple emergency contacts (mobile app sends an array)
+  @Column({ type: 'json', nullable: true })
+  emergencyContacts: EmergencyContact[] | null;
+
+  // explicit column types: TS emits `Object` for `string | null` unions, which
+  // TypeORM would otherwise reject with better-sqlite3
+  @Column({ type: 'varchar', nullable: true })
+  bio: string | null;
+
+  @Column({ name: 'skill_level', type: 'varchar', nullable: true })
+  skillLevel: string | null;
+
   @Column({ type: 'json', nullable: true })
   medicalInfo: MedicalInfo | null;
 

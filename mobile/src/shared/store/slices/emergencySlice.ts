@@ -71,7 +71,7 @@ export interface CheckInState {
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
-interface EmergencyState {
+export interface EmergencyState {
   currentSOS: SOSEvent | null;
   checkInState: CheckInState;
   lastKnownLocation: Location | null;
@@ -133,7 +133,7 @@ export const resolveSOS = createAsyncThunk<
   { rejectValue: string }
 >('emergency/resolveSOS', async (sosId, { rejectWithValue }) => {
   try {
-    const response = await apiClient.patch<{ id: string }>(
+    const response = await apiClient.post<{ id: string }>(
       `/emergency/sos/${sosId}/resolve`,
       {},
     );
@@ -151,7 +151,7 @@ export const checkIn = createAsyncThunk<
   { rejectValue: string }
 >('emergency/checkIn', async ({ tripId, location }, { rejectWithValue }) => {
   try {
-    const response = await apiClient.post<Trip>(`/trips/${tripId}/check-in`, {
+    const response = await apiClient.post<Trip>(`/bookings/${tripId}/check-in`, {
       location: { latitude: location.latitude, longitude: location.longitude },
       timestamp: new Date().toISOString(),
     });
@@ -170,7 +170,7 @@ export const checkOut = createAsyncThunk<
 >('emergency/checkOut', async ({ tripId, location, breadcrumbTrail }, { rejectWithValue }) => {
   try {
     const response = await apiClient.post<{ id: string; tripSummary: any }>(
-      `/trips/${tripId}/check-out`,
+      `/bookings/${tripId}/check-out`,
       {
         location: { latitude: location.latitude, longitude: location.longitude },
         breadcrumbTrail,
@@ -188,11 +188,16 @@ export const checkOut = createAsyncThunk<
 export const fetchEmergencyContacts = createAsyncThunk<
   EmergencyContact[],
   void,
-  { rejectValue: string }
->('emergency/fetchContacts', async (_, { rejectWithValue }) => {
+  { state: RootState; rejectValue: string }
+>('emergency/fetchContacts', async (_, { getState, rejectWithValue }) => {
   try {
-    const response = await apiClient.get<EmergencyContact[]>('/users/me/emergency-contacts');
-    return response.data;
+    // Backend has no /users/me/emergency-contacts route; read the contacts
+    // from the user profile instead.
+    const userId = getState().auth.user?.id;
+    const response = await apiClient.get<{ emergencyContacts?: EmergencyContact[] }>(
+      `/users/${userId}`,
+    );
+    return response.data.emergencyContacts ?? [];
   } catch (error: any) {
     const message =
       error?.response?.data?.message || error?.message || 'Failed to fetch contacts';

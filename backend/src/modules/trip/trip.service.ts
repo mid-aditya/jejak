@@ -96,6 +96,8 @@ export class TripService {
       userId,
       status: BookingStatus.PENDING,
       paymentStatus: "pending",
+      // totalPrice has no DB default — compute it from the trip price
+      totalPrice: Number(trip.price) * (dto.participants || 1),
     });
     const saved = await this.bookingRepo.save(booking);
     await this.tripRepo.update(tripId, {

@@ -111,7 +111,7 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         </View>
       )}
 
-      <View style={styles.layersToggle}>
+      <View style={[styles.layersToggle, { bottom: showCard ? 200 : 24 }]}>
         <TouchableOpacity style={styles.layerBtn}>
           <Icon name="layers" size={20} color="#757575" />
         </TouchableOpacity>
@@ -147,7 +147,7 @@ const styles = StyleSheet.create({
   detailBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 },
   offlineBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#2E7D32', borderRadius: 10, gap: 4 },
   offlineBtnText: { color: '#2E7D32', fontWeight: '600', fontSize: 14 },
-  layersToggle: { position: 'absolute', bottom: showCard => showCard ? 200 : 24, right: 16, backgroundColor: '#FFFFFF', borderRadius: 10, elevation: 3 },
+  layersToggle: { position: 'absolute', right: 16, backgroundColor: '#FFFFFF', borderRadius: 10, elevation: 3 },
   layerBtn: { padding: 12 },
 });
 

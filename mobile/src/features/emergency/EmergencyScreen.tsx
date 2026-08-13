@@ -11,7 +11,6 @@ const { width } = Dimensions.get('window');
 const EmergencyScreen: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentSOS } = useSelector((state: RootState) => state.emergency);
-  const [countdown, setCountdown] = useState(0);
   const [currentStep, setCurrentStep] = useState(0);
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
@@ -34,28 +33,33 @@ const EmergencyScreen: React.FC<{ navigation: any; route: any }> = ({ navigation
   ];
 
   useEffect(() => {
-    if (countdown < steps.length) {
-      intervalRef.current = setInterval(() => {
-        setCurrentStep(prev => {
-          if (prev < steps.length - 1) return prev + 1;
-          return prev;
-        });
-      }, 4000);
-    }
+    intervalRef.current = setInterval(() => {
+      setCurrentStep(prev => {
+        if (prev < steps.length - 1) return prev + 1;
+        // Reached the final step — stop ticking
+        if (intervalRef.current) {
+          clearInterval(intervalRef.current);
+          intervalRef.current = null;
+        }
+        return prev;
+      });
+    }, 4000);
     return () => { if (intervalRef.current) clearInterval(intervalRef.current); };
-  }, [countdown]);
+  }, []);
 
   const handleSafe = () => {
+    if (!currentSOS) return;
     Alert.alert('Konfirmasi', 'Pastikan Anda dalam kondisi aman sebelum menyelesaikan SOS.', [
       { text: 'Batal', style: 'cancel' },
-      { text: 'Saya Aman', style: 'destructive', onPress: () => dispatch(resolveSOS()) },
+      { text: 'Saya Aman', style: 'destructive', onPress: () => dispatch(resolveSOS(currentSOS.id)) },
     ]);
   };
 
   const handleCancel = () => {
+    if (!currentSOS) return;
     Alert.alert('Batalkan SOS', 'Pastikan ini adalah alarm palsu. Status akan dicatat.', [
       { text: 'Tetap SOS', style: 'cancel' },
-      { text: 'Batalkan', onPress: () => dispatch(resolveSOS()) },
+      { text: 'Batalkan', onPress: () => dispatch(resolveSOS(currentSOS.id)) },
     ]);
   };
 

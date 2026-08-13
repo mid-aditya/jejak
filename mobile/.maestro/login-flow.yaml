@@ -1,0 +1,27 @@
+# Jejak — End-to-end login flow (real credentials against local backend)
+#
+# NOTE (MIUI/Redmi): Maestro's launchApp can silently fail to start the app
+# right after `pm clear` (MIUI freezes the package and swallows the launch
+# intent). Pre-launch the app from the host before running this flow:
+#   adb shell am force-stop com.jejakapp
+#   adb shell pm clear com.jejakapp
+#   adb shell am start -n com.jejakapp/.MainActivity
+# (adb reverse tcp:4000 tcp:4000 must be active so localhost reaches the backend)
+appId: com.jejakapp
+---
+- extendedWaitUntil:
+    visible:
+      text: "Jejak"
+    timeout: 180000
+- tapOn:
+    id: "login-email"
+- inputText: "admin@jejak.app"
+- tapOn:
+    id: "login-password"
+- inputText: "Password123"
+- hideKeyboard
+- tapOn:
+    id: "login-submit"
+- extendedWaitUntil:
+    visible: "Hai, Admin!"
+    timeout: 30000

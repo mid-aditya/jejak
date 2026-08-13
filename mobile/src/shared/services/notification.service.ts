@@ -39,12 +39,12 @@ class NotificationService {
 
   private configurePushNotifications(): void {
     PushNotification.configure({
-      onRegister: (token) => {
+      onRegister: (token: any) => {
         console.log('[Notification] FCM token received:', token.token);
         store.dispatch(setDeviceToken(token.token));
       },
 
-      onNotification: (notification) => {
+      onNotification: (notification: any) => {
         console.log('[Notification] Received:', notification);
         this.handleIncomingNotification(notification);
         // Call finish on iOS
@@ -53,12 +53,12 @@ class NotificationService {
         }
       },
 
-      onAction: (notification) => {
+      onAction: (notification: any) => {
         console.log('[Notification] Action:', notification.action);
         this.handleNotificationAction(notification);
       },
 
-      onRegistrationError: (error) => {
+      onRegistrationError: (error: any) => {
         console.error('[Notification] Registration error:', error);
       },
 
@@ -87,7 +87,7 @@ class NotificationService {
           playSound: true,
           soundName: 'default',
         },
-        (created) => console.log(`[Notification] Main channel created: ${created}`),
+        (created: any) => console.log(`[Notification] Main channel created: ${created}`),
       );
 
       // SOS channel (critical - always high priority)
@@ -100,9 +100,11 @@ class NotificationService {
           vibrate: true,
           vibration: [500, 200, 500, 200, 500],
           playSound: true,
-          soundName: 'emergency_sound',
+          // 'default' avoids react-native-push-notification's getSoundUri crash on
+          // sound names without an extension (e.g. 'emergency_sound').
+          soundName: 'default',
         },
-        (created) => console.log(`[Notification] SOS channel created: ${created}`),
+        (created: any) => console.log(`[Notification] SOS channel created: ${created}`),
       );
     }
   }
@@ -118,11 +120,11 @@ class NotificationService {
 
   private async requestPermissions(): Promise<boolean> {
     return new Promise((resolve) => {
-      PushNotification.checkPermissions((permissions) => {
+      PushNotification.checkPermissions((permissions: any) => {
         if (permissions.alert || permissions.badge || permissions.sound) {
           resolve(true);
         } else {
-          PushNotification.requestPermissions().then((result) => {
+          PushNotification.requestPermissions().then((result: any) => {
             resolve(result.alert || result.badge || result.sound);
           });
         }
@@ -255,10 +257,10 @@ class NotificationService {
       message: body,
       importance: priority === 'high' ? 'high' : 'default',
       priority: priority === 'high' ? 'high' : 'default',
-      importance: priority === 'high' ? 'high' : 'default',
       data,
       playSound: type === 'sos_alert',
-      soundName: type === 'sos_alert' ? 'emergency_sound' : 'default',
+      // 'default' avoids getSoundUri crashing on sound names without an extension
+      soundName: 'default',
     };
 
     if (badge !== undefined && Platform.OS === 'ios') {

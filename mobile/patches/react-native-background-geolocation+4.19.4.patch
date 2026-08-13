@@ -1,0 +1,37 @@
+diff --git a/node_modules/react-native-background-geolocation/src/NativeModule.js b/node_modules/react-native-background-geolocation/src/NativeModule.js
+index f4fbe2e..b3beabd 100644
+--- a/node_modules/react-native-background-geolocation/src/NativeModule.js
++++ b/node_modules/react-native-background-geolocation/src/NativeModule.js
+@@ -8,7 +8,31 @@ import {
+ } from "react-native"
+ 
+ const { RNBackgroundGeolocation } = NativeModules;
+-const EventEmitter = new NativeEventEmitter(RNBackgroundGeolocation);
++// The native module is excluded from the Android build (see mobile/react-native.config.js)
++// because its tslocationmanager dependency is unavailable. Stub it so the JS API remains
++// callable: promises resolve and listeners are no-ops, keeping location.service.ts's
++// fallback path working exactly as it does when the module is present but unlicensed.
++const RNBackgroundGeolocationStub = Object.freeze({
++  addListener: () => {},
++  removeListeners: () => {},
++  removeAllListeners: () => {},
++  ready: () => Promise.resolve({}),
++  configure: () => Promise.resolve({}),
++  requestPermission: () => Promise.resolve(3),
++  start: () => Promise.resolve({}),
++  stop: () => Promise.resolve({}),
++  getState: () => Promise.resolve({}),
++  getCurrentPosition: () => Promise.resolve({}),
++  watchPosition: () => {},
++  stopWatchPosition: () => Promise.resolve({}),
++  startBackgroundTask: () => Promise.resolve(-1),
++  stopBackgroundTask: () => Promise.resolve(),
++  finish: () => Promise.resolve(),
++  on: () => ({ remove: () => {} }),
++  log: () => {},
++});
++const SafeRNBackgroundGeolocation = RNBackgroundGeolocation || RNBackgroundGeolocationStub;
++const EventEmitter = new NativeEventEmitter(SafeRNBackgroundGeolocation);
+ 
+ import TransistorAuthorizationToken from "./TransistorAuthorizationToken";
+ 

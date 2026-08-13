@@ -37,7 +37,8 @@ export class SOSEvent extends BaseEntity {
   @Column({ type: 'text', nullable: true })
   message: string;
 
-  @Column({ type: 'enum', enum: SOSStatus, default: SOSStatus.ACTIVE })
+  // varchar instead of enum for better-sqlite3 compatibility
+  @Column({ type: 'varchar', default: SOSStatus.ACTIVE })
   status: SOSStatus;
 
   @Column({ name: 'resolved_at', type: 'datetime', nullable: true })

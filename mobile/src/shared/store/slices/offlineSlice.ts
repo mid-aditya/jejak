@@ -1,6 +1,7 @@
 import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { apiClient } from '../../services/api-client';
+import { encryptionService } from '../../services/encryption.service';
 import type { RootState } from '../index';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
@@ -53,12 +54,12 @@ const BASE_RETRY_DELAY = 1000; // 1 second
 
 // Start network monitoring as a side effect
 export const startNetworkMonitoring = createAsyncThunk<
-  void,
+  () => void,
   void,
   { dispatch: any }
 >('offline/startNetworkMonitoring', async (_, { dispatch }) => {
   const unsubscribe = NetInfo.addEventListener((state: NetInfoState) => {
-    const isOnline = state.isConnected && state.isInternetReachable !== false;
+    const isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
     dispatch(setOnlineStatus(isOnline));
 
     if (isOnline) {
@@ -68,7 +69,7 @@ export const startNetworkMonitoring = createAsyncThunk<
 
   // Get initial state
   const state = await NetInfo.fetch();
-  const isOnline = state.isConnected && state.isInternetReachable !== false;
+  const isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
   dispatch(setOnlineStatus(isOnline));
 
   return () => unsubscribe();
@@ -143,29 +144,40 @@ export const processOfflineQueue = createAsyncThunk<
 
 // ── Helpers ──────────────────────────────────────────────────────────────────
 async function sendQueuedAction(action: PendingAction): Promise<void> {
-  const endpointMap: Record<OfflineActionType, string> = {
-    CREATE_POST: '/forum/posts',
-    UPDATE_PROFILE: '/users/me',
-    TRIGGER_SOS: '/emergency/sos',
-    CHECK_IN: '/trips/check-in',
-    CHECK_OUT: '/trips/check-out',
-    UPDATE_TRIP: '/trips/update',
-    CREATE_LISTING: '/marketplace/listings',
-    SEND_MESSAGE: '/chat/messages',
+  // The queued payload captures the original request (endpoint + body) at the
+  // moment it failed, so replay it as-is instead of guessing a route.
+  const { endpoint, data } = (action.payload ?? {}) as {
+    endpoint?: string;
+    data?: any;
+  };
+  const url = endpoint || '/unknown';
+
+  // axios may have stringified the body by the time the error fired — restore
+  // the object shape so the backend receives the same payload as before.
+  let body = data ?? action.payload;
+  if (typeof body === 'string') {
+    try {
+      body = JSON.parse(body);
+    } catch {
+      // Keep as-is if it isn't valid JSON
+    }
+  }
+
+  // The body was already encrypted by the request interceptor before it was
+  // queued — tell the interceptor not to encrypt it again, but DO send the
+  // encryption key so the backend can still decrypt the stored fields.
+  const encryptionKey = await encryptionService.getOrCreateKey();
+  const config = {
+    headers: { 'X-Skip-Encryption': 'true', 'X-Encryption-Key': encryptionKey },
   };
 
-  const endpoint = endpointMap[action.type] || '/unknown';
-
   switch (action.type) {
-    case 'TRIGGER_SOS':
-      await apiClient.post(endpoint, action.payload);
-      break;
     case 'UPDATE_PROFILE':
     case 'UPDATE_TRIP':
-      await apiClient.patch(endpoint, action.payload);
+      await apiClient.patch(url, body, config);
       break;
     default:
-      await apiClient.post(endpoint, action.payload);
+      await apiClient.post(url, body, config);
   }
 }
 

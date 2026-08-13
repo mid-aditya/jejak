@@ -109,7 +109,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             {/* Full Name */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Nama Lengkap</Text>
-              <View style={[styles.inputContainer, errors.fullName && styles.inputError]}>
+              <View style={[styles.inputContainer, errors.fullName ? styles.inputError : null]}>
                 <Icon name="person-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
@@ -127,7 +127,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             {/* Email */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputContainer, errors.email && styles.inputError]}>
+              <View style={[styles.inputContainer, errors.email ? styles.inputError : null]}>
                 <Icon name="mail-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
@@ -147,7 +147,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             {/* Phone */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>No. Telepon (WhatsApp)</Text>
-              <View style={[styles.inputContainer, errors.phone && styles.inputError]}>
+              <View style={[styles.inputContainer, errors.phone ? styles.inputError : null]}>
                 <Icon name="call-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}
@@ -165,7 +165,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             {/* Password */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputContainer, errors.password && styles.inputError]}>
+              <View style={[styles.inputContainer, errors.password ? styles.inputError : null]}>
                 <Icon name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
                   style={[styles.input, styles.inputPassword]}
@@ -186,7 +186,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             {/* Confirm Password */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Konfirmasi Password</Text>
-              <View style={[styles.inputContainer, errors.confirmPassword && styles.inputError]}>
+              <View style={[styles.inputContainer, errors.confirmPassword ? styles.inputError : null]}>
                 <Icon name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
                   style={styles.input}

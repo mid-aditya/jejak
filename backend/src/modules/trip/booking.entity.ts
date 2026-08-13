@@ -43,13 +43,13 @@ export class Booking extends BaseEntity {
   @Column({ name: 'total_price', type: 'decimal', precision: 12, scale: 2 })
   totalPrice: number;
 
-  @Column({ type: 'enum', enum: BookingStatus, default: BookingStatus.PENDING })
+  @Column({ type: 'varchar', default: BookingStatus.PENDING })
   status: BookingStatus;
 
-  @Column({ name: 'payment_status', type: 'enum', enum: PaymentStatus, default: PaymentStatus.UNPAID })
+  @Column({ name: 'payment_status', type: 'varchar', default: PaymentStatus.UNPAID })
   paymentStatus: PaymentStatus;
 
-  @Column({ name: 'payment_method', type: 'enum', enum: PaymentMethod, nullable: true })
+  @Column({ name: 'payment_method', type: 'varchar', nullable: true })
   paymentMethod: PaymentMethod;
 
   @Column({ type: 'text', nullable: true })

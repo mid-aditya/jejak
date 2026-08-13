@@ -1,5 +1,8 @@
 import { Platform, PermissionsAndroid, Alert } from 'react-native';
-import Geolocation, { GeoPosition, GeoError } from '@react-native-community/geolocation';
+import Geolocation, {
+  type GeolocationResponse,
+  type GeolocationError,
+} from '@react-native-community/geolocation';
 import BackgroundGeolocation from 'react-native-background-geolocation';
 import RNFS from 'react-native-fs';
 import { store } from '../store';
@@ -43,8 +46,13 @@ class LocationService {
   // ── Permission Handling ───────────────────────────────────────────────────────
   async requestPermissions(): Promise<boolean> {
     if (Platform.OS === 'ios') {
-      const status = await Geolocation.requestAuthorization('always');
-      return status === 'granted';
+      // requestAuthorization is callback-based in @react-native-community/geolocation
+      return new Promise<boolean>((resolve) => {
+        Geolocation.requestAuthorization(
+          () => resolve(true),
+          () => resolve(false),
+        );
+      });
     }
 
     if (Platform.OS === 'android') {
@@ -86,7 +94,7 @@ class LocationService {
   getCurrentPosition(): Promise<Location> {
     return new Promise((resolve, reject) => {
       Geolocation.getCurrentPosition(
-        (position: GeoPosition) => {
+        (position: GeolocationResponse) => {
           const location: Location = {
             latitude: position.coords.latitude,
             longitude: position.coords.longitude,
@@ -98,7 +106,7 @@ class LocationService {
           };
           resolve(location);
         },
-        (error: GeoError) => {
+        (error: GeolocationError) => {
           console.error('[Location] getCurrentPosition error:', error);
           reject(error);
         },
@@ -120,7 +128,7 @@ class LocationService {
     }
 
     this.watchId = Geolocation.watchPosition(
-      (position: GeoPosition) => {
+      (position: GeolocationResponse) => {
         const location: Location = {
           latitude: position.coords.latitude,
           longitude: position.coords.longitude,
@@ -140,7 +148,7 @@ class LocationService {
         // Notify callback
         this.onLocationUpdate?.(location);
       },
-      (error: GeoError) => {
+      (error: GeolocationError) => {
         console.error('[Location] watchPosition error:', error);
       },
       {

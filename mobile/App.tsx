@@ -8,11 +8,7 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 
 import { store, persistor } from './src/shared/store';
 import AppNavigator from './src/navigation/AppNavigator';
-import SOSButton from './src/shared/components/SOSButton';
-import OfflineIndicator from './src/shared/components/OfflineIndicator';
-import { initLocationServices } from './src/shared/services/location.service';
-import { initNotificationServices } from './src/shared/services/notification.service';
-import { initEncryption } from './src/shared/services/encryption.service';
+import { encryptionService } from './src/shared/services/encryption.service';
 
 LogBox.ignoreLogs(['Reanimated', 'ViewPropTypes']);
 
@@ -20,9 +16,11 @@ const AppContent: React.FC = () => {
   useEffect(() => {
     const init = async () => {
       try {
-        await initLocationServices();
-        await initNotificationServices();
-        await initEncryption();
+        // NOTE: notificationService.initialize() is intentionally NOT called here —
+        // react-native-push-notification requires Firebase (google-services.json +
+        // FirebaseApp.initializeApp), and without it the native side crashes at
+        // FirebaseMessaging.getInstance(). Wire it up once Firebase is configured.
+        await encryptionService.getOrCreateKey();
       } catch (err) {
         console.warn('Init warning:', err);
       }
@@ -38,11 +36,11 @@ const AppContent: React.FC = () => {
           backgroundColor="#FAFAFA"
           translucent={false}
         />
+        {/* SOSButton & OfflineIndicator are rendered by AppNavigator (they are
+            auth-aware and must live inside the navigation tree) */}
         <NavigationContainer>
           <AppNavigator />
         </NavigationContainer>
-        <SOSButton />
-        <OfflineIndicator />
       </SafeAreaProvider>
     </GestureHandlerRootView>
   );

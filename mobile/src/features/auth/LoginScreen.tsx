@@ -113,9 +113,10 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             {/* Email */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputContainer, emailError && styles.inputError]}>
+              <View style={[styles.inputContainer, emailError ? styles.inputError : null]}>
                 <Icon name="mail-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
+                  testID="login-email"
                   style={styles.input}
                   placeholder="nama@email.com"
                   placeholderTextColor={Colors.textTertiary}
@@ -133,9 +134,10 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             {/* Password */}
             <View style={styles.inputGroup}>
               <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputContainer, passwordError && styles.inputError]}>
+              <View style={[styles.inputContainer, passwordError ? styles.inputError : null]}>
                 <Icon name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
                 <TextInput
+                  testID="login-password"
                   style={[styles.input, styles.inputPassword]}
                   placeholder="Password"
                   placeholderTextColor={Colors.textTertiary}
@@ -173,6 +175,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
             {/* Login Button */}
             <TouchableOpacity
+              testID="login-submit"
               style={[styles.button, (!isFormValid || isLoading) && styles.buttonDisabled]}
               onPress={handleLogin}
               disabled={!isFormValid || isLoading}

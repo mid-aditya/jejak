@@ -11,14 +11,22 @@ import type { Location } from "../store/slices/emergencySlice";
 MapboxGL.setAccessToken(MAPBOX_TOKEN);
 
 // ── Types ─────────────────────────────────────────────────────────────────────
+// Accept either a GeoJSON position tuple [lng, lat] or a {latitude, longitude}
+// object so callers don't need to remember the lng/lat ordering.
+export type Coordinate = [number, number] | { latitude: number; longitude: number };
+
+const toGeoPosition = (coord: Coordinate): [number, number] =>
+  Array.isArray(coord) ? coord : [coord.longitude, coord.latitude];
+
 export interface MapMarker {
   id: string;
-  coordinate: [number, number]; // [longitude, latitude]
+  coordinate: Coordinate; // [longitude, latitude] tuple or { latitude, longitude }
   title?: string;
   description?: string;
   type?: "mountain" | "danger" | "water" | "restpost" | "user" | "custom";
   icon?: string;
   color?: string;
+  isSOS?: boolean;
   onPress?: () => void;
 }
 
@@ -36,7 +44,7 @@ export interface OfflineRegion {
 
 export interface MapViewProps {
   style?: ViewStyle;
-  centerCoordinate?: [number, number]; // [longitude, latitude]
+  centerCoordinate?: Coordinate; // [longitude, latitude] tuple or { latitude, longitude }
   zoomLevel?: number;
   showUserLocation?: boolean;
   showBreadcrumb?: boolean;
@@ -45,7 +53,7 @@ export interface MapViewProps {
   markers?: MapMarker[];
   dangerZones?: DangerZone[];
   onLongPress?: (coordinate: [number, number]) => void;
-  onMarkerPress?: (marker: MapMarker) => void;
+  onMarkerPress?: (markerId: string) => void;
   onUserLocationUpdate?: (location: Location) => void;
   children?: React.ReactNode;
 }
@@ -168,7 +176,7 @@ const MapView: React.FC<MapViewProps> = ({
         {/* Camera */}
         <MapboxGL.Camera
           ref={cameraRef}
-          centerCoordinate={centerCoordinate}
+          centerCoordinate={toGeoPosition(centerCoordinate)}
           zoomLevel={zoomLevel}
           animationMode="flyTo"
           animationDuration={300}
@@ -186,12 +194,13 @@ const MapView: React.FC<MapViewProps> = ({
 
         {/* Markers */}
         {markers.map((marker) => (
+          // @ts-ignore PointAnnotation accepts children at runtime; v8 types omit it
           <MapboxGL.PointAnnotation
             key={marker.id}
             id={marker.id}
-            coordinate={marker.coordinate}
+            coordinate={toGeoPosition(marker.coordinate)}
             title={marker.title}
-            onSelected={() => onMarkerPress?.(marker)}
+            onSelected={() => onMarkerPress?.(marker.id)}
           >
             <View
               style={[
@@ -253,7 +262,7 @@ const MapView: React.FC<MapViewProps> = ({
         {offlineRegion && (
           <MapboxGL.Images
             images={{
-              "offline-bounds": "",
+              "offline-bounds": { uri: "" },
             }}
           />
         )}

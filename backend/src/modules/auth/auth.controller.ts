@@ -100,4 +100,13 @@ export class AuthController {
   async getMe(@CurrentUser() user: User) {
     return { user };
   }
+
+  @Post('logout')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Logout' })
+  @ApiResponse({ status: 200, description: 'Logged out' })
+  async logout() {
+    // Stateless JWT — nothing to revoke server-side for now
+    return { message: 'Logged out successfully' };
+  }
 }

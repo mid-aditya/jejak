@@ -1,8 +1,7 @@
 import React, { useEffect, useState } from 'react';
-import { NavigationContainer } from '@react-navigation/native';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, StyleSheet } from 'react-native';
+import { View, Text, StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useAppSelector, useAppDispatch } from '../shared/store';
@@ -65,16 +64,12 @@ const AuthNavigator: React.FC = () => {
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
-      <AuthStack.Screen
-        name="VerifyEmail"
-        component={() => <View><Text>Verify Email</Text></View>}
-        options={{ title: 'Verifikasi Email' }}
-      />
-      <AuthStack.Screen
-        name="ForgotPassword"
-        component={() => <View><Text>Forgot Password</Text></View>}
-        options={{ title: 'Lupa Password' }}
-      />
+      <AuthStack.Screen name="VerifyEmail" options={{ title: 'Verifikasi Email' }}>
+        {() => <View><Text>Verify Email</Text></View>}
+      </AuthStack.Screen>
+      <AuthStack.Screen name="ForgotPassword" options={{ title: 'Lupa Password' }}>
+        {() => <View><Text>Forgot Password</Text></View>}
+      </AuthStack.Screen>
     </AuthStack.Navigator>
   );
 };
@@ -222,7 +217,7 @@ const AppNavigator: React.FC = () => {
   }
 
   return (
-    <NavigationContainer>
+    <>
       <OfflineIndicator />
       <Stack.Navigator
         screenOptions={{
@@ -304,7 +299,7 @@ const AppNavigator: React.FC = () => {
 
       {/* SOS Button - Accessible from ANY screen */}
       {isAuthenticated && <SOSButton />}
-    </NavigationContainer>
+    </>
   );
 };
 

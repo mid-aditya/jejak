@@ -37,7 +37,7 @@ export class MarketplaceItem extends BaseEntity {
   @Column({ type: 'decimal', precision: 12, scale: 2 })
   price: number;
 
-  @Column({ type: 'enum', enum: ItemCondition, default: ItemCondition.GOOD })
+  @Column({ type: 'varchar', default: ItemCondition.GOOD })
   condition: ItemCondition;
 
   @Column({ name: 'category_id', nullable: true })
@@ -52,10 +52,10 @@ export class MarketplaceItem extends BaseEntity {
   @Column({ name: 'is_sold', default: false })
   isSold: boolean;
 
-  @Column({ type: 'enum', enum: ItemStatus, default: ItemStatus.ACTIVE })
+  @Column({ type: 'varchar', default: ItemStatus.ACTIVE })
   status: ItemStatus;
 
-  @Column({ name: 'escrow_status', type: 'enum', enum: EscrowStatus, nullable: true })
+  @Column({ name: 'escrow_status', type: 'varchar', nullable: true })
   escrowStatus: EscrowStatus;
 
   @Column({ name: 'buyer_id', nullable: true })

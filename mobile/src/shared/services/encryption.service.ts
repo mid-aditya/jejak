@@ -30,9 +30,22 @@ class EncryptionService {
     return newKey;
   }
 
+  // Hermes has no native crypto module, which makes CryptoJS's
+  // WordArray.random() throw. Fall back to Math.random-based bytes.
+  private randomWords(length: number): CryptoJS.lib.WordArray {
+    try {
+      return CryptoJS.lib.WordArray.random(length);
+    } catch {
+      const bytes: number[] = [];
+      for (let i = 0; i < length; i++) {
+        bytes.push(Math.floor(Math.random() * 256));
+      }
+      return CryptoJS.lib.WordArray.create(bytes);
+    }
+  }
+
   private generateKey(): string {
-    const randomBytes = CryptoJS.lib.WordArray.random(32);
-    return randomBytes.toString(CryptoJS.enc.Hex);
+    return this.randomWords(32).toString(CryptoJS.enc.Hex);
   }
 
   // Derive key from password (for data at rest)
@@ -52,6 +65,11 @@ class EncryptionService {
       mode: CryptoJS.mode.CBC,
       padding: CryptoJS.pad.Pkcs7,
       keySize: this.KEY_SIZE / 32,
+      // Explicit salt + iv avoid CryptoJS's internal WordArray.random() calls,
+      // which throw on Hermes. They are embedded in the output so decryptData
+      // can recover them from the ciphertext string.
+      salt: this.randomWords(8),
+      iv: this.randomWords(16),
     });
     return encrypted.toString();
   }

@@ -16,8 +16,7 @@ import { useSelector, useDispatch } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 
 import { RootState, AppDispatch } from '../../shared/store';
-import { updateProfile } from '../../shared/store/slices/authSlice';
-import { encryptData } from '../../shared/services/encryption.service';
+import { updateProfile, type SkillLevel } from '../../shared/store/slices/authSlice';
 import LoadingScreen from '../../shared/components/LoadingScreen';
 import Badge from '../../shared/components/Badge';
 
@@ -30,28 +29,36 @@ const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [profileData, setProfileData] = useState({
     fullName: user?.fullName || '',
     bio: user?.bio || '',
-    skillLevel: user?.skillLevel || 'Beginner',
+    skillLevel: user?.skillLevel || 'beginner',
   });
   const [emergencyContact, setEmergencyContact] = useState({
-    name: user?.emergencyContact?.name || '',
-    phone: user?.emergencyContact?.phone || '',
-    relationship: user?.emergencyContact?.relationship || '',
+    id: user?.emergencyContacts?.[0]?.id || '',
+    name: user?.emergencyContacts?.[0]?.name || '',
+    phone: user?.emergencyContacts?.[0]?.phone || '',
+    relationship: user?.emergencyContacts?.[0]?.relationship || '',
   });
+  // MedicalInfo stores lists as arrays; keep them as comma-separated strings in
+  // the form and split back before sending.
   const [medicalInfo, setMedicalInfo] = useState({
     bloodType: user?.medicalInfo?.bloodType || '',
-    allergies: user?.medicalInfo?.allergies || '',
-    conditions: user?.medicalInfo?.conditions || '',
-    medications: user?.medicalInfo?.medications || '',
+    allergies: (user?.medicalInfo?.allergies || []).join(', '),
+    conditions: (user?.medicalInfo?.conditions || []).join(', '),
+    medications: (user?.medicalInfo?.medications || []).join(', '),
   });
   const [isEncryptedVisible, setIsEncryptedVisible] = useState(false);
 
   const handleSave = async () => {
-    const encryptedMedical = await encryptData(JSON.stringify(medicalInfo));
-    const encryptedEmergency = await encryptData(JSON.stringify(emergencyContact));
+    // Sensitive fields (medicalInfo, emergencyContacts) are encrypted on the
+    // wire by the api-client interceptor.
     dispatch(updateProfile({
       ...profileData,
-      medicalInfo: encryptedMedical,
-      emergencyContact: encryptedEmergency,
+      medicalInfo: {
+        bloodType: medicalInfo.bloodType || undefined,
+        allergies: medicalInfo.allergies.split(',').map(s => s.trim()).filter(Boolean),
+        conditions: medicalInfo.conditions.split(',').map(s => s.trim()).filter(Boolean),
+        medications: medicalInfo.medications.split(',').map(s => s.trim()).filter(Boolean),
+      },
+      emergencyContacts: [emergencyContact],
     }));
     setIsEditing(false);
     Alert.alert('Sukses', 'Profil berhasil diperbarui');
@@ -65,7 +72,7 @@ const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     ]);
   };
 
-  const skillLevels = ['Beginner', 'Intermediate', 'Advanced', 'Expert'];
+  const skillLevels: SkillLevel[] = ['beginner', 'intermediate', 'advanced', 'expert'];
   const badges = user?.badges || [
     { id: '1', name: 'First Summit', icon: 'terrain' },
     { id: '2', name: 'Safety First', icon: 'verified' },
@@ -114,7 +121,7 @@ const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             <View style={styles.chipRow}>
               {skillLevels.map(level => (
                 <TouchableOpacity key={level} style={[styles.chip, profileData.skillLevel === level && styles.chipActive]} onPress={() => setProfileData({ ...profileData, skillLevel: level })}>
-                  <Text style={[styles.chipText, profileData.skillLevel === level && styles.chipTextActive]}>{level}</Text>
+                  <Text style={[styles.chipText, profileData.skillLevel === level && styles.chipTextActive]}>{level[0].toUpperCase() + level.slice(1)}</Text>
                 </TouchableOpacity>
               ))}
             </View>
@@ -125,7 +132,7 @@ const ProfileScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         ) : (
           <>
             <View style={styles.infoRow}><Text style={styles.infoLabel}>Bio</Text><Text style={styles.infoValue}>{profileData.bio || '-'}</Text></View>
-            <View style={styles.infoRow}><Text style={styles.infoLabel}>Skill Level</Text><Text style={styles.infoValue}>{profileData.skillLevel}</Text></View>
+            <View style={styles.infoRow}><Text style={styles.infoLabel}>Skill Level</Text><Text style={styles.infoValue}>{profileData.skillLevel[0].toUpperCase() + profileData.skillLevel.slice(1)}</Text></View>
             <View style={styles.infoRow}><Text style={styles.infoLabel}>Phone</Text><Text style={styles.infoValue}>{user?.phone || '-'}</Text></View>
           </>
         )}

@@ -12,6 +12,7 @@ build/
 ios/Pods/
 android/.gradle/
 android/app/build/
+android/local.properties
 *.jks
 *.keystore
 .expo/

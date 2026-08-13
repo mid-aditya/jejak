@@ -28,11 +28,21 @@ export class UserService {
   }
 
   async findByEmail(email: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { email } });
+    // password has `select: false`, so it must be explicitly selected here
+    // (needed by auth login / forgot-password flows).
+    return this.userRepository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .where("user.email = :email", { email })
+      .getOne();
   }
 
   async findByPhone(phone: string): Promise<User | null> {
-    return this.userRepository.findOne({ where: { phone } });
+    return this.userRepository
+      .createQueryBuilder("user")
+      .addSelect("user.password")
+      .where("user.phone = :phone", { phone })
+      .getOne();
   }
 
   async findAll(
@@ -51,7 +61,15 @@ export class UserService {
   async updateProfile(id: string, updateData: Partial<User>): Promise<User> {
     const user = await this.findById(id);
 
-    const allowedFields = ["fullName", "avatar", "medicalInfo", "skills"];
+    const allowedFields = [
+      "fullName",
+      "avatar",
+      "bio",
+      "skillLevel",
+      "medicalInfo",
+      "emergencyContacts",
+      "skills",
+    ];
     const updates: Partial<User> = {};
 
     for (const field of allowedFields) {

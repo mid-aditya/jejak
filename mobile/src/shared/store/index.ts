@@ -12,7 +12,7 @@ import {
 import { MMKV } from 'react-native-mmkv';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
-import authReducer from './slices/authSlice';
+import authReducer, { setRehydrating } from './slices/authSlice';
 import offlineReducer from './slices/offlineSlice';
 import emergencyReducer from './slices/emergencySlice';
 
@@ -47,19 +47,29 @@ const persistConfig = {
   whitelist: ['auth', 'offline', 'emergency'], // Persist all slices
   blacklist: [], // Nothing is blacklisted
   timeout: 10000,
-  serialize: (data) => JSON.stringify(data),
-  deserialize: (data) => JSON.parse(data),
+  serialize: (data: any) => JSON.stringify(data),
+  deserialize: (data: any) => JSON.parse(data),
   version: 1,
 };
 
-const persistedReducer = persistReducer(persistConfig, rootReducer);
+// redux-persist v6 doesn't type serialize/deserialize; they're best-effort extras.
+const persistedReducer = persistReducer(persistConfig as any, rootReducer);
 
 export const store = configureStore({
   reducer: persistedReducer,
   middleware: (getDefaultMiddleware) =>
     getDefaultMiddleware({
       serializableCheck: {
-        ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
+        ignoredActions: [
+          FLUSH,
+          REHYDRATE,
+          PAUSE,
+          PERSIST,
+          PURGE,
+          REGISTER,
+          // startNetworkMonitoring intentionally returns an unsubscribe function
+          'offline/startNetworkMonitoring/fulfilled',
+        ],
         ignoredPaths: [
           'auth.user',
           'offline.queue',
@@ -75,6 +85,9 @@ export const store = configureStore({
 
 export const persistor = persistStore(store, null, () => {
   console.log('[Store] Rehydration complete');
+  // AppNavigator waits on auth.isRehydrating before rendering; flip it here
+  // once redux-persist has finished rehydrating the persisted state.
+  store.dispatch(setRehydrating(false));
 });
 
 export type RootState = ReturnType<typeof store.getState>;

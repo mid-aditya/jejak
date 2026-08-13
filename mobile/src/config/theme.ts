@@ -62,8 +62,9 @@ export const Colors = {
   breadcrumb: '#FF6F00',
   sos: '#D32F2F',
   sosActive: '#B71C1C',
-} as const;
+};
 
+// Keep Colors values as plain strings so both palettes share the same shape.
 export const DarkColors: typeof Colors = {
   primary: '#66BB6A',
   primaryLight: '#81C784',

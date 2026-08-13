@@ -1,0 +1,31 @@
+buildscript {
+    ext {
+        buildToolsVersion = "34.0.0"
+        minSdkVersion = 24
+        compileSdkVersion = 35
+        targetSdkVersion = 34
+        ndkVersion = "25.1.8937393"
+        kotlinVersion = "1.9.24"
+    }
+    repositories {
+        google()
+        mavenCentral()
+    }
+    dependencies {
+        classpath("com.android.tools.build:gradle:8.6.1")
+        classpath("com.facebook.react:react-native-gradle-plugin")
+        classpath("org.jetbrains.kotlin:kotlin-gradle-plugin:1.9.24")
+    }
+}
+
+apply plugin: "com.facebook.react.rootproject"
+
+// mapbox-android-accounts:0.7.0 (transitive dep of the legacy Mapbox v9 SDK used by
+// @react-native-mapbox-gl/maps 8.x) is no longer hosted on any public repo except
+// mirror copies of the sunset JCenter. AccountsManager is referenced at app startup,
+// so it must resolve. Aliyun's read-only JCenter mirror serves the archived artifact.
+allprojects {
+    repositories {
+        maven { url 'https://maven.aliyun.com/repository/jcenter' }
+    }
+}

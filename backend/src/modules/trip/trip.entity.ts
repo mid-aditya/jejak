@@ -25,7 +25,7 @@ export class Trip extends BaseEntity {
   @Column({ name: "operator_id" })
   operatorId: string;
 
-  @Column({ type: "enum", enum: TripType, default: TripType.OPEN_TRIP })
+  @Column({ type: "varchar", default: TripType.OPEN_TRIP })
   type: TripType;
 
   @Column({ name: "max_participants" })
@@ -56,7 +56,7 @@ export class Trip extends BaseEntity {
     overnight?: string;
   }>;
 
-  @Column({ type: "enum", enum: TripStatus, default: TripStatus.DRAFT })
+  @Column({ type: "varchar", default: TripStatus.DRAFT })
   status: TripStatus;
 
   @Column({ type: "text", nullable: true })

@@ -97,7 +97,7 @@ export interface AuthResponse {
 }
 
 // ── State ─────────────────────────────────────────────────────────────────────
-interface AuthState {
+export interface AuthState {
   user: User | null;
   token: string | null;
   refreshToken: string | null;
@@ -131,7 +131,8 @@ export const loginUser = createAsyncThunk<
 >('auth/loginUser', async ({ email, password }, { rejectWithValue }) => {
   try {
     const response = await apiClient.post<AuthResponse>('/auth/login', {
-      email,
+      // Backend LoginDto expects `emailOrPhone` (email or phone)
+      emailOrPhone: email,
       password,
     });
     return response.data;
@@ -163,7 +164,7 @@ export const socialLogin = createAsyncThunk<
   { rejectValue: string }
 >('auth/socialLogin', async ({ provider, token }, { rejectWithValue }) => {
   try {
-    const response = await apiClient.post<AuthResponse>('/auth/social', {
+    const response = await apiClient.post<AuthResponse>('/auth/social-login', {
       provider,
       token,
     });
@@ -181,7 +182,7 @@ export const verifyEmail = createAsyncThunk<
   { rejectValue: string }
 >('auth/verifyEmail', async (code, { rejectWithValue }) => {
   try {
-    const response = await apiClient.post('/auth/verify-email', { code });
+    const response = await apiClient.post('/auth/verify-email', { otp: code });
     return response.data;
   } catch (error: any) {
     const message =
@@ -196,7 +197,7 @@ export const verifyPhone = createAsyncThunk<
   { rejectValue: string }
 >('auth/verifyPhone', async (code, { rejectWithValue }) => {
   try {
-    const response = await apiClient.post('/auth/verify-phone', { code });
+    const response = await apiClient.post('/auth/verify-phone', { otp: code });
     return response.data;
   } catch (error: any) {
     const message =
@@ -211,8 +212,12 @@ export const updateProfile = createAsyncThunk<
   { state: RootState; rejectValue: string }
 >('auth/updateProfile', async (payload, { getState, rejectWithValue }) => {
   try {
-    const token = getState().auth.token;
-    const response = await apiClient.patch<User>('/users/me', payload, {
+    const { token, user } = getState().auth;
+    if (!user?.id) {
+      return rejectWithValue('User not found');
+    }
+    // Backend exposes PATCH /users/:id (there is no /users/me route)
+    const response = await apiClient.patch<User>(`/users/${user.id}`, payload, {
       headers: { Authorization: `Bearer ${token}` },
     });
     return response.data;
@@ -442,5 +447,8 @@ export const {
   setRehydrating,
   clearError,
 } = authSlice.actions;
+
+// ── Selectors ───────────────────────────────────────────────────────────────────
+export const selectIsAuthenticated = (state: RootState) => state.auth.isAuthenticated;
 
 export default authSlice.reducer;

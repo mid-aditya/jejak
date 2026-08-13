@@ -62,7 +62,9 @@ export class AuthService {
     });
     const tokens = await this.generateTokens(savedUser);
 
-    return { user: savedUser, tokens };
+    // Never return the password hash to the client
+    const { password: _password, ...safeUser } = savedUser;
+    return { user: safeUser as User, tokens };
   }
 
   async login(
@@ -104,7 +106,9 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user);
 
-    return { user, tokens };
+    // Never return the password hash to the client
+    const { password: _password, ...safeUser } = user;
+    return { user: safeUser as User, tokens };
   }
 
   async socialLogin(
@@ -154,7 +158,9 @@ export class AuthService {
 
     const tokens = await this.generateTokens(user);
 
-    return { user, tokens };
+    // Never return the password hash to the client
+    const { password: _password, ...safeUser } = user;
+    return { user: safeUser as User, tokens };
   }
 
   async refreshToken(

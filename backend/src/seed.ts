@@ -217,7 +217,8 @@ async function seed() {
 
   // ─── Test User ───
   const userRepo: Repository<User> = app.get(getRepositoryToken(User));
-  const hashedPassword = await bcrypt.hash("password123", 10);
+  // Must satisfy the mobile app's password policy (uppercase + lowercase + digit, min 8)
+  const hashedPassword = await bcrypt.hash("Password123", 10);
   const testUser = userRepo.create({
     email: "admin@jejak.app",
     phone: "6281234567890",
@@ -229,11 +230,11 @@ async function seed() {
     emailVerified: true,
   });
   await userRepo.save(testUser);
-  console.log("  ✓ Created test user: admin@jejak.app / password123");
+  console.log("  ✓ Created test user: admin@jejak.app / Password123");
 
   await app.close();
   console.log("\n✅ Seed complete! Backend is ready.");
-  console.log("   Login: admin@jejak.app / password123");
+  console.log("   Login: admin@jejak.app / Password123");
   console.log("   API:   http://localhost:4000/api/v1");
   console.log("   Docs:  http://localhost:4000/api/docs");
 }
