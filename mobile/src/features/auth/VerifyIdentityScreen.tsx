@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
   View, Text, TouchableOpacity, StyleSheet, ScrollView,
-  TextInput, Alert, ActivityIndicator, Image,
+  TextInput, Alert, Image,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
@@ -11,6 +11,7 @@ import { updateVerification, verifyEmail, verifyPhone } from '../../shared/store
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
 import { featureFlags } from '../../config/env';
 import ErrorMessage from '../../shared/components/ErrorMessage';
+import { Button } from '../../shared/components/ui';
 
 const VerifyIdentityScreen: React.FC = () => {
   const dispatch = useAppDispatch();
@@ -260,13 +261,13 @@ const VerifyIdentityScreen: React.FC = () => {
         )}
       </TouchableOpacity>
 
-      <TouchableOpacity
-        style={[styles.submitButton, uploading && styles.buttonDisabled]}
+      <Button
+        title="Submit Verifikasi"
+        size="lg"
+        loading={uploading}
+        disabled={!ktpImage || !selfieImage}
         onPress={handleSubmitLevel2}
-        disabled={uploading || !ktpImage || !selfieImage}
-      >
-        {uploading ? <ActivityIndicator color={Colors.textInverse} /> : <Text style={styles.submitButtonText}>Submit Verifikasi</Text>}
-      </TouchableOpacity>
+      />
     </View>
   );
 
@@ -310,13 +311,13 @@ const VerifyIdentityScreen: React.FC = () => {
         ))}
       </View>
 
-      <TouchableOpacity
-        style={[styles.submitButton, uploading && styles.buttonDisabled]}
-        onPress={handleSubmitLevel3}
+      <Button
+        title="Submit Verifikasi"
+        size="lg"
+        loading={uploading}
         disabled={uploading}
-      >
-        {uploading ? <ActivityIndicator color={Colors.textInverse} /> : <Text style={styles.submitButtonText}>Submit Verifikasi</Text>}
-      </TouchableOpacity>
+        onPress={handleSubmitLevel3}
+      />
     </View>
   );
 
@@ -397,9 +398,7 @@ const styles = StyleSheet.create({
   inputGroup: { gap: 6 },
   label: { ...Typography.subtitle2, color: Colors.text },
   textInput: { backgroundColor: Colors.surface, borderRadius: BorderRadius.md, borderWidth: 1, borderColor: Colors.border, paddingHorizontal: Spacing.md, height: 48, ...Typography.body1, color: Colors.text },
-  submitButton: { backgroundColor: Colors.primary, borderRadius: BorderRadius.md, height: 52, alignItems: 'center', justifyContent: 'center', ...Shadows.md },
-  buttonDisabled: { backgroundColor: Colors.disabled },
-  submitButtonText: { ...Typography.button, color: Colors.textInverse },
+
   upgradeInfo: { backgroundColor: Colors.primaryFaded, borderRadius: BorderRadius.md, padding: Spacing.md, marginTop: Spacing.lg },
   upgradeTitle: { ...Typography.subtitle2, color: Colors.primary, fontWeight: '700', marginBottom: Spacing.xs },
   upgradeDesc: { ...Typography.caption, color: Colors.textSecondary, lineHeight: 20 },

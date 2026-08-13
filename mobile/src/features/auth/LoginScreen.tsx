@@ -203,7 +203,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               onPress={() => handleSocialLogin('google')}
               activeOpacity={0.7}
             >
-              <Text style={styles.socialIcon}>🔍</Text>
+              <Icon name="logo-google" size={18} color={Colors.text} />
               <Text style={styles.socialText}>Google</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -211,7 +211,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               onPress={() => handleSocialLogin('facebook')}
               activeOpacity={0.7}
             >
-              <Text style={styles.socialIcon}>📘</Text>
+              <Icon name="logo-facebook" size={18} color="#1877F2" />
               <Text style={styles.socialText}>Facebook</Text>
             </TouchableOpacity>
             <TouchableOpacity
@@ -219,7 +219,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
               onPress={() => handleSocialLogin('instagram')}
               activeOpacity={0.7}
             >
-              <Text style={styles.socialIcon}>📸</Text>
+              <Icon name="logo-instagram" size={18} color={Colors.danger} />
               <Text style={styles.socialText}>Instagram</Text>
             </TouchableOpacity>
           </View>
@@ -314,7 +314,6 @@ const styles = StyleSheet.create({
     borderColor: Colors.border,
     ...Shadows.sm,
   },
-  socialIcon: { fontSize: 18 },
   socialText: { ...Typography.buttonSmall, color: Colors.text },
   biometricButton: {
     flexDirection: 'row',

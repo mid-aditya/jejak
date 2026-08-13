@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ScrollView, Modal } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card, SearchBar, Chip, Button, Avatar, EmptyState } from '../../shared/components/ui';
 
 const TEAMS = [
   { id: '1', host: 'Fitri Hiker', title: 'Open Trip Gede 15-16 Mar', mountain: 'Gunung Gede', date: '15-16 Mar 2024', members: 4, maxMembers: 8, price: 'Rp 350K', level: 'Intermediate', desc: 'Trip santai lewat jalur Cibodas. Include porter & konsumsi.', isJoined: false },
@@ -12,6 +14,14 @@ const TEAMS = [
 
 const MOUNTAINS = ['Semua Gunung', 'Gunung Gede', 'Gunung Rinjani', 'Gunung Semeru', 'Gunung Merbabu', 'Gunung Merapi'];
 const LEVELS = ['Semua Level', 'Pemula', 'Intermediate', 'Advanced', 'Expert'];
+
+const getLevelColor = (level: string) => {
+  switch (level) {
+    case 'Pemula': return { bg: Colors.successFaded, fg: Colors.success };
+    case 'Intermediate': return { bg: Colors.warningFaded, fg: Colors.warning };
+    default: return { bg: Colors.dangerFaded, fg: Colors.danger };
+  }
+};
 
 const FindTeamScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [search, setSearch] = useState('');
@@ -25,82 +35,136 @@ const FindTeamScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     return matchSearch && matchMountain && matchLevel;
   });
 
-  const renderTeam = ({ item }: { item: typeof TEAMS[0] }) => (
-    <View style={styles.teamCard}>
-      <View style={styles.cardHeader}>
-        <View style={styles.hostAvatar} />
-        <View style={{ flex: 1 }}>
-          <Text style={styles.hostName}>{item.host}</Text>
-          <Text style={styles.teamDate}>{item.date}</Text>
+  const renderTeam = ({ item }: { item: typeof TEAMS[0] }) => {
+    const levelColor = getLevelColor(item.level);
+    return (
+      <Card style={styles.teamCard}>
+        <View style={styles.cardHeader}>
+          <Avatar name={item.host} size={36} />
+          <View style={styles.hostInfo}>
+            <Text style={styles.hostName}>{item.host}</Text>
+            <Text style={styles.teamDate}>{item.date}</Text>
+          </View>
+          <View style={[styles.levelBadge, { backgroundColor: levelColor.bg }]}>
+            <Text style={[styles.levelText, { color: levelColor.fg }]}>{item.level}</Text>
+          </View>
         </View>
-        <View style={[styles.levelBadge, { backgroundColor: item.level === 'Pemula' ? '#E8F5E9' : item.level === 'Intermediate' ? '#FFF8E1' : '#FFEBEE' }]}>
-          <Text style={[styles.levelText, { color: item.level === 'Pemula' ? '#2E7D32' : item.level === 'Intermediate' ? '#F57C00' : '#D32F2F' }]}>{item.level}</Text>
+        <Text style={styles.teamTitle}>{item.title}</Text>
+        <View style={styles.teamMeta}>
+          <View style={styles.metaItem}>
+            <Icon name="terrain" size={14} color={Colors.textSecondary} />
+            <Text style={styles.metaText}>{item.mountain}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Icon name="people" size={14} color={Colors.textSecondary} />
+            <Text style={styles.metaText}>{item.members}/{item.maxMembers}</Text>
+          </View>
+          <View style={styles.metaItem}>
+            <Icon name="attach-money" size={14} color={Colors.textSecondary} />
+            <Text style={styles.metaText}>{item.price}</Text>
+          </View>
         </View>
-      </View>
-      <Text style={styles.teamTitle}>{item.title}</Text>
-      <View style={styles.teamMeta}>
-        <View style={styles.metaItem}><Icon name="terrain" size={14} color="#757575" /><Text style={styles.metaText}>{item.mountain}</Text></View>
-        <View style={styles.metaItem}><Icon name="people" size={14} color="#757575" /><Text style={styles.metaText}>{item.members}/{item.maxMembers}</Text></View>
-        <View style={styles.metaItem}><Icon name="attach-money" size={14} color="#757575" /><Text style={styles.metaText}>{item.price}</Text></View>
-      </View>
-      <Text style={styles.teamDesc} numberOfLines={2}>{item.desc}</Text>
-      {item.isJoined ? (
-        <TouchableOpacity style={styles.chatBtn} onPress={() => navigation.navigate('Chat', { team: item })}>
-          <Icon name="chat" size={16} color="#fff" /><Text style={styles.chatBtnText}>Chat Group</Text>
-        </TouchableOpacity>
-      ) : (
-        <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.joinBtn}>
-            <Text style={styles.joinBtnText}>Request Join</Text>
-          </TouchableOpacity>
-          <TouchableOpacity style={styles.detailBtn}>
-            <Text style={styles.detailBtnText}>Detail</Text>
-          </TouchableOpacity>
-        </View>
-      )}
-    </View>
-  );
+        <Text style={styles.teamDesc} numberOfLines={2}>{item.desc}</Text>
+        {item.isJoined ? (
+          <Button
+            title="Chat Group"
+            icon="chat"
+            onPress={() => navigation.navigate('Chat', { team: item })}
+          />
+        ) : (
+          <View style={styles.actionRow}>
+            <Button title="Request Join" style={styles.joinBtn} />
+            <Button title="Detail" variant="outline" style={styles.detailBtn} />
+          </View>
+        )}
+      </Card>
+    );
+  };
 
   return (
     <View style={styles.container}>
       <View style={styles.searchRow}>
-        <TextInput style={styles.searchInput} placeholder="Cari tim atau gunung..." value={search} onChangeText={setSearch} placeholderTextColor="#757575" />
-        <TouchableOpacity style={styles.filterBtn} onPress={() => setShowFilters(true)}>
-          <Icon name="filter-list" size={22} color="#2E7D32" />
+        <SearchBar
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Cari tim atau gunung..."
+          style={styles.searchBar}
+        />
+        <TouchableOpacity style={styles.filterBtn} onPress={() => setShowFilters(true)} activeOpacity={0.7}>
+          <Icon name="filter-list" size={22} color={Colors.primary} />
         </TouchableOpacity>
       </View>
 
-      <FlatList data={filteredTeams} renderItem={renderTeam} keyExtractor={item => item.id} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false} />
+      <FlatList
+        data={filteredTeams}
+        renderItem={renderTeam}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <EmptyState
+            title="Tim tidak ditemukan"
+            message="Coba ubah pencarian atau filter."
+          />
+        }
+      />
 
       <Modal visible={showFilters} transparent animationType="slide" onRequestClose={() => setShowFilters(false)}>
         <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
-            <Text style={styles.modalTitle}>Filter Pencarian</Text>
+            <View style={styles.modalHeader}>
+              <Text style={styles.modalTitle}>Filter Pencarian</Text>
+              <TouchableOpacity onPress={() => setShowFilters(false)} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+                <Icon name="close" size={22} color={Colors.textSecondary} />
+              </TouchableOpacity>
+            </View>
+
             <Text style={styles.filterLabel}>Gunung</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChipScroll}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChipRow}>
               {MOUNTAINS.map(m => (
-                <TouchableOpacity key={m} style={[styles.filterChip, filters.mountain === m && styles.filterChipActive]} onPress={() => setFilters({ ...filters, mountain: m })}>
-                  <Text style={[styles.filterChipText, filters.mountain === m && styles.filterChipTextActive]}>{m}</Text>
-                </TouchableOpacity>
+                <Chip
+                  key={m}
+                  label={m}
+                  active={filters.mountain === m}
+                  onPress={() => setFilters({ ...filters, mountain: m })}
+                />
               ))}
             </ScrollView>
+
             <Text style={styles.filterLabel}>Level</Text>
-            <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.filterChipScroll}>
+            <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.filterChipRow}>
               {LEVELS.map(l => (
-                <TouchableOpacity key={l} style={[styles.filterChip, filters.level === l && styles.filterChipActive]} onPress={() => setFilters({ ...filters, level: l })}>
-                  <Text style={[styles.filterChipText, filters.level === l && styles.filterChipTextActive]}>{l}</Text>
-                </TouchableOpacity>
+                <Chip
+                  key={l}
+                  label={l}
+                  active={filters.level === l}
+                  onPress={() => setFilters({ ...filters, level: l })}
+                />
               ))}
             </ScrollView>
+
             <Text style={styles.filterLabel}>Budget</Text>
             <View style={styles.budgetRow}>
-              <TextInput style={styles.budgetInput} placeholder="Min" value={filters.minBudget} onChangeText={t => setFilters({ ...filters, minBudget: t })} keyboardType="numeric" />
+              <TextInput
+                style={styles.budgetInput}
+                placeholder="Min"
+                placeholderTextColor={Colors.textTertiary}
+                value={filters.minBudget}
+                onChangeText={t => setFilters({ ...filters, minBudget: t })}
+                keyboardType="numeric"
+              />
               <Text style={styles.budgetSep}>-</Text>
-              <TextInput style={styles.budgetInput} placeholder="Max" value={filters.maxBudget} onChangeText={t => setFilters({ ...filters, maxBudget: t })} keyboardType="numeric" />
+              <TextInput
+                style={styles.budgetInput}
+                placeholder="Max"
+                placeholderTextColor={Colors.textTertiary}
+                value={filters.maxBudget}
+                onChangeText={t => setFilters({ ...filters, maxBudget: t })}
+                keyboardType="numeric"
+              />
             </View>
-            <TouchableOpacity style={styles.applyBtn} onPress={() => setShowFilters(false)}>
-              <Text style={styles.applyBtnText}>Terapkan Filter</Text>
-            </TouchableOpacity>
+
+            <Button title="Terapkan Filter" size="lg" onPress={() => setShowFilters(false)} />
           </View>
         </View>
       </Modal>
@@ -109,44 +173,60 @@ const FindTeamScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  searchRow: { flexDirection: 'row', padding: 16, gap: 10 },
-  searchInput: { flex: 1, backgroundColor: '#fff', borderRadius: 10, paddingHorizontal: 14, height: 44, fontSize: 14, color: '#212121', elevation: 1 },
-  filterBtn: { width: 44, height: 44, backgroundColor: '#fff', borderRadius: 10, justifyContent: 'center', alignItems: 'center', elevation: 1 },
-  listContent: { paddingHorizontal: 16, paddingBottom: 40 },
-  teamCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 10, elevation: 1 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
-  hostAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E0E0E0' },
-  hostName: { fontSize: 14, fontWeight: '600', color: '#212121' },
-  teamDate: { fontSize: 11, color: '#757575' },
-  levelBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 10 },
-  levelText: { fontSize: 11, fontWeight: '600' },
-  teamTitle: { fontSize: 16, fontWeight: 'bold', color: '#212121', marginBottom: 8 },
-  teamMeta: { flexDirection: 'row', gap: 12, marginBottom: 6 },
+  container: { flex: 1, backgroundColor: Colors.background },
+  searchRow: { flexDirection: 'row', padding: Spacing.screenPadding, gap: Spacing.sm },
+  searchBar: { flex: 1 },
+  filterBtn: {
+    width: 48,
+    height: 48,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.sm,
+  },
+  listContent: { paddingHorizontal: Spacing.screenPadding, paddingBottom: Spacing.xl },
+  teamCard: { marginBottom: Spacing.sm },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm, gap: Spacing.sm },
+  hostInfo: { flex: 1 },
+  hostName: { ...Typography.subtitle2, color: Colors.text, fontWeight: '700' },
+  teamDate: { ...Typography.caption, color: Colors.textSecondary },
+  levelBadge: { paddingHorizontal: Spacing.sm, paddingVertical: 4, borderRadius: BorderRadius.round },
+  levelText: { fontSize: 11, fontWeight: '700' },
+  teamTitle: { ...Typography.subtitle1, color: Colors.text, fontWeight: '800', marginBottom: Spacing.sm },
+  teamMeta: { flexDirection: 'row', flexWrap: 'wrap', gap: Spacing.md, marginBottom: Spacing.xs },
   metaItem: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  metaText: { fontSize: 12, color: '#757575' },
-  teamDesc: { fontSize: 13, color: '#757575', lineHeight: 18, marginBottom: 10 },
-  actionRow: { flexDirection: 'row', gap: 8 },
-  joinBtn: { flex: 1, backgroundColor: '#2E7D32', padding: 10, borderRadius: 8, alignItems: 'center' },
-  joinBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
-  detailBtn: { paddingHorizontal: 16, paddingVertical: 10, borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 8 },
-  detailBtnText: { color: '#757575', fontSize: 13 },
-  chatBtn: { flexDirection: 'row', backgroundColor: '#2E7D32', padding: 10, borderRadius: 8, alignItems: 'center', justifyContent: 'center', gap: 4 },
-  chatBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 13 },
-  modalOverlay: { flex: 1, backgroundColor: 'rgba(0,0,0,0.5)', justifyContent: 'flex-end' },
-  modalContent: { backgroundColor: '#fff', borderTopLeftRadius: 20, borderTopRightRadius: 20, padding: 24 },
-  modalTitle: { fontSize: 18, fontWeight: 'bold', color: '#212121', marginBottom: 16 },
-  filterLabel: { fontSize: 14, fontWeight: '600', color: '#212121', marginBottom: 8, marginTop: 8 },
-  filterChipScroll: { marginBottom: 4 },
-  filterChip: { paddingVertical: 8, paddingHorizontal: 14, backgroundColor: '#F0F0F0', borderRadius: 16, marginRight: 8 },
-  filterChipActive: { backgroundColor: '#2E7D32' },
-  filterChipText: { fontSize: 13, color: '#424242' },
-  filterChipTextActive: { color: '#fff' },
-  budgetRow: { flexDirection: 'row', alignItems: 'center', gap: 8, marginBottom: 16 },
-  budgetInput: { flex: 1, borderWidth: 1, borderColor: '#E0E0E0', borderRadius: 8, padding: 10, fontSize: 14, color: '#212121' },
-  budgetSep: { fontSize: 16, color: '#757575' },
-  applyBtn: { backgroundColor: '#2E7D32', padding: 14, borderRadius: 10, alignItems: 'center' },
-  applyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
+  metaText: { ...Typography.caption, color: Colors.textSecondary },
+  teamDesc: { ...Typography.body2, color: Colors.textSecondary, lineHeight: 18, marginBottom: Spacing.md },
+  actionRow: { flexDirection: 'row', gap: Spacing.sm },
+  joinBtn: { flex: 1 },
+  detailBtn: { flex: 1 },
+
+  modalOverlay: { flex: 1, backgroundColor: Colors.overlay, justifyContent: 'flex-end' },
+  modalContent: {
+    backgroundColor: Colors.surface,
+    borderTopLeftRadius: BorderRadius.xl,
+    borderTopRightRadius: BorderRadius.xl,
+    padding: Spacing.lg,
+    paddingBottom: Spacing.xl,
+  },
+  modalHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
+  modalTitle: { ...Typography.h4, color: Colors.text, fontWeight: '800' },
+  filterLabel: { ...Typography.caption, color: Colors.textSecondary, fontWeight: '700', marginBottom: Spacing.sm, marginTop: Spacing.md },
+  filterChipRow: { gap: Spacing.sm, paddingRight: Spacing.lg },
+  budgetRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm, marginBottom: Spacing.lg },
+  budgetInput: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    borderRadius: BorderRadius.sm,
+    padding: Spacing.md,
+    fontSize: 14,
+    color: Colors.text,
+  },
+  budgetSep: { fontSize: 16, color: Colors.textSecondary },
 });
 
 export default FindTeamScreen;

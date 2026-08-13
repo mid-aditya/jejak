@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity, TextInput, Image, KeyboardAvoidingView, Platform } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card, Avatar } from '../../shared/components/ui';
 
 const ThreadDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
   const { thread } = route.params;
@@ -18,31 +20,38 @@ const ThreadDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navigat
   return (
     <KeyboardAvoidingView style={styles.container} behavior={Platform.OS === 'ios' ? 'padding' : undefined}>
       <ScrollView style={styles.scroll} contentContainerStyle={styles.scrollContent}>
+        {/* Author */}
         <View style={styles.threadHeader}>
           <View style={styles.authorRow}>
-            <View style={styles.avatar} />
+            <Avatar name={thread.author} size={40} />
             <View>
               <Text style={styles.authorName}>{thread.author}</Text>
               <Text style={styles.threadTime}>2 jam lalu · {thread.category}</Text>
             </View>
           </View>
-          <TouchableOpacity style={styles.reportBtn}>
-            <Icon name="flag" size={18} color="#757575" />
+          <TouchableOpacity style={styles.reportBtn} hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}>
+            <Icon name="flag" size={18} color={Colors.textSecondary} />
           </TouchableOpacity>
         </View>
 
         <Text style={styles.threadTitle}>{thread.title}</Text>
-        <Text style={styles.threadBody}>Halo pendaki sekalian!{'n'}{'n'}Setelah longsor yang terjadi bulan lalu di sektor 2 jalur Cibodas, berikut update terbaru:{'\n'}{'\n'}1. Jalur sudah dibersihkan dan dinyatakan aman oleh Tim Ranger{'\n'}2. Beberapa titik masih berlumpur, siapkan footwear yang tepat{'\n'}3. Pos 3 dipindahkan 200 meter ke arah timur{'\n'}4. Check-in basecamp wajib dilakukan sebelum pukul 09.00{'\n'}{'\n'}Semoga membantu dan tetap safe semua!{'🌿'}</Text>
+        <Text style={styles.threadBody}>
+          Halo pendaki sekalian!{'\n\n'}Setelah longsor yang terjadi bulan lalu di sektor 2 jalur Cibodas, berikut update terbaru:{'\n\n'}1. Jalur sudah dibersihkan dan dinyatakan aman oleh Tim Ranger{'\n'}2. Beberapa titik masih berlumpur, siapkan footwear yang tepat{'\n'}3. Pos 3 dipindahkan 200 meter ke arah timur{'\n'}4. Check-in basecamp wajib dilakukan sebelum pukul 09.00{'\n\n'}Semoga membantu dan tetap safe semua! 🌿
+        </Text>
 
         <Image source={{ uri: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=500' }} style={styles.threadImage} />
 
         <View style={styles.actionRow}>
-          <TouchableOpacity style={styles.likeBtn} onPress={() => { setLiked(!liked); setLikes(liked ? likes - 1 : likes + 1); }}>
-            <Icon name={liked ? 'thumb-up' : 'thumb-up-outlined'} size={20} color={liked ? '#2E7D32' : '#757575'} />
-            <Text style={[styles.likeCount, liked && styles.likeCountActive]}>{likes}</Text>
+          <TouchableOpacity
+            style={styles.actionBtn}
+            onPress={() => { setLiked(!liked); setLikes(liked ? likes - 1 : likes + 1); }}
+            activeOpacity={0.7}
+          >
+            <Icon name={liked ? 'thumb-up' : 'thumb-up-outlined'} size={20} color={liked ? Colors.primary : Colors.textSecondary} />
+            <Text style={[styles.actionText, liked && styles.actionTextActive]}>{likes}</Text>
           </TouchableOpacity>
-          <TouchableOpacity style={styles.shareBtn}>
-            <Icon name="share" size={20} color="#757575" />
+          <TouchableOpacity style={styles.actionBtn} activeOpacity={0.7}>
+            <Icon name="share" size={20} color={Colors.textSecondary} />
             <Text style={styles.actionText}>Bagikan</Text>
           </TouchableOpacity>
         </View>
@@ -53,37 +62,54 @@ const ThreadDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navigat
         </View>
 
         {replies.map(r => (
-          <View key={r.id} style={styles.replyCard}>
+          <Card key={r.id} style={styles.replyCard}>
             <View style={styles.replyHeader}>
-              <View style={styles.replyAvatar} />
-              <View style={{ flex: 1 }}>
-                <Text style={styles.replyAuthor}>{r.author}</Text>
-                {r.isRanger && <View style={styles.rangerBadge}><Icon name="verified" size={12} color="#fff" /><Text style={styles.rangerText}>Ranger</Text></View>}
+              <Avatar name={r.author} size={32} />
+              <View style={styles.replyInfo}>
+                <View style={styles.replyNameRow}>
+                  <Text style={styles.replyAuthor}>{r.author}</Text>
+                  {r.isRanger && (
+                    <View style={styles.rangerBadge}>
+                      <Icon name="verified" size={12} color={Colors.textInverse} />
+                      <Text style={styles.rangerText}>Ranger</Text>
+                    </View>
+                  )}
+                </View>
               </View>
               <Text style={styles.replyTime}>{r.time}</Text>
             </View>
             <Text style={styles.replyContent}>{r.content}</Text>
             <View style={styles.replyActions}>
-              <TouchableOpacity style={styles.replyLike}>
-                <Icon name="thumb-up-outlined" size={16} color="#757575" />
-                <Text style={styles.replyLikeCount}>{r.likes}</Text>
+              <TouchableOpacity style={styles.replyAction} activeOpacity={0.7}>
+                <Icon name="thumb-up-outlined" size={16} color={Colors.textSecondary} />
+                <Text style={styles.replyActionText}>{r.likes}</Text>
               </TouchableOpacity>
-              <TouchableOpacity style={styles.replyReplyBtn}>
-                <Icon name="reply" size={16} color="#757575" />
-                <Text style={styles.replyReplyText}>Balas</Text>
+              <TouchableOpacity style={styles.replyAction} activeOpacity={0.7}>
+                <Icon name="reply" size={16} color={Colors.textSecondary} />
+                <Text style={styles.replyActionText}>Balas</Text>
               </TouchableOpacity>
             </View>
-          </View>
+          </Card>
         ))}
       </ScrollView>
 
       <View style={styles.inputBar}>
-        <TouchableOpacity style={styles.attachBtn}>
-          <Icon name="image" size={20} color="#757575" />
+        <TouchableOpacity style={styles.attachBtn} activeOpacity={0.7}>
+          <Icon name="image" size={20} color={Colors.textSecondary} />
         </TouchableOpacity>
-        <TextInput style={styles.replyInput} placeholder="Tulis balasan..." value={reply} onChangeText={setReply} placeholderTextColor="#9E9E9E" />
-        <TouchableOpacity style={[styles.sendBtn, !reply && styles.sendBtnDisabled]} disabled={!reply}>
-          <Icon name="send" size={20} color="#fff" />
+        <TextInput
+          style={styles.replyInput}
+          placeholder="Tulis balasan..."
+          value={reply}
+          onChangeText={setReply}
+          placeholderTextColor={Colors.textTertiary}
+        />
+        <TouchableOpacity
+          style={[styles.sendBtn, !reply && styles.sendBtnDisabled]}
+          disabled={!reply}
+          activeOpacity={0.8}
+        >
+          <Icon name="send" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
       </View>
     </KeyboardAvoidingView>
@@ -91,45 +117,57 @@ const ThreadDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navigat
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   scroll: { flex: 1 },
   scrollContent: { paddingBottom: 80 },
-  threadHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: 16 },
-  authorRow: { flexDirection: 'row', alignItems: 'center', gap: 10 },
-  avatar: { width: 40, height: 40, borderRadius: 20, backgroundColor: '#E0E0E0' },
-  authorName: { fontSize: 15, fontWeight: 'bold', color: '#212121' },
-  threadTime: { fontSize: 12, color: '#757575' },
-  reportBtn: { padding: 8 },
-  threadTitle: { fontSize: 20, fontWeight: 'bold', color: '#212121', paddingHorizontal: 16, marginBottom: 12 },
-  threadBody: { fontSize: 15, color: '#424242', lineHeight: 22, paddingHorizontal: 16, marginBottom: 12 },
-  threadImage: { width: '100%', height: 220, marginBottom: 12 },
-  actionRow: { flexDirection: 'row', paddingHorizontal: 16, paddingVertical: 12, gap: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  likeBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  likeCount: { fontSize: 14, color: '#757575', fontWeight: '600' },
-  likeCountActive: { color: '#2E7D32' },
-  shareBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  actionText: { fontSize: 14, color: '#757575' },
-  replyDivider: { flexDirection: 'row', alignItems: 'center', padding: 16, gap: 12 },
-  replyCount: { fontSize: 15, fontWeight: 'bold', color: '#212121' },
-  divider: { flex: 1, height: 1, backgroundColor: '#E0E0E0' },
-  replyCard: { backgroundColor: '#fff', padding: 14, marginHorizontal: 16, marginBottom: 8, borderRadius: 10, elevation: 1 },
-  replyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
-  replyAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#E0E0E0' },
-  replyAuthor: { fontSize: 14, fontWeight: '600', color: '#212121' },
-  rangerBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#2E7D32', paddingHorizontal: 6, paddingVertical: 1, borderRadius: 8, gap: 2, marginTop: 2 },
-  rangerText: { fontSize: 10, color: '#fff', fontWeight: 'bold' },
-  replyTime: { fontSize: 11, color: '#BDBDBD', marginLeft: 'auto' },
-  replyContent: { fontSize: 14, color: '#424242', lineHeight: 20 },
-  replyActions: { flexDirection: 'row', marginTop: 8, gap: 16 },
-  replyLike: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  replyLikeCount: { fontSize: 13, color: '#757575' },
-  replyReplyBtn: { flexDirection: 'row', alignItems: 'center', gap: 3 },
-  replyReplyText: { fontSize: 13, color: '#757575' },
-  inputBar: { flexDirection: 'row', alignItems: 'center', padding: 12, backgroundColor: '#fff', borderTopWidth: 1, borderTopColor: '#E0E0E0', gap: 8 },
-  attachBtn: { padding: 8 },
-  replyInput: { flex: 1, backgroundColor: '#F0F0F0', borderRadius: 20, paddingHorizontal: 16, paddingVertical: 10, fontSize: 14, color: '#212121' },
-  sendBtn: { backgroundColor: '#2E7D32', padding: 10, borderRadius: 20 },
-  sendBtnDisabled: { backgroundColor: '#BDBDBD' },
+  threadHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', padding: Spacing.screenPadding },
+  authorRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.md },
+  authorName: { ...Typography.subtitle1, color: Colors.text, fontWeight: '800' },
+  threadTime: { ...Typography.caption, color: Colors.textSecondary },
+  reportBtn: { padding: 4 },
+  threadTitle: { ...Typography.h4, color: Colors.text, fontWeight: '800', paddingHorizontal: Spacing.screenPadding, marginBottom: Spacing.sm },
+  threadBody: { ...Typography.body1, color: Colors.text, lineHeight: 24, paddingHorizontal: Spacing.screenPadding, marginBottom: Spacing.md },
+  threadImage: { width: '100%', height: 220, marginBottom: Spacing.md },
+  actionRow: { flexDirection: 'row', paddingHorizontal: Spacing.screenPadding, paddingVertical: Spacing.sm, gap: Spacing.lg, borderBottomWidth: 1, borderBottomColor: Colors.borderLight },
+  actionBtn: { flexDirection: 'row', alignItems: 'center', gap: 4 },
+  actionText: { ...Typography.body2, color: Colors.textSecondary, fontWeight: '600' },
+  actionTextActive: { color: Colors.primary },
+  replyDivider: { flexDirection: 'row', alignItems: 'center', padding: Spacing.screenPadding, gap: Spacing.md },
+  replyCount: { ...Typography.subtitle1, color: Colors.text, fontWeight: '800' },
+  divider: { flex: 1, height: 1, backgroundColor: Colors.border },
+  replyCard: { marginHorizontal: Spacing.screenPadding, marginBottom: Spacing.sm },
+  replyHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm, gap: Spacing.sm },
+  replyInfo: { flex: 1 },
+  replyNameRow: { flexDirection: 'row', alignItems: 'center', gap: 6 },
+  replyAuthor: { ...Typography.subtitle2, color: Colors.text, fontWeight: '700' },
+  rangerBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: Colors.primary, paddingHorizontal: 6, paddingVertical: 1, borderRadius: BorderRadius.xs, gap: 2 },
+  rangerText: { fontSize: 10, color: Colors.textInverse, fontWeight: '800' },
+  replyTime: { ...Typography.caption, color: Colors.textTertiary, marginLeft: 'auto' },
+  replyContent: { ...Typography.body2, color: Colors.text, lineHeight: 20 },
+  replyActions: { flexDirection: 'row', marginTop: Spacing.sm, gap: Spacing.lg },
+  replyAction: { flexDirection: 'row', alignItems: 'center', gap: 3 },
+  replyActionText: { ...Typography.caption, color: Colors.textSecondary },
+  inputBar: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.sm,
+    backgroundColor: Colors.surface,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    gap: Spacing.sm,
+  },
+  attachBtn: { padding: Spacing.sm },
+  replyInput: {
+    flex: 1,
+    backgroundColor: Colors.background,
+    borderRadius: BorderRadius.round,
+    paddingHorizontal: Spacing.md,
+    paddingVertical: 10,
+    fontSize: 14,
+    color: Colors.text,
+  },
+  sendBtn: { backgroundColor: Colors.primary, padding: 10, borderRadius: BorderRadius.round, ...Shadows.sm },
+  sendBtnDisabled: { backgroundColor: Colors.disabled },
 });
 
 export default ThreadDetailScreen;

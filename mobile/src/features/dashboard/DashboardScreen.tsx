@@ -1,22 +1,24 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList, Image } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RootState } from '../../shared/store';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card, SectionHeader, Avatar, Chip } from '../../shared/components/ui';
 
 const QUICK_ACTIONS = [
-  { id: '1', label: 'SOS', icon: 'warning', color: '#D32F2F', route: 'Emergency', bg: '#FFEBEE' },
-  { id: '2', label: 'Check In', icon: 'login', color: '#F57C00', route: 'CheckInOut', bg: '#FFF8E1' },
-  { id: '3', label: 'Cari Tim', icon: 'group', color: '#2E7D32', route: 'FindTeam', bg: '#E8F5E9' },
-  { id: '4', label: 'Forum', icon: 'forum', color: '#1565C0', route: 'Forum', bg: '#E3F2FD' },
-  { id: '5', label: 'Map', icon: 'map', color: '#558B2F', route: 'Maps', bg: '#F1F8E9' },
-  { id: '6', label: 'Market', icon: 'store', color: '#6A1B9A', route: 'Marketplace', bg: '#F3E5F5' },
+  { id: '1', label: 'SOS', icon: 'warning', color: Colors.danger, bg: Colors.dangerFaded, route: 'Emergency' },
+  { id: '2', label: 'Check In', icon: 'login', color: Colors.warning, bg: Colors.warningFaded, route: 'CheckInOut' },
+  { id: '3', label: 'Cari Tim', icon: 'group', color: Colors.primary, bg: Colors.primaryFaded, route: 'FindTeam' },
+  { id: '4', label: 'Forum', icon: 'forum', color: Colors.info, bg: Colors.infoFaded, route: 'Forum' },
+  { id: '5', label: 'Map', icon: 'map', color: Colors.secondary, bg: Colors.secondaryFaded, route: 'Maps' },
+  { id: '6', label: 'Market', icon: 'store', color: Colors.accent, bg: Colors.accentFaded, route: 'Marketplace' },
 ];
 
 const RECOMMENDATIONS = [
-  { id: '1', name: 'Gunung Merbabu', match: '95% Match', reason: 'Level Intermediate, budget pas, cuaca cerah', difficulty: 5, image: null },
-  { id: '2', name: 'Gunung Prau', match: '88% Match', reason: 'Sunrise view terbaik, cocok pemula', difficulty: 3, image: null },
-  { id: '3', name: 'Gunung Lawu', match: '82% Match', reason: 'Jalur landai, banyak air, trek sepi', difficulty: 4, image: null },
+  { id: '1', name: 'Gunung Merbabu', match: '95%', reason: 'Level Intermediate, budget pas, cuaca cerah', difficulty: 5 },
+  { id: '2', name: 'Gunung Prau', match: '88%', reason: 'Sunrise view terbaik, cocok pemula', difficulty: 3 },
+  { id: '3', name: 'Gunung Lawu', match: '82%', reason: 'Jalur landai, banyak air, trek sepi', difficulty: 4 },
 ];
 
 const RECENT_POSTS = [
@@ -27,144 +29,314 @@ const RECENT_POSTS = [
 const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const { user } = useSelector((state: RootState) => state.auth);
   const [hasActiveTrip] = useState(true);
-  const [weatherAlert] = useState<{ type: string; msg: string } | null>({ type: 'yellow', msg: 'Kabut tebal terpantau di Gede-Pangrango. Hati-hati.' });
+  const [weatherAlert] = useState<{ type: 'red' | 'yellow' | 'green'; msg: string }>({
+    type: 'yellow',
+    msg: 'Kabut tebal terpantau di Gede-Pangrango. Hati-hati.',
+  });
 
-  const getWeatherBg = (type: string) => {
-    switch (type) {
-      case 'red': return '#FFEBEE'; case 'yellow': return '#FFF8E1'; case 'green': return '#E8F5E9'; default: return '#FFF8E1';
-    }
-  };
-  const getWeatherTextColor = (type: string) => {
-    switch (type) {
-      case 'red': return '#D32F2F'; case 'yellow': return '#F57C00'; case 'green': return '#2E7D32'; default: return '#F57C00';
-    }
-  };
+  const weatherColors = {
+    red: { bg: Colors.dangerFaded, fg: Colors.danger },
+    yellow: { bg: Colors.warningFaded, fg: Colors.warning },
+    green: { bg: Colors.successFaded, fg: Colors.success },
+  }[weatherAlert.type];
 
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
+      {/* Header */}
       <View style={styles.header}>
-        <View style={styles.greetingRow}>
-          <View style={styles.avatar} />
-          <View style={styles.greetingText}>
-            <Text style={styles.greetingTitle}>Hai, {user?.fullName?.split(' ')[0] || 'Pendaki'}!</Text>
-            <Text style={styles.greetingSub}>Siap berpetualang hari ini?</Text>
-          </View>
-          <TouchableOpacity onPress={() => navigation.navigate('Profile')}>
-            <Icon name="account-circle" size={28} color="#757575" />
-          </TouchableOpacity>
+        <Avatar
+          name={user?.fullName || 'Pendaki'}
+          uri={user?.avatar}
+          size={48}
+        />
+        <View style={styles.greeting}>
+          <Text style={styles.greetingTitle}>
+            Hai, {user?.fullName?.split(' ')[0] || 'Pendaki'}!
+          </Text>
+          <Text style={styles.greetingSub}>Siap berpetualang hari ini?</Text>
         </View>
+        <TouchableOpacity
+          onPress={() => navigation.navigate('Profile')}
+          style={styles.profileBtn}
+          hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+        >
+          <Icon name="account-circle" size={28} color={Colors.textSecondary} />
+        </TouchableOpacity>
       </View>
 
+      {/* Active trip */}
       {hasActiveTrip && (
-        <TouchableOpacity style={styles.activeTripCard} onPress={() => navigation.navigate('GPSTracker')}>
-          <View style={styles.tripCardHeader}>
-            <Icon name="terrain" size={20} color="#fff" />
-            <Text style={styles.tripCardTitle}>Pendakian Aktif</Text>
-            <View style={styles.tripStatusBadge}><Text style={styles.tripStatus}>LIVE</Text></View>
+        <Card
+          style={styles.activeTripCard}
+          onPress={() => navigation.navigate('GPSTracker')}
+          padded={false}
+        >
+          <View style={styles.tripHeader}>
+            <View style={styles.tripTitleRow}>
+              <Icon name="terrain" size={20} color={Colors.textInverse} />
+              <Text style={styles.tripTitle}>Pendakian Aktif</Text>
+            </View>
+            <View style={styles.liveBadge}>
+              <View style={styles.liveDot} />
+              <Text style={styles.liveText}>LIVE</Text>
+            </View>
           </View>
           <Text style={styles.tripMountain}>Gunung Gede - Cibodas</Text>
           <View style={styles.tripProgress}>
-            <View style={styles.progressBarBg}><View style={styles.progressBarFill} /></View>
+            <View style={styles.progressTrack}>
+              <View style={styles.progressFill} />
+            </View>
             <Text style={styles.tripProgressText}>3.2/8.5 km · 2j 15m</Text>
           </View>
           <View style={styles.tripActions}>
-            <TouchableOpacity style={styles.tripActionBtn}><Icon name="pause" size={16} color="#fff" /></TouchableOpacity>
-            <TouchableOpacity style={styles.tripActionBtn}><Icon name="flag" size={16} color="#fff" /></TouchableOpacity>
+            <TouchableOpacity style={styles.tripActionBtn}>
+              <Icon name="pause" size={16} color={Colors.textInverse} />
+            </TouchableOpacity>
+            <TouchableOpacity style={styles.tripActionBtn}>
+              <Icon name="flag" size={16} color={Colors.textInverse} />
+            </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </Card>
       )}
 
+      {/* Weather banner */}
       {weatherAlert && (
-        <View style={[styles.weatherBanner, { backgroundColor: getWeatherBg(weatherAlert.type) }]}>
-          <Icon name="warning" size={20} color={getWeatherTextColor(weatherAlert.type)} />
-          <Text style={[styles.weatherText, { color: getWeatherTextColor(weatherAlert.type) }]}>{weatherAlert.msg}</Text>
+        <View style={[styles.weatherBanner, { backgroundColor: weatherColors.bg }]}>
+          <Icon name="warning" size={20} color={weatherColors.fg} />
+          <Text style={[styles.weatherText, { color: weatherColors.fg }]}>
+            {weatherAlert.msg}
+          </Text>
         </View>
       )}
 
-      <Text style={styles.sectionTitle}>Aksi Cepat</Text>
-      <View style={styles.actionsGrid}>
-        {QUICK_ACTIONS.map(action => (
-          <TouchableOpacity key={action.id} style={styles.actionCard} onPress={() => navigation.navigate(action.route)}>
-            <View style={[styles.actionIcon, { backgroundColor: action.bg }]}>
-              <Icon name={action.icon as any} size={24} color={action.color} />
-            </View>
-            <Text style={styles.actionLabel}>{action.label}</Text>
-          </TouchableOpacity>
-        ))}
+      {/* Quick actions */}
+      <View style={styles.section}>
+        <SectionHeader title="Aksi Cepat" />
+        <View style={styles.actionsGrid}>
+          {QUICK_ACTIONS.map(action => (
+            <TouchableOpacity
+              key={action.id}
+              style={styles.actionCard}
+              onPress={() => navigation.navigate(action.route)}
+              activeOpacity={0.7}
+            >
+              <View style={[styles.actionIcon, { backgroundColor: action.bg }]}>
+                <Icon name={action.icon as any} size={24} color={action.color} />
+              </View>
+              <Text style={styles.actionLabel}>{action.label}</Text>
+            </TouchableOpacity>
+          ))}
+        </View>
       </View>
 
-      <Text style={styles.sectionTitle}>AI Rekomendasi ⚡</Text>
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.recommendScroll}>
-        {RECOMMENDATIONS.map(rec => (
-          <TouchableOpacity key={rec.id} style={styles.recommendCard} onPress={() => navigation.navigate('MountainDetail', { mountain: rec })}>
-            <View style={styles.recommendImage} />
-            <View style={styles.recommendBadge}><Text style={styles.recommendMatch}>{rec.match}</Text></View>
-            <Text style={styles.recommendName}>{rec.name}</Text>
-            <Text style={styles.recommendReason} numberOfLines={2}>{rec.reason}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
+      {/* Recommendations */}
+      <View style={styles.section}>
+        <SectionHeader
+          title="Rekomendasi"
+          eyebrow="AI MATCH"
+          actionLabel="Lihat semua"
+          onAction={() => navigation.navigate('Maps')}
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.recommendScroll}
+        >
+          {RECOMMENDATIONS.map(rec => (
+            <TouchableOpacity
+              key={rec.id}
+              style={styles.recommendCard}
+              onPress={() => navigation.navigate('MountainDetail', { mountain: rec })}
+              activeOpacity={0.8}
+            >
+              <View style={styles.recommendImage}>
+                <Icon name="landscape" size={40} color="rgba(255,255,255,0.7)" />
+              </View>
+              <View style={styles.matchBadge}>
+                <Text style={styles.matchText}>{rec.match} match</Text>
+              </View>
+              <View style={styles.recommendBody}>
+                <Text style={styles.recommendName}>{rec.name}</Text>
+                <View style={styles.difficultyRow}>
+                  {[1, 2, 3, 4, 5].map(i => (
+                    <View
+                      key={i}
+                      style={[
+                        styles.difficultyDot,
+                        { backgroundColor: i <= rec.difficulty ? Colors.primary : Colors.border },
+                      ]}
+                    />
+                  ))}
+                </View>
+                <Text style={styles.recommendReason} numberOfLines={2}>
+                  {rec.reason}
+                </Text>
+              </View>
+            </TouchableOpacity>
+          ))}
+        </ScrollView>
+      </View>
 
-      <View style={styles.recentSection}>
-        <Text style={styles.sectionTitle}>Forum Terbaru</Text>
-        <FlatList data={RECENT_POSTS} keyExtractor={i => i.id} scrollEnabled={false} renderItem={({ item }) => (
-          <TouchableOpacity style={styles.postCard} onPress={() => navigation.navigate('ThreadDetail', { thread: item })}>
-            <View style={styles.postAvatar} />
-            <View style={{ flex: 1 }}>
-              <Text style={styles.postTitle}>{item.title}</Text>
-              <Text style={styles.postMeta}>{item.author} · {item.category}</Text>
-            </View>
-            <Icon name="chevron-right" size={20} color="#BDBDBD" />
-          </TouchableOpacity>
-        )} />
-        <TouchableOpacity style={styles.viewAll}><Text style={styles.viewAllText}>Lihat Semua →</Text></TouchableOpacity>
+      {/* Forum posts */}
+      <View style={styles.section}>
+        <SectionHeader
+          title="Forum Terbaru"
+          actionLabel="Lihat semua"
+          onAction={() => navigation.navigate('Forum')}
+        />
+        <Card padded={false} style={styles.postsCard}>
+          <FlatList
+            data={RECENT_POSTS}
+            keyExtractor={i => i.id}
+            scrollEnabled={false}
+            renderItem={({ item, index }) => (
+              <TouchableOpacity
+                style={[styles.postRow, index > 0 && styles.postRowBorder]}
+                onPress={() => navigation.navigate('ThreadDetail', { thread: item })}
+                activeOpacity={0.7}
+              >
+                <Avatar name={item.author} size={36} />
+                <View style={styles.postInfo}>
+                  <Text style={styles.postTitle} numberOfLines={1}>
+                    {item.title}
+                  </Text>
+                  <Text style={styles.postMeta}>
+                    {item.author} · {item.category}
+                  </Text>
+                </View>
+                <Icon name="chevron-right" size={20} color={Colors.textTertiary} />
+              </TouchableOpacity>
+            )}
+          />
+        </Card>
       </View>
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  content: { paddingBottom: 40 },
-  header: { backgroundColor: '#fff', padding: 20, paddingBottom: 16, borderBottomWidth: 1, borderBottomColor: '#F0F0F0' },
-  greetingRow: { flexDirection: 'row', alignItems: 'center' },
-  avatar: { width: 48, height: 48, borderRadius: 24, backgroundColor: '#E0E0E0', marginRight: 12 },
-  greetingText: { flex: 1 },
-  greetingTitle: { fontSize: 18, fontWeight: 'bold', color: '#212121' },
-  greetingSub: { fontSize: 13, color: '#757575', marginTop: 2 },
-  activeTripCard: { margin: 16, backgroundColor: '#2E7D32', borderRadius: 16, padding: 16, elevation: 4 },
-  tripCardHeader: { flexDirection: 'row', alignItems: 'center', gap: 8 },
-  tripCardTitle: { color: '#fff', fontWeight: 'bold', fontSize: 15, flex: 1 },
-  tripStatusBadge: { backgroundColor: '#fff', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  tripStatus: { color: '#D32F2F', fontWeight: 'bold', fontSize: 10 },
-  tripMountain: { color: '#fff', fontSize: 16, fontWeight: '600', marginTop: 4, marginBottom: 8 },
-  tripProgress: { gap: 4 },
-  progressBarBg: { height: 4, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
-  progressBarFill: { width: '40%', height: '100%', backgroundColor: '#fff', borderRadius: 2 },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { paddingBottom: Spacing.xxl },
+
+  header: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.surface,
+    paddingHorizontal: Spacing.screenPadding,
+    paddingVertical: Spacing.md,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.borderLight,
+  },
+  greeting: { flex: 1, marginLeft: Spacing.md },
+  greetingTitle: { ...Typography.subtitle1, color: Colors.text, fontWeight: '800' },
+  greetingSub: { ...Typography.caption, color: Colors.textSecondary, marginTop: 2 },
+  profileBtn: { padding: 4 },
+
+  activeTripCard: {
+    marginHorizontal: Spacing.screenPadding,
+    marginTop: Spacing.md,
+    backgroundColor: Colors.primaryDark,
+    borderColor: Colors.primaryDark,
+    padding: Spacing.md,
+  },
+  tripHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    marginBottom: Spacing.xs,
+  },
+  tripTitleRow: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  tripTitle: { color: Colors.textInverse, fontWeight: '700', fontSize: 15 },
+  liveBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: 'rgba(255,255,255,0.18)',
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.round,
+    gap: 4,
+  },
+  liveDot: { width: 6, height: 6, borderRadius: 3, backgroundColor: Colors.successLight },
+  liveText: { color: Colors.textInverse, fontWeight: '700', fontSize: 10, letterSpacing: 1 },
+  tripMountain: { color: Colors.textInverse, fontSize: 16, fontWeight: '700', marginTop: 2 },
+  tripProgress: { marginTop: Spacing.sm, gap: 4 },
+  progressTrack: { height: 4, backgroundColor: 'rgba(255,255,255,0.3)', borderRadius: 2 },
+  progressFill: { width: '40%', height: '100%', backgroundColor: Colors.textInverse, borderRadius: 2 },
   tripProgressText: { color: 'rgba(255,255,255,0.8)', fontSize: 12 },
-  tripActions: { flexDirection: 'row', gap: 8, marginTop: 8 },
-  tripActionBtn: { padding: 6, backgroundColor: 'rgba(255,255,255,0.2)', borderRadius: 8 },
-  weatherBanner: { flexDirection: 'row', alignItems: 'center', padding: 12, marginHorizontal: 16, borderRadius: 10, gap: 8 },
-  weatherText: { flex: 1, fontSize: 13, fontWeight: '500' },
-  sectionTitle: { fontSize: 16, fontWeight: 'bold', color: '#212121', marginBottom: 12, paddingHorizontal: 16 },
-  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap', paddingHorizontal: 12, marginBottom: 16 },
-  actionCard: { width: '33%', alignItems: 'center', paddingVertical: 8 },
-  actionIcon: { width: 48, height: 48, borderRadius: 24, justifyContent: 'center', alignItems: 'center', marginBottom: 4 },
-  actionLabel: { fontSize: 12, color: '#424242', fontWeight: '500' },
-  recommendScroll: { paddingLeft: 16, marginBottom: 16 },
-  recommendCard: { width: 180, backgroundColor: '#fff', borderRadius: 12, marginRight: 12, elevation: 2, overflow: 'hidden' },
-  recommendImage: { width: 180, height: 100, backgroundColor: '#D5D5D5' },
-  recommendBadge: { position: 'absolute', top: 8, right: 8, backgroundColor: '#2E7D32', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  recommendMatch: { color: '#fff', fontSize: 11, fontWeight: 'bold' },
-  recommendName: { fontSize: 15, fontWeight: 'bold', color: '#212121', padding: 8, paddingBottom: 2 },
-  recommendReason: { fontSize: 12, color: '#757575', paddingHorizontal: 8, paddingBottom: 8 },
-  recentSection: { marginBottom: 16 },
-  postCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 12, marginHorizontal: 16, marginBottom: 4, borderRadius: 8, gap: 8 },
-  postAvatar: { width: 32, height: 32, borderRadius: 16, backgroundColor: '#E0E0E0' },
-  postTitle: { fontSize: 14, fontWeight: '600', color: '#212121' },
-  postMeta: { fontSize: 12, color: '#757575' },
-  viewAll: { paddingHorizontal: 16, paddingVertical: 8 },
-  viewAllText: { color: '#2E7D32', fontWeight: '600', fontSize: 13 },
+  tripActions: { flexDirection: 'row', gap: Spacing.sm, marginTop: Spacing.sm },
+  tripActionBtn: {
+    padding: 8,
+    backgroundColor: 'rgba(255,255,255,0.2)',
+    borderRadius: BorderRadius.sm,
+  },
+
+  weatherBanner: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    marginHorizontal: Spacing.screenPadding,
+    marginTop: Spacing.md,
+    borderRadius: BorderRadius.md,
+    gap: Spacing.sm,
+  },
+  weatherText: { flex: 1, fontSize: 13, fontWeight: '600' },
+
+  section: { marginTop: Spacing.lg, paddingHorizontal: Spacing.screenPadding },
+  actionsGrid: { flexDirection: 'row', flexWrap: 'wrap' },
+  actionCard: { width: '33.33%', alignItems: 'center', paddingVertical: Spacing.sm },
+  actionIcon: {
+    width: 50,
+    height: 50,
+    borderRadius: 25,
+    justifyContent: 'center',
+    alignItems: 'center',
+    marginBottom: 6,
+  },
+  actionLabel: { ...Typography.caption, color: Colors.text, fontWeight: '600' },
+
+  recommendScroll: { paddingRight: Spacing.md, gap: Spacing.md },
+  recommendCard: {
+    width: 200,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    overflow: 'hidden',
+    ...Shadows.sm,
+  },
+  recommendImage: {
+    height: 96,
+    backgroundColor: Colors.primaryLight,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  matchBadge: {
+    position: 'absolute',
+    top: Spacing.sm,
+    right: Spacing.sm,
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.round,
+  },
+  matchText: { color: Colors.textInverse, fontSize: 11, fontWeight: '700' },
+  recommendBody: { padding: Spacing.md },
+  recommendName: { ...Typography.subtitle2, color: Colors.text, fontWeight: '800' },
+  difficultyRow: { flexDirection: 'row', gap: 3, marginTop: 6 },
+  difficultyDot: { width: 14, height: 4, borderRadius: 2 },
+  recommendReason: { ...Typography.caption, color: Colors.textSecondary, marginTop: 6, lineHeight: 16 },
+
+  postsCard: { overflow: 'hidden' },
+  postRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    padding: Spacing.md,
+    gap: Spacing.md,
+  },
+  postRowBorder: { borderTopWidth: 1, borderTopColor: Colors.borderLight },
+  postInfo: { flex: 1 },
+  postTitle: { ...Typography.subtitle2, color: Colors.text, fontWeight: '700' },
+  postMeta: { ...Typography.caption, color: Colors.textSecondary, marginTop: 2 },
 });
 
 export default DashboardScreen;

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, TouchableOpacity, ScrollView, Alert, Switch } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card } from '../../shared/components/ui';
 
 const MAP_REGIONS = [
   { id: '1', name: 'Gunung Gede-Pangrango', province: 'Jawa Barat', sizeMB: 45, isDownloaded: true },
@@ -46,39 +48,51 @@ const OfflineMapManager: React.FC = () => {
   };
 
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      <View style={styles.storageCard}>
+    <ScrollView style={styles.container} contentContainerStyle={styles.content} showsVerticalScrollIndicator={false}>
+      <Card style={styles.storageCard}>
         <View style={styles.storageHeader}>
-          <Icon name="storage" size={24} color="#2E7D32" />
+          <View style={styles.storageIcon}>
+            <Icon name="storage" size={20} color={Colors.primary} />
+          </View>
           <Text style={styles.storageTitle}>Penyimpanan Offline</Text>
         </View>
         <View style={styles.storageBarBg}>
-          <View style={[styles.storageBarFill, { width: `${(totalUsed / totalAvailable) * 100}%` }]} />
+          <View style={[styles.storageBarFill, { width: `${Math.min((totalUsed / totalAvailable) * 100, 100)}%` }]} />
         </View>
         <View style={styles.storageLabels}>
           <Text style={styles.storageText}>Terpakai: {totalUsed}MB</Text>
           <Text style={styles.storageText}>Tersedia: {totalAvailable - totalUsed}MB</Text>
         </View>
-      </View>
+      </Card>
 
-      <View style={styles.settingRow}>
-        <Text style={styles.settingLabel}>Auto-download saat WiFi</Text>
-        <Switch value={autoDownloadWifi} onValueChange={setAutoDownloadWifi} trackColor={{ true: '#2E7D32' }} />
-      </View>
+      <Card style={styles.settingRow}>
+        <View style={styles.settingInfo}>
+          <Icon name="wifi" size={18} color={Colors.textSecondary} />
+          <Text style={styles.settingLabel}>Auto-download saat WiFi</Text>
+        </View>
+        <Switch
+          value={autoDownloadWifi}
+          onValueChange={setAutoDownloadWifi}
+          trackColor={{ true: Colors.primary }}
+          thumbColor={Colors.surface}
+        />
+      </Card>
 
       <Text style={styles.sectionTitle}>Daftar Peta</Text>
       {regions.map(region => (
-        <View key={region.id} style={styles.regionCard}>
+        <Card key={region.id} style={styles.regionCard}>
           <View style={styles.regionInfo}>
             <Text style={styles.regionName}>{region.name}</Text>
             <Text style={styles.regionMeta}>{region.province} · {region.sizeMB}MB</Text>
-            {region.isDownloaded && activeDownload?.id === region.id && (
-              <Text style={styles.regionStatus}>Menghapus...</Text>
+            {region.isDownloaded && (
+              <Text style={styles.downloadedHint}>
+                <Icon name="check-circle" size={12} color={Colors.success} /> Tersimpan
+              </Text>
             )}
           </View>
           {region.isDownloaded ? (
-            <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(region.id, region.name)}>
-              <Icon name="delete" size={18} color="#D32F2F" />
+            <TouchableOpacity style={styles.deleteBtn} onPress={() => handleDelete(region.id, region.name)} activeOpacity={0.7}>
+              <Icon name="delete" size={18} color={Colors.danger} />
             </TouchableOpacity>
           ) : activeDownload?.id === region.id ? (
             <View style={styles.progressWrap}>
@@ -88,40 +102,49 @@ const OfflineMapManager: React.FC = () => {
               <Text style={styles.progressText}>{activeDownload.progress}%</Text>
             </View>
           ) : (
-            <TouchableOpacity style={styles.downloadBtn} onPress={() => handleDownload(region.id)}>
-              <Icon name="download" size={18} color="#fff" />
+            <TouchableOpacity style={styles.downloadBtn} onPress={() => handleDownload(region.id)} activeOpacity={0.7}>
+              <Icon name="download" size={18} color={Colors.textInverse} />
             </TouchableOpacity>
           )}
-        </View>
+        </Card>
       ))}
     </ScrollView>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  content: { padding: 16, paddingBottom: 40 },
-  storageCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 16, elevation: 2 },
-  storageHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 12, gap: 8 },
-  storageTitle: { fontSize: 16, fontWeight: 'bold', color: '#212121' },
-  storageBarBg: { height: 8, backgroundColor: '#E0E0E0', borderRadius: 4, overflow: 'hidden' },
-  storageBarFill: { height: '100%', backgroundColor: '#2E7D32', borderRadius: 4 },
-  storageLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: 8 },
-  storageText: { fontSize: 12, color: '#757575' },
-  settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', backgroundColor: '#fff', padding: 14, borderRadius: 10, marginBottom: 16 },
-  settingLabel: { fontSize: 14, color: '#212121' },
-  sectionTitle: { fontSize: 15, fontWeight: 'bold', color: '#212121', marginBottom: 10 },
-  regionCard: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 14, borderRadius: 10, marginBottom: 8, elevation: 1 },
+  container: { flex: 1, backgroundColor: Colors.background },
+  content: { padding: Spacing.screenPadding, paddingBottom: 40 },
+  storageCard: { marginBottom: Spacing.md, ...Shadows.md },
+  storageHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.md, gap: Spacing.sm },
+  storageIcon: {
+    width: 36,
+    height: 36,
+    borderRadius: BorderRadius.sm,
+    backgroundColor: Colors.primaryFaded,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  storageTitle: { ...Typography.subtitle1, color: Colors.text, fontWeight: '700' },
+  storageBarBg: { height: 8, backgroundColor: Colors.borderLight, borderRadius: BorderRadius.xs, overflow: 'hidden' },
+  storageBarFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: BorderRadius.xs },
+  storageLabels: { flexDirection: 'row', justifyContent: 'space-between', marginTop: Spacing.sm },
+  storageText: { ...Typography.caption, color: Colors.textSecondary },
+  settingRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center', marginBottom: Spacing.md },
+  settingInfo: { flexDirection: 'row', alignItems: 'center', gap: Spacing.sm },
+  settingLabel: { ...Typography.subtitle2, color: Colors.text, fontWeight: '600' },
+  sectionTitle: { ...Typography.subtitle1, color: Colors.text, fontWeight: '700', marginBottom: Spacing.sm },
+  regionCard: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm, ...Shadows.sm },
   regionInfo: { flex: 1 },
-  regionName: { fontSize: 15, fontWeight: '600', color: '#212121' },
-  regionMeta: { fontSize: 12, color: '#757575', marginTop: 2 },
-  regionStatus: { fontSize: 12, color: '#F57C00', marginTop: 2 },
-  deleteBtn: { padding: 8, backgroundColor: '#FFEBEE', borderRadius: 8 },
-  downloadBtn: { padding: 8, backgroundColor: '#2E7D32', borderRadius: 8 },
+  regionName: { ...Typography.subtitle2, color: Colors.text, fontWeight: '600' },
+  regionMeta: { ...Typography.caption, color: Colors.textSecondary, marginTop: 2 },
+  downloadedHint: { ...Typography.caption, color: Colors.success, marginTop: 2, fontWeight: '600' },
+  deleteBtn: { padding: Spacing.sm, backgroundColor: Colors.dangerFaded, borderRadius: BorderRadius.sm },
+  downloadBtn: { padding: Spacing.sm, backgroundColor: Colors.primary, borderRadius: BorderRadius.sm },
   progressWrap: { width: 80, alignItems: 'flex-end' },
-  progressBarBg: { height: 6, backgroundColor: '#E0E0E0', borderRadius: 3, width: 60, overflow: 'hidden' },
-  progressBarFill: { height: '100%', backgroundColor: '#2E7D32', borderRadius: 3 },
-  progressText: { fontSize: 11, color: '#757575', marginTop: 2 },
+  progressBarBg: { height: 6, backgroundColor: Colors.borderLight, borderRadius: 3, width: 60, overflow: 'hidden' },
+  progressBarFill: { height: '100%', backgroundColor: Colors.primary, borderRadius: 3 },
+  progressText: { ...Typography.caption, color: Colors.textSecondary, marginTop: 2 },
 });
 
 export default OfflineMapManager;

@@ -1,6 +1,8 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, FlatList, TouchableOpacity, TextInput, ScrollView } from 'react-native';
+import { View, Text, StyleSheet, FlatList, TouchableOpacity, ScrollView } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card, SearchBar, Chip, EmptyState, Avatar } from '../../shared/components/ui';
 
 const CATEGORIES = ['Semua', 'Info Jalur', 'Gear Review', 'Trip Report', 'Q&A Ranger'];
 
@@ -26,73 +28,122 @@ const ForumScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   });
 
   const renderThread = ({ item }: { item: typeof FORUM_THREADS[0] }) => (
-    <TouchableOpacity style={styles.threadCard} onPress={() => navigation.navigate('ThreadDetail', { thread: item })}>
-      {item.isPinned && <View style={styles.pinnedBadge}><Icon name="push-pin" size={12} color="#fff" /><Text style={styles.pinnedText}>Pinned</Text></View>}
+    <Card
+      onPress={() => navigation.navigate('ThreadDetail', { thread: item })}
+      style={styles.threadCard}
+    >
+      {item.isPinned && (
+        <View style={styles.pinnedBadge}>
+          <Icon name="push-pin" size={12} color={Colors.textInverse} />
+          <Text style={styles.pinnedText}>PINNED</Text>
+        </View>
+      )}
       <Text style={styles.threadTitle}>{item.title}</Text>
       <Text style={styles.threadPreview} numberOfLines={2}>{item.preview}</Text>
       <View style={styles.threadMeta}>
-        <TouchableOpacity style={styles.categoryBadge}>
+        <View style={styles.categoryBadge}>
           <Text style={styles.categoryText}>{item.category}</Text>
-        </TouchableOpacity>
+        </View>
         <Text style={styles.authorText}>{item.author}</Text>
         <View style={styles.metaRight}>
-          <Icon name="chat-bubble-outline" size={14} color="#757575" />
+          <Icon name="chat-bubble-outline" size={14} color={Colors.textSecondary} />
           <Text style={styles.replyCount}>{item.replies}</Text>
           <Text style={styles.activityText}>{item.lastActivity}</Text>
         </View>
       </View>
-    </TouchableOpacity>
+    </Card>
   );
 
   return (
     <View style={styles.container}>
-      <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#757575" />
-        <TextInput style={styles.searchInput} placeholder="Cari forum..." value={search} onChangeText={setSearch} placeholderTextColor="#757575" />
-        {search.length > 0 && <TouchableOpacity onPress={() => setSearch('')}><Icon name="close" size={20} color="#757575" /></TouchableOpacity>}
+      <View style={styles.searchWrap}>
+        <SearchBar
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Cari forum..."
+        />
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.categoryScroll} contentContainerStyle={styles.categoryContent}>
+      <ScrollView
+        horizontal
+        showsHorizontalScrollIndicator={false}
+        contentContainerStyle={styles.categoryContent}
+        style={styles.categoryScroll}
+      >
         {CATEGORIES.map(cat => (
-          <TouchableOpacity key={cat} style={[styles.catChip, selectedCategory === cat && styles.catChipActive]} onPress={() => setSelectedCategory(cat)}>
-            <Text style={[styles.catText, selectedCategory === cat && styles.catTextActive]}>{cat}</Text>
-          </TouchableOpacity>
+          <Chip
+            key={cat}
+            label={cat}
+            active={selectedCategory === cat}
+            onPress={() => setSelectedCategory(cat)}
+          />
         ))}
       </ScrollView>
 
-      <FlatList data={filteredThreads} renderItem={renderThread} keyExtractor={item => item.id} contentContainerStyle={styles.listContent} showsVerticalScrollIndicator={false} />
+      <FlatList
+        data={filteredThreads}
+        renderItem={renderThread}
+        keyExtractor={item => item.id}
+        contentContainerStyle={styles.listContent}
+        showsVerticalScrollIndicator={false}
+        ListEmptyComponent={
+          <EmptyState
+            title="Tidak ada thread"
+            message="Coba kata kunci atau kategori lain."
+          />
+        }
+      />
 
-      <TouchableOpacity style={styles.fab}>
-        <Icon name="add" size={24} color="#fff" />
+      <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+        <Icon name="add" size={26} color={Colors.textInverse} />
       </TouchableOpacity>
     </View>
   );
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
-  searchContainer: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', margin: 16, borderRadius: 10, paddingHorizontal: 12, elevation: 2 },
-  searchInput: { flex: 1, height: 44, fontSize: 15, color: '#212121', marginLeft: 8 },
-  categoryScroll: { marginBottom: 8 },
-  categoryContent: { paddingHorizontal: 16, gap: 8 },
-  catChip: { paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#fff', borderRadius: 20, marginRight: 8, borderWidth: 1, borderColor: '#E0E0E0' },
-  catChipActive: { backgroundColor: '#2E7D32', borderColor: '#2E7D32' },
-  catText: { fontSize: 13, color: '#212121', fontWeight: '500' },
-  catTextActive: { color: '#fff' },
-  listContent: { paddingHorizontal: 16, paddingBottom: 80 },
-  threadCard: { backgroundColor: '#fff', borderRadius: 12, padding: 14, marginBottom: 8, elevation: 1 },
-  pinnedBadge: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#2E7D32', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 10, alignSelf: 'flex-start', marginBottom: 6, gap: 2 },
-  pinnedText: { fontSize: 10, color: '#fff', fontWeight: 'bold' },
-  threadTitle: { fontSize: 15, fontWeight: 'bold', color: '#212121', marginBottom: 4 },
-  threadPreview: { fontSize: 13, color: '#757575', lineHeight: 18, marginBottom: 8 },
-  threadMeta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: 8 },
-  categoryBadge: { backgroundColor: '#E8F5E9', paddingHorizontal: 8, paddingVertical: 2, borderRadius: 8 },
-  categoryText: { fontSize: 11, color: '#2E7D32', fontWeight: '600' },
-  authorText: { fontSize: 12, color: '#757575' },
+  container: { flex: 1, backgroundColor: Colors.background },
+  searchWrap: {
+    paddingHorizontal: Spacing.screenPadding,
+    paddingTop: Spacing.md,
+  },
+  categoryScroll: { flexGrow: 0, marginTop: Spacing.md },
+  categoryContent: { paddingHorizontal: Spacing.screenPadding, gap: Spacing.sm, paddingRight: Spacing.lg },
+  listContent: { paddingHorizontal: Spacing.screenPadding, paddingBottom: 96 },
+  threadCard: { marginBottom: Spacing.sm },
+  pinnedBadge: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    alignSelf: 'flex-start',
+    backgroundColor: Colors.primary,
+    paddingHorizontal: Spacing.sm,
+    paddingVertical: 3,
+    borderRadius: BorderRadius.round,
+    gap: 4,
+    marginBottom: Spacing.sm,
+  },
+  pinnedText: { fontSize: 10, color: Colors.textInverse, fontWeight: '800', letterSpacing: 0.5 },
+  threadTitle: { ...Typography.subtitle1, color: Colors.text, fontWeight: '800', marginBottom: 4 },
+  threadPreview: { ...Typography.body2, color: Colors.textSecondary, lineHeight: 20, marginBottom: Spacing.sm },
+  threadMeta: { flexDirection: 'row', alignItems: 'center', flexWrap: 'wrap', gap: Spacing.sm },
+  categoryBadge: { backgroundColor: Colors.primaryFaded, paddingHorizontal: Spacing.sm, paddingVertical: 3, borderRadius: BorderRadius.xs },
+  categoryText: { fontSize: 11, color: Colors.primaryDark, fontWeight: '700' },
+  authorText: { ...Typography.caption, color: Colors.textSecondary },
   metaRight: { flexDirection: 'row', alignItems: 'center', marginLeft: 'auto', gap: 4 },
-  replyCount: { fontSize: 12, color: '#757575', fontWeight: '600' },
-  activityText: { fontSize: 12, color: '#BDBDBD' },
-  fab: { position: 'absolute', bottom: 24, right: 16, backgroundColor: '#2E7D32', width: 56, height: 56, borderRadius: 28, justifyContent: 'center', alignItems: 'center', elevation: 4 },
+  replyCount: { ...Typography.caption, color: Colors.textSecondary, fontWeight: '700' },
+  activityText: { ...Typography.caption, color: Colors.textTertiary },
+  fab: {
+    position: 'absolute',
+    bottom: Spacing.lg,
+    right: Spacing.screenPadding,
+    backgroundColor: Colors.primary,
+    width: 56,
+    height: 56,
+    borderRadius: 28,
+    justifyContent: 'center',
+    alignItems: 'center',
+    ...Shadows.lg,
+  },
 });
 
 export default ForumScreen;

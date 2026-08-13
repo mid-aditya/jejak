@@ -1,7 +1,9 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { View, Text, StyleSheet, TextInput, TouchableOpacity, ScrollView, Modal, ActivityIndicator, Dimensions, FlatList } from 'react-native';
+import React, { useState } from 'react';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
 import MapViewComponent from '../../shared/components/MapView';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card, SearchBar, Chip, Button } from '../../shared/components/ui';
 
 const { width, height } = Dimensions.get('window');
 
@@ -16,11 +18,23 @@ const MOUNTAINS = [
 
 const REGIONS = ['Semua', 'Jawa', 'Sumatra', 'Kalimantan', 'Sulawesi', 'Bali'];
 
+const getDifficultyColor = (level: number) => {
+  if (level <= 3) return Colors.success;
+  if (level <= 6) return Colors.warning;
+  if (level <= 8) return Colors.accent;
+  return Colors.danger;
+};
+
+const getWeatherBg = (weather: string) => {
+  if (weather === 'Cerah') return Colors.successFaded;
+  if (weather.includes('Hujan')) return Colors.infoFaded;
+  return Colors.warningFaded;
+};
+
 const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const [search, setSearch] = useState('');
   const [selectedRegion, setSelectedRegion] = useState('Semua');
   const [selectedMountain, setSelectedMountain] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(false);
   const [showCard, setShowCard] = useState(false);
 
   const filteredMountains = MOUNTAINS.filter(m => {
@@ -29,22 +43,16 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     return matchSearch && matchRegion;
   });
 
-  const handleMarkerPress = (mountain: any) => {
-    setSelectedMountain(mountain);
-    setShowCard(true);
-  };
-
-  const getDifficultyColor = (level: number) => {
-    if (level <= 3) return '#2E7D32';
-    if (level <= 6) return '#F57C00';
-    if (level <= 8) return '#E64A19';
-    return '#D32F2F';
-  };
-
   const DifficultyBar = ({ level }: { level: number }) => (
     <View style={styles.difficultyBar}>
       {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
-        <View key={i} style={[styles.difficultyDot, { backgroundColor: i <= level ? getDifficultyColor(level) : '#E0E0E0' }]} />
+        <View
+          key={i}
+          style={[
+            styles.difficultyDot,
+            { backgroundColor: i <= level ? getDifficultyColor(level) : Colors.border },
+          ]}
+        />
       ))}
     </View>
   );
@@ -55,65 +63,104 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         centerCoordinate={{ latitude: -6.9, longitude: 110.5 }}
         zoomLevel={5}
         style={{ width, height }}
-        markers={filteredMountains.map(m => ({ id: m.id, coordinate: { latitude: m.lat, longitude: m.lng }, title: m.name }))}
-        onMarkerPress={(id) => {
+        markers={filteredMountains.map(m => ({
+          id: m.id,
+          coordinate: { latitude: m.lat, longitude: m.lng },
+          title: m.name,
+        }))}
+        onMarkerPress={id => {
           const m = MOUNTAINS.find(mt => mt.id === id);
-          if (m) handleMarkerPress(m);
+          if (m) {
+            setSelectedMountain(m);
+            setShowCard(true);
+          }
         }}
         showUserLocation
         showBreadcrumb={false}
       />
 
-      <View style={styles.searchContainer}>
-        <Icon name="search" size={20} color="#757575" style={styles.searchIcon} />
-        <TextInput style={styles.searchInput} placeholder="Cari gunung..." value={search} onChangeText={setSearch} placeholderTextColor="#757575" />
-        {search.length > 0 && (
-          <TouchableOpacity onPress={() => setSearch('')}>
-            <Icon name="close" size={20} color="#757575" />
-          </TouchableOpacity>
-        )}
+      {/* Overlay controls */}
+      <View style={styles.topOverlay}>
+        <SearchBar
+          value={search}
+          onChangeText={setSearch}
+          placeholder="Cari gunung..."
+        />
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.chipContainer}
+          style={styles.chipScroll}
+        >
+          {REGIONS.map(region => (
+            <Chip
+              key={region}
+              label={region}
+              active={selectedRegion === region}
+              onPress={() => setSelectedRegion(region)}
+            />
+          ))}
+        </ScrollView>
       </View>
 
-      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.chipScroll} contentContainerStyle={styles.chipContainer}>
-        {REGIONS.map(region => (
-          <TouchableOpacity key={region} style={[styles.chip, selectedRegion === region && styles.chipActive]} onPress={() => setSelectedRegion(region)}>
-            <Text style={[styles.chipText, selectedRegion === region && styles.chipTextActive]}>{region}</Text>
-          </TouchableOpacity>
-        ))}
-      </ScrollView>
-
+      {/* Mountain card */}
       {showCard && selectedMountain && (
-        <View style={styles.mountainCard}>
-          <TouchableOpacity style={styles.closeCard} onPress={() => setShowCard(false)}>
-            <Icon name="close" size={20} color="#757575" />
+        <Card elevated style={styles.mountainCard}>
+          <TouchableOpacity
+            style={styles.closeCard}
+            onPress={() => setShowCard(false)}
+            hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
+          >
+            <Icon name="close" size={20} color={Colors.textSecondary} />
           </TouchableOpacity>
           <View style={styles.cardHeader}>
             <Text style={styles.mountainName}>{selectedMountain.name}</Text>
-            <View style={[styles.weatherBadge, { backgroundColor: selectedMountain.weather === 'Cerah' ? '#E8F5E9' : selectedMountain.weather.includes('Hujan') ? '#E3F2FD' : '#FFF8E1' }]}>
-              <Text style={styles.weatherText}>{selectedMountain.weather} · {selectedMountain.temp}°C</Text>
+            <View
+              style={[
+                styles.weatherBadge,
+                { backgroundColor: getWeatherBg(selectedMountain.weather) },
+              ]}
+            >
+              <Text style={styles.weatherText}>
+                {selectedMountain.weather} · {selectedMountain.temp}°C
+              </Text>
             </View>
           </View>
           <View style={styles.cardStats}>
-            <View style={styles.statItem}><Icon name="terrain" size={16} color="#757575" /><Text style={styles.statText}>{selectedMountain.elevation}mdpl</Text></View>
-            <View style={styles.statItem}><Icon name="trending-up" size={16} color="#757575" /><Text style={styles.statText}>Level {selectedMountain.difficulty}/10</Text></View>
-            <View style={styles.statItem}><Icon name="route" size={16} color="#757575" /><Text style={styles.statText}>{selectedMountain.routes} rute</Text></View>
+            <View style={styles.statItem}>
+              <Icon name="terrain" size={16} color={Colors.textSecondary} />
+              <Text style={styles.statText}>{selectedMountain.elevation} mdpl</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="trending-up" size={16} color={Colors.textSecondary} />
+              <Text style={styles.statText}>Level {selectedMountain.difficulty}/10</Text>
+            </View>
+            <View style={styles.statItem}>
+              <Icon name="route" size={16} color={Colors.textSecondary} />
+              <Text style={styles.statText}>{selectedMountain.routes} rute</Text>
+            </View>
           </View>
           <DifficultyBar level={selectedMountain.difficulty} />
           <View style={styles.cardActions}>
-            <TouchableOpacity style={styles.detailBtn} onPress={() => navigation.navigate('MountainDetail', { mountain: selectedMountain })}>
-              <Text style={styles.detailBtnText}>Lihat Detail</Text>
-            </TouchableOpacity>
-            <TouchableOpacity style={styles.offlineBtn} onPress={() => navigation.navigate('OfflineMapManager')}>
-              <Icon name="download" size={16} color="#2E7D32" />
-              <Text style={styles.offlineBtnText}>Offline</Text>
-            </TouchableOpacity>
+            <Button
+              title="Lihat Detail"
+              onPress={() => navigation.navigate('MountainDetail', { mountain: selectedMountain })}
+              style={styles.detailBtn}
+            />
+            <Button
+              title="Offline"
+              variant="outline"
+              icon="download"
+              onPress={() => navigation.navigate('OfflineMapManager')}
+              style={styles.offlineBtn}
+            />
           </View>
-        </View>
+        </Card>
       )}
 
-      <View style={[styles.layersToggle, { bottom: showCard ? 200 : 24 }]}>
+      <View style={[styles.layersToggle, { bottom: showCard ? 220 : 24 }]}>
         <TouchableOpacity style={styles.layerBtn}>
-          <Icon name="layers" size={20} color="#757575" />
+          <Icon name="layers" size={20} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>
     </View>
@@ -122,32 +169,46 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
 
 const styles = StyleSheet.create({
   container: { flex: 1 },
-  searchContainer: { position: 'absolute', top: 50, left: 16, right: 16, backgroundColor: '#FFFFFF', borderRadius: 10, flexDirection: 'row', alignItems: 'center', paddingHorizontal: 12, elevation: 3, shadowColor: '#000', shadowOffset: { width: 0, height: 2 }, shadowOpacity: 0.1, shadowRadius: 4 },
-  searchIcon: { marginRight: 8 },
-  searchInput: { flex: 1, height: 44, fontSize: 15, color: '#212121' },
-  chipScroll: { position: 'absolute', top: 110, left: 0 },
-  chipContainer: { paddingHorizontal: 16, gap: 8 },
-  chip: { paddingVertical: 8, paddingHorizontal: 16, backgroundColor: '#FFFFFF', borderRadius: 20, elevation: 2, marginRight: 8 },
-  chipActive: { backgroundColor: '#2E7D32' },
-  chipText: { fontSize: 13, color: '#212121', fontWeight: '500' },
-  chipTextActive: { color: '#FFFFFF' },
-  mountainCard: { position: 'absolute', bottom: 24, left: 16, right: 16, backgroundColor: '#FFFFFF', borderRadius: 16, padding: 16, elevation: 5, shadowColor: '#000', shadowOffset: { width: 0, height: 4 }, shadowOpacity: 0.15, shadowRadius: 8 },
+  topOverlay: {
+    position: 'absolute',
+    top: 50,
+    left: Spacing.screenPadding,
+    right: Spacing.screenPadding,
+    gap: Spacing.sm,
+  },
+  chipScroll: { flexGrow: 0 },
+  chipContainer: { gap: Spacing.sm, paddingRight: Spacing.md },
+
+  mountainCard: {
+    position: 'absolute',
+    bottom: 24,
+    left: Spacing.screenPadding,
+    right: Spacing.screenPadding,
+    padding: Spacing.md,
+  },
   closeCard: { position: 'absolute', top: 12, right: 12, zIndex: 1, padding: 4 },
-  cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 },
-  mountainName: { fontSize: 18, fontWeight: 'bold', color: '#212121', flex: 1 },
-  weatherBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: 12 },
-  weatherText: { fontSize: 12, color: '#212121' },
-  cardStats: { flexDirection: 'row', gap: 16, marginBottom: 12 },
+  cardHeader: { flexDirection: 'row', alignItems: 'center', justifyContent: 'space-between', marginBottom: Spacing.md },
+  mountainName: { ...Typography.h4, color: Colors.text, fontWeight: '800', flex: 1 },
+  weatherBadge: { paddingHorizontal: 10, paddingVertical: 4, borderRadius: BorderRadius.round },
+  weatherText: { ...Typography.caption, color: Colors.text, fontWeight: '600' },
+  cardStats: { flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.md },
   statItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  statText: { fontSize: 13, color: '#757575' },
-  difficultyBar: { flexDirection: 'row', gap: 4, marginBottom: 16 },
-  difficultyDot: { width: 20, height: 6, borderRadius: 3 },
-  cardActions: { flexDirection: 'row', gap: 10 },
-  detailBtn: { flex: 1, backgroundColor: '#2E7D32', padding: 12, borderRadius: 10, alignItems: 'center' },
-  detailBtnText: { color: '#FFFFFF', fontWeight: 'bold', fontSize: 14 },
-  offlineBtn: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center', paddingHorizontal: 16, paddingVertical: 12, borderWidth: 1, borderColor: '#2E7D32', borderRadius: 10, gap: 4 },
-  offlineBtnText: { color: '#2E7D32', fontWeight: '600', fontSize: 14 },
-  layersToggle: { position: 'absolute', right: 16, backgroundColor: '#FFFFFF', borderRadius: 10, elevation: 3 },
+  statText: { ...Typography.caption, color: Colors.textSecondary },
+  difficultyBar: { flexDirection: 'row', gap: 4, marginBottom: Spacing.md },
+  difficultyDot: { width: 22, height: 6, borderRadius: 3 },
+  cardActions: { flexDirection: 'row', gap: Spacing.sm },
+  detailBtn: { flex: 1 },
+  offlineBtn: { flex: 1 },
+
+  layersToggle: {
+    position: 'absolute',
+    right: Spacing.screenPadding,
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    borderWidth: 1,
+    borderColor: Colors.borderLight,
+    ...Shadows.md,
+  },
   layerBtn: { padding: 12 },
 });
 

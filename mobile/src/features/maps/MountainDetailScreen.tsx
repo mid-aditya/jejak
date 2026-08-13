@@ -1,22 +1,35 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Image, Dimensions, StatusBar } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
+import { Card, Button, SectionHeader } from '../../shared/components/ui';
 
 const { width } = Dimensions.get('window');
 
 const TABS = ['Rute', 'Cuaca', 'Perizinan', 'Review'];
 
+const getDifficultyColor = (level: number) => {
+  if (level <= 3) return Colors.success;
+  if (level <= 6) return Colors.warning;
+  if (level <= 8) return Colors.accent;
+  return Colors.danger;
+};
+
 const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
   const { mountain } = route.params;
   const [activeTab, setActiveTab] = useState('Rute');
 
-  const getDifficultyColor = (level: number) => {
-    if (level <= 3) return '#2E7D32'; if (level <= 6) return '#F57C00'; if (level <= 8) return '#E64A19'; return '#D32F2F';
-  };
-
   const DifficultyBar = ({ level }: { level: number }) => (
     <View style={styles.difficultyRow}>
-      {[1,2,3,4,5,6,7,8,9,10].map(i => <View key={i} style={[styles.dDot, { backgroundColor: i <= level ? getDifficultyColor(level) : '#E0E0E0' }]} />)}
+      {[1, 2, 3, 4, 5, 6, 7, 8, 9, 10].map(i => (
+        <View
+          key={i}
+          style={[
+            styles.dDifficulty,
+            { backgroundColor: i <= level ? getDifficultyColor(level) : Colors.border },
+          ]}
+        />
+      ))}
     </View>
   );
 
@@ -41,37 +54,56 @@ const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navig
 
   return (
     <ScrollView style={styles.container}>
+      <StatusBar barStyle="light-content" />
       <View style={styles.heroContainer}>
-        <Image source={{ uri: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600' }} style={styles.heroImage} />
-        <TouchableOpacity style={styles.backBtn} onPress={() => navigation.goBack()}>
-          <Icon name="arrow-back" size={24} color="#fff" />
+        <Image
+          source={{ uri: 'https://images.unsplash.com/photo-1464822759023-fed622ff2c3b?w=600' }}
+          style={styles.heroImage}
+        />
+        <TouchableOpacity style={styles.heroBtn} onPress={() => navigation.goBack()} activeOpacity={0.8}>
+          <Icon name="arrow-back" size={24} color={Colors.textInverse} />
         </TouchableOpacity>
-        <TouchableOpacity style={styles.shareBtn}>
-          <Icon name="share" size={20} color="#fff" />
+        <TouchableOpacity style={[styles.heroBtn, styles.heroBtnRight]} activeOpacity={0.8}>
+          <Icon name="share" size={20} color={Colors.textInverse} />
         </TouchableOpacity>
+        <View style={styles.heroGradient} />
       </View>
 
       <View style={styles.content}>
         <View style={styles.titleRow}>
-          <View style={{ flex: 1 }}>
+          <View style={styles.titleBlock}>
             <Text style={styles.name}>{mountain.name}</Text>
-            <Text style={styles.region}>{mountain.region} · {mountain.elevation}mdpl</Text>
+            <Text style={styles.region}>{mountain.region} · {mountain.elevation} mdpl</Text>
           </View>
-          <View style={{ alignItems: 'flex-end' }}>
+          <View style={styles.difficultyBlock}>
             <Text style={styles.difficultyLabel}>Difficulty {mountain.difficulty}/10</Text>
             <DifficultyBar level={mountain.difficulty} />
           </View>
         </View>
 
         <View style={styles.quickStats}>
-          <View style={styles.quickStatItem}><Icon name="timer" size={16} color="#757575" /><Text style={styles.quickStatText}>8-12 jam</Text></View>
-          <View style={styles.quickStatItem}><Icon name="thermostat" size={16} color="#757575" /><Text style={styles.quickStatText}>12-22°C</Text></View>
-          <View style={styles.quickStatItem}><Icon name="flag" size={16} color="#757575" /><Text style={styles.quickStatText}>3 rute</Text></View>
+          <View style={styles.quickStatItem}>
+            <Icon name="timer" size={16} color={Colors.textSecondary} />
+            <Text style={styles.quickStatText}>8-12 jam</Text>
+          </View>
+          <View style={styles.quickStatItem}>
+            <Icon name="thermostat" size={16} color={Colors.textSecondary} />
+            <Text style={styles.quickStatText}>12-22°C</Text>
+          </View>
+          <View style={styles.quickStatItem}>
+            <Icon name="flag" size={16} color={Colors.textSecondary} />
+            <Text style={styles.quickStatText}>3 rute</Text>
+          </View>
         </View>
 
         <View style={styles.tabBar}>
           {TABS.map(tab => (
-            <TouchableOpacity key={tab} style={[styles.tab, activeTab === tab && styles.tabActive]} onPress={() => setActiveTab(tab)}>
+            <TouchableOpacity
+              key={tab}
+              style={[styles.tab, activeTab === tab && styles.tabActive]}
+              onPress={() => setActiveTab(tab)}
+              activeOpacity={0.7}
+            >
               <Text style={[styles.tabText, activeTab === tab && styles.tabTextActive]}>{tab}</Text>
             </TouchableOpacity>
           ))}
@@ -80,7 +112,7 @@ const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navig
         {activeTab === 'Rute' && (
           <View>
             {routes.map((rt, idx) => (
-              <View key={idx} style={styles.routeCard}>
+              <Card key={idx} style={styles.routeCard}>
                 <View style={styles.routeHeader}>
                   <Text style={styles.routeName}>{rt.name}</Text>
                   <Text style={styles.routeDuration}>{rt.duration}</Text>
@@ -89,7 +121,7 @@ const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navig
                   <Text style={styles.routeMetaText}>Jarak: {rt.distance}</Text>
                   <Text style={styles.routeMetaText}>Elevasi: +{rt.elevationGain}m</Text>
                 </View>
-                <Text style={styles.routeSectionTitle}>Waypoints:</Text>
+                <Text style={styles.routeSectionTitle}>Waypoints</Text>
                 {rt.waypoints.map((wp, i) => (
                   <View key={i} style={styles.waypointRow}>
                     <View style={styles.waypointDot} />
@@ -97,35 +129,41 @@ const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navig
                   </View>
                 ))}
                 <View style={styles.dangerZone}>
-                  <Icon name="warning" size={14} color="#D32F2F" />
+                  <Icon name="warning" size={14} color={Colors.danger} />
                   <Text style={styles.dangerText}>{rt.dangerZones[0]}</Text>
                 </View>
-              </View>
+              </Card>
             ))}
           </View>
         )}
 
         {activeTab === 'Cuaca' && (
           <View>
-            <View style={styles.currentWeather}>
-              <Icon name="wb-cloudy" size={48} color="#757575" />
+            <Card style={styles.currentWeather}>
+              <Icon name="wb-cloudy" size={48} color={Colors.textSecondary} />
               <Text style={styles.currentTemp}>18°C</Text>
               <Text style={styles.currentCondition}>Berawan · Angin 12km/j · Kelembapan 78%</Text>
-            </View>
-            <Text style={styles.hazardTitle}>⚠️ Peringatan Dini</Text>
-            <View style={styles.hazardCard}>
-              <View style={styles.hazardRow}><View style={[styles.hazardDot, { backgroundColor: '#FFC107' }]} /><Text style={styles.hazardText}>Kabut tebal berpotensi terjadi (H+2)</Text></View>
-              <View style={styles.hazardRow}><View style={[styles.hazardDot, { backgroundColor: '#4CAF50' }]} /><Text style={styles.hazardText}>Kondisi aman untuk pendakian hari ini</Text></View>
-            </View>
-            <Text style={styles.forecastTitle}>Prakiraan 5 Hari</Text>
+            </Card>
+            <SectionHeader title="Peringatan Dini" eyebrow="HAZARD" />
+            <Card style={styles.hazardCard}>
+              <View style={styles.hazardRow}>
+                <View style={[styles.hazardDot, { backgroundColor: Colors.warning }]} />
+                <Text style={styles.hazardText}>Kabut tebal berpotensi terjadi (H+2)</Text>
+              </View>
+              <View style={styles.hazardRow}>
+                <View style={[styles.hazardDot, { backgroundColor: Colors.success }]} />
+                <Text style={styles.hazardText}>Kondisi aman untuk pendakian hari ini</Text>
+              </View>
+            </Card>
+            <SectionHeader title="Prakiraan 5 Hari" />
             {forecast.map((f, i) => (
-              <View key={i} style={styles.forecastRow}>
+              <Card key={i} style={styles.forecastRow}>
                 <Text style={styles.forecastDay}>{f.day}</Text>
-                <Icon name={f.icon as any} size={20} color="#757575" />
+                <Icon name={f.icon as any} size={20} color={Colors.textSecondary} />
                 <Text style={styles.forecastTemp}>{f.temp}°C</Text>
                 <Text style={styles.forecastCondition}>{f.condition}</Text>
                 <Text style={styles.forecastDetail}>H:{f.humidity}% W:{f.wind}km</Text>
-              </View>
+              </Card>
             ))}
           </View>
         )}
@@ -134,30 +172,43 @@ const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navig
           <View>
             <Text style={styles.permitsDesc}>Persyaratan perizinan untuk {mountain.name}</Text>
             {permits.map((p, i) => (
-              <View key={i} style={styles.permitsCard}>
-                <Text style={styles.permitsName}>{p.name}</Text>
-                <Text style={styles.permitsPrice}>{p.price}</Text>
+              <Card key={i} style={styles.permitsCard}>
+                <View style={styles.permitsHeader}>
+                  <Text style={styles.permitsName}>{p.name}</Text>
+                  <Text style={styles.permitsPrice}>{p.price}</Text>
+                </View>
                 <Text style={styles.permitsRequired}>Diperlukan: {p.required}</Text>
                 <Text style={styles.permitsInfo}>{p.info}</Text>
-              </View>
+              </Card>
             ))}
-            <TouchableOpacity style={styles.applyBtn}>
-              <Text style={styles.applyBtnText}>Ajukan Perizinan</Text>
-            </TouchableOpacity>
+            <Button title="Ajukan Perizinan" size="lg" style={styles.applyBtn} />
           </View>
         )}
 
         {activeTab === 'Review' && (
           <View>
-            {[1,2,3].map(i => (
-              <View key={i} style={styles.reviewCard}>
+            {[1, 2, 3].map(i => (
+              <Card key={i} style={styles.reviewCard}>
                 <View style={styles.reviewHeader}>
-                  <View style={styles.reviewAvatar} />
-                  <View><Text style={styles.reviewName}>Pendaki {i}</Text><Text style={styles.reviewDate}>12 Mar 2024</Text></View>
-                  <View style={styles.stars}><Text>⭐⭐⭐⭐⭐</Text></View>
+                  <View style={styles.reviewAvatar}>
+                    <Icon name="person" size={18} color={Colors.primary} />
+                  </View>
+                  <View style={styles.reviewInfo}>
+                    <Text style={styles.reviewName}>Pendaki {i}</Text>
+                    <Text style={styles.reviewDate}>12 Mar 2024</Text>
+                  </View>
+                  <View style={styles.stars}>
+                    <Icon name="star" size={14} color={Colors.warning} />
+                    <Icon name="star" size={14} color={Colors.warning} />
+                    <Icon name="star" size={14} color={Colors.warning} />
+                    <Icon name="star" size={14} color={Colors.warning} />
+                    <Icon name="star" size={14} color={Colors.warning} />
+                  </View>
                 </View>
-                <Text style={styles.reviewText}>Pendakian luar biasa! Jalur terawat, pemandangan indah dari puncak. Pastikan bawa jaket tebal karena dingin banget.</Text>
-              </View>
+                <Text style={styles.reviewText}>
+                  Pendakian luar biasa! Jalur terawat, pemandangan indah dari puncak. Pastikan bawa jaket tebal karena dingin banget.
+                </Text>
+              </Card>
             ))}
           </View>
         )}
@@ -167,67 +218,110 @@ const MountainDetailScreen: React.FC<{ navigation: any; route: any }> = ({ navig
 };
 
 const styles = StyleSheet.create({
-  container: { flex: 1, backgroundColor: '#FAFAFA' },
+  container: { flex: 1, backgroundColor: Colors.background },
   heroContainer: { position: 'relative', height: 250 },
   heroImage: { width, height: 250 },
-  backBtn: { position: 'absolute', top: 16, left: 16, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: 8 },
-  shareBtn: { position: 'absolute', top: 16, right: 16, backgroundColor: 'rgba(0,0,0,0.3)', borderRadius: 20, padding: 8 },
-  content: { padding: 20 },
-  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: 12 },
-  name: { fontSize: 24, fontWeight: 'bold', color: '#212121' },
-  region: { fontSize: 13, color: '#757575', marginTop: 2 },
-  difficultyLabel: { fontSize: 12, color: '#757575', marginBottom: 4 },
+  heroGradient: {
+    position: 'absolute',
+    left: 0,
+    right: 0,
+    bottom: 0,
+    height: 80,
+    backgroundColor: 'transparent',
+  },
+  heroBtn: {
+    position: 'absolute',
+    top: 16,
+    left: 16,
+    backgroundColor: 'rgba(0,0,0,0.35)',
+    borderRadius: BorderRadius.round,
+    padding: 8,
+  },
+  heroBtnRight: { left: undefined, right: 16 },
+  content: { padding: Spacing.screenPadding },
+  titleRow: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'flex-start', marginBottom: Spacing.md },
+  titleBlock: { flex: 1, paddingRight: Spacing.md },
+  name: { ...Typography.h3, color: Colors.text, fontWeight: '800' },
+  region: { ...Typography.body2, color: Colors.textSecondary, marginTop: 2 },
+  difficultyBlock: { alignItems: 'flex-end' },
+  difficultyLabel: { ...Typography.caption, color: Colors.textSecondary, marginBottom: 4 },
   difficultyRow: { flexDirection: 'row', gap: 2 },
-  dDot: { width: 16, height: 5, borderRadius: 2.5 },
-  quickStats: { flexDirection: 'row', gap: 20, marginBottom: 20 },
+  dDifficulty: { width: 16, height: 5, borderRadius: 2.5 },
+
+  quickStats: { flexDirection: 'row', gap: Spacing.lg, marginBottom: Spacing.lg },
   quickStatItem: { flexDirection: 'row', alignItems: 'center', gap: 4 },
-  quickStatText: { fontSize: 13, color: '#757575' },
-  tabBar: { flexDirection: 'row', borderBottomWidth: 2, borderBottomColor: '#E0E0E0', marginBottom: 16, gap: 0 },
-  tab: { flex: 1, paddingVertical: 12, alignItems: 'center' },
-  tabActive: { borderBottomWidth: 2, borderBottomColor: '#2E7D32', marginBottom: -2 },
-  tabText: { fontSize: 14, color: '#757575', fontWeight: '500' },
-  tabTextActive: { color: '#2E7D32', fontWeight: 'bold' },
-  routeCard: { backgroundColor: '#fff', borderRadius: 12, padding: 16, marginBottom: 12, elevation: 2, shadowColor: '#000', shadowOpacity: 0.05, shadowRadius: 4 },
+  quickStatText: { ...Typography.body2, color: Colors.textSecondary },
+
+  tabBar: { flexDirection: 'row', borderBottomWidth: 1, borderBottomColor: Colors.border, marginBottom: Spacing.md },
+  tab: { flex: 1, paddingVertical: Spacing.md, alignItems: 'center' },
+  tabActive: { borderBottomWidth: 2, borderBottomColor: Colors.primary, marginBottom: -1 },
+  tabText: { ...Typography.subtitle2, color: Colors.textSecondary, fontWeight: '600' },
+  tabTextActive: { color: Colors.primary, fontWeight: '800' },
+
+  routeCard: { marginBottom: Spacing.md },
   routeHeader: { flexDirection: 'row', justifyContent: 'space-between', marginBottom: 4 },
-  routeName: { fontSize: 16, fontWeight: 'bold', color: '#212121' },
-  routeDuration: { fontSize: 13, color: '#757575' },
-  routeMeta: { flexDirection: 'row', gap: 16, marginBottom: 12 },
-  routeMetaText: { fontSize: 12, color: '#757575' },
-  routeSectionTitle: { fontSize: 13, fontWeight: '600', color: '#212121', marginBottom: 6 },
-  waypointRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4, paddingLeft: 4 },
-  waypointDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: '#2E7D32', marginRight: 8 },
-  waypointText: { fontSize: 13, color: '#424242' },
-  dangerZone: { flexDirection: 'row', alignItems: 'center', marginTop: 10, backgroundColor: '#FFEBEE', padding: 8, borderRadius: 6, gap: 4 },
-  dangerText: { fontSize: 12, color: '#D32F2F', flex: 1 },
-  currentWeather: { alignItems: 'center', padding: 24, backgroundColor: '#fff', borderRadius: 12, marginBottom: 12 },
-  currentTemp: { fontSize: 36, fontWeight: 'bold', color: '#212121', marginVertical: 4 },
-  currentCondition: { fontSize: 14, color: '#757575' },
-  hazardTitle: { fontSize: 15, fontWeight: 'bold', color: '#212121', marginBottom: 8 },
-  hazardCard: { backgroundColor: '#fff', borderRadius: 10, padding: 12, marginBottom: 12 },
-  hazardRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: 8 },
+  routeName: { ...Typography.subtitle1, color: Colors.text, fontWeight: '800' },
+  routeDuration: { ...Typography.body2, color: Colors.textSecondary },
+  routeMeta: { flexDirection: 'row', gap: Spacing.md, marginBottom: Spacing.md },
+  routeMetaText: { ...Typography.caption, color: Colors.textSecondary },
+  routeSectionTitle: { ...Typography.caption, color: Colors.text, fontWeight: '800', marginBottom: Spacing.sm, textTransform: 'uppercase', letterSpacing: 0.5 },
+  waypointRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 4 },
+  waypointDot: { width: 8, height: 8, borderRadius: 4, backgroundColor: Colors.primary, marginRight: Spacing.sm },
+  waypointText: { ...Typography.body2, color: Colors.text },
+  dangerZone: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginTop: Spacing.sm,
+    backgroundColor: Colors.dangerFaded,
+    padding: Spacing.sm,
+    borderRadius: BorderRadius.sm,
+    gap: 4,
+  },
+  dangerText: { fontSize: 12, color: Colors.danger, flex: 1, fontWeight: '600' },
+
+  currentWeather: { alignItems: 'center', padding: Spacing.lg, marginBottom: Spacing.md },
+  currentTemp: { ...Typography.h1, color: Colors.text, fontWeight: '800', marginVertical: Spacing.xs },
+  currentCondition: { ...Typography.body2, color: Colors.textSecondary },
+  hazardCard: { marginBottom: Spacing.md },
+  hazardRow: { flexDirection: 'row', alignItems: 'center', marginBottom: 6, gap: Spacing.sm },
   hazardDot: { width: 10, height: 10, borderRadius: 5 },
-  hazardText: { fontSize: 13, color: '#424242', flex: 1 },
-  forecastTitle: { fontSize: 15, fontWeight: 'bold', color: '#212121', marginBottom: 8 },
-  forecastRow: { flexDirection: 'row', alignItems: 'center', backgroundColor: '#fff', padding: 10, borderRadius: 8, marginBottom: 4, gap: 8 },
-  forecastDay: { width: 50, fontSize: 13, fontWeight: '600', color: '#212121' },
-  forecastTemp: { width: 40, fontSize: 14, fontWeight: 'bold', color: '#212121' },
-  forecastCondition: { flex: 1, fontSize: 13, color: '#757575' },
-  forecastDetail: { fontSize: 11, color: '#9E9E9E' },
-  permitsDesc: { fontSize: 13, color: '#757575', marginBottom: 12 },
-  permitsCard: { backgroundColor: '#fff', borderRadius: 10, padding: 14, marginBottom: 8, elevation: 1 },
-  permitsName: { fontSize: 15, fontWeight: 'bold', color: '#212121' },
-  permitsPrice: { fontSize: 14, color: '#2E7D32', fontWeight: '600', marginVertical: 4 },
-  permitsRequired: { fontSize: 13, color: '#757575' },
-  permitsInfo: { fontSize: 12, color: '#757575', marginTop: 2 },
-  applyBtn: { backgroundColor: '#2E7D32', padding: 14, borderRadius: 10, alignItems: 'center', marginTop: 8 },
-  applyBtnText: { color: '#fff', fontWeight: 'bold', fontSize: 15 },
-  reviewCard: { backgroundColor: '#fff', borderRadius: 10, padding: 14, marginBottom: 8 },
-  reviewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: 8, gap: 8 },
-  reviewAvatar: { width: 36, height: 36, borderRadius: 18, backgroundColor: '#E0E0E0' },
-  reviewName: { fontSize: 14, fontWeight: '600', color: '#212121' },
-  reviewDate: { fontSize: 11, color: '#757575' },
-  stars: { marginLeft: 'auto' },
-  reviewText: { fontSize: 13, color: '#424242', lineHeight: 20 },
+  hazardText: { flex: 1, ...Typography.body2, color: Colors.text },
+  forecastRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    marginBottom: 4,
+    gap: Spacing.sm,
+    paddingVertical: Spacing.sm,
+  },
+  forecastDay: { width: 56, ...Typography.caption, color: Colors.text, fontWeight: '700' },
+  forecastTemp: { width: 44, ...Typography.subtitle2, color: Colors.text, fontWeight: '800' },
+  forecastCondition: { flex: 1, ...Typography.caption, color: Colors.textSecondary },
+  forecastDetail: { fontSize: 11, color: Colors.textTertiary },
+
+  permitsDesc: { ...Typography.body2, color: Colors.textSecondary, marginBottom: Spacing.md },
+  permitsCard: { marginBottom: Spacing.sm },
+  permitsHeader: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
+  permitsName: { ...Typography.subtitle2, color: Colors.text, fontWeight: '800' },
+  permitsPrice: { ...Typography.subtitle2, color: Colors.primary, fontWeight: '800' },
+  permitsRequired: { ...Typography.body2, color: Colors.textSecondary, marginTop: 4 },
+  permitsInfo: { ...Typography.caption, color: Colors.textSecondary, marginTop: 2 },
+  applyBtn: { marginTop: Spacing.sm },
+
+  reviewCard: { marginBottom: Spacing.sm },
+  reviewHeader: { flexDirection: 'row', alignItems: 'center', marginBottom: Spacing.sm, gap: Spacing.sm },
+  reviewAvatar: {
+    width: 36,
+    height: 36,
+    borderRadius: 18,
+    backgroundColor: Colors.primaryFaded,
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
+  reviewInfo: { flex: 1 },
+  reviewName: { ...Typography.subtitle2, color: Colors.text, fontWeight: '700' },
+  reviewDate: { ...Typography.caption, color: Colors.textSecondary },
+  stars: { flexDirection: 'row', gap: 1 },
+  reviewText: { ...Typography.body2, color: Colors.text, lineHeight: 20 },
 });
 
 export default MountainDetailScreen;
