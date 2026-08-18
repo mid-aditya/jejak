@@ -35,6 +35,16 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
   failedQueue = [];
 };
 
+// Public auth endpoints never trigger a token refresh. A 401 on these is a
+// real failure (e.g. wrong credentials on login) and there is no session to
+// refresh yet — masking it with "No refresh token available" hides the actual
+// error from the user.
+const isPublicAuthEndpoint = (url?: string): boolean =>
+  !!url &&
+  /^\/auth\/(login|register|social-login|refresh|logout|forgot-password|reset-password)(\/|\?|$)/.test(
+    url,
+  );
+
 // ── Request Interceptor ────────────────────────────────────────────────────────
 apiClient.interceptors.request.use(
   async (config: InternalAxiosRequestConfig) => {
@@ -106,8 +116,26 @@ apiClient.interceptors.response.use(
   async (error: AxiosError) => {
     const originalRequest = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
 
-    // Handle 401 - Token Refresh
-    if (error.response?.status === 401 && !originalRequest._retry) {
+    // Broken-session recovery: 401 on a protected endpoint while holding an
+    // access token but no refresh token (e.g. stale persisted state) means the
+    // session cannot be refreshed — clear it so the user can log in again.
+    if (
+      error.response?.status === 401 &&
+      !isPublicAuthEndpoint(originalRequest.url) &&
+      store.getState().auth.token &&
+      !store.getState().auth.refreshToken
+    ) {
+      store.dispatch(logoutUser());
+    }
+
+    // Handle 401 - Token Refresh (skip public auth endpoints and requests made
+    // when there is no session to refresh — surface the real error instead)
+    if (
+      error.response?.status === 401 &&
+      !originalRequest._retry &&
+      !isPublicAuthEndpoint(originalRequest.url) &&
+      store.getState().auth.refreshToken
+    ) {
       if (isRefreshing) {
         return new Promise((resolve, reject) => {
           failedQueue.push({ resolve, reject });
@@ -126,9 +154,6 @@ apiClient.interceptors.response.use(
 
       try {
         const refreshToken = store.getState().auth.refreshToken;
-        if (!refreshToken) {
-          throw new Error('No refresh token available');
-        }
 
         const response = await axios.post<{ accessToken: string; refreshToken: string }>(
           `${API_BASE_URL}/auth/refresh`,

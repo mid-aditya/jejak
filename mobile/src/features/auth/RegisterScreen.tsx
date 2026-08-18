@@ -1,7 +1,7 @@
 import React, { useState, useCallback } from 'react';
 import {
-  View, Text, TextInput, TouchableOpacity, StyleSheet,
-  KeyboardAvoidingView, Platform, ScrollView, ActivityIndicator,
+  View, Text, TouchableOpacity, StyleSheet,
+  KeyboardAvoidingView, Platform, ScrollView,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -14,6 +14,7 @@ import {
   validateFullName, validateRequired,
 } from '../../shared/utils/validators';
 import ErrorMessage from '../../shared/components/ErrorMessage';
+import { Input, Button } from '../../shared/components/ui';
 import type { AuthScreenProps } from '../../navigation/types';
 
 type Props = AuthScreenProps<'Register'>;
@@ -28,7 +29,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     password: '',
     confirmPassword: '',
   });
-  const [showPassword, setShowPassword] = useState(false);
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
@@ -107,99 +107,66 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
           {/* Form */}
           <View style={styles.form}>
             {/* Full Name */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Nama Lengkap</Text>
-              <View style={[styles.inputContainer, errors.fullName ? styles.inputError : null]}>
-                <Icon name="person-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Nama lengkap Anda"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={form.fullName}
-                  onChangeText={(v) => handleChange('fullName', v)}
-                  autoCapitalize="words"
-                  returnKeyType="next"
-                />
-              </View>
-              {errors.fullName && <Text style={styles.errorText}>{errors.fullName}</Text>}
-            </View>
+            <Input
+              label="Nama Lengkap"
+              icon="person-outline"
+              error={errors.fullName || undefined}
+              placeholder="Nama lengkap Anda"
+              value={form.fullName}
+              onChangeText={(v) => handleChange('fullName', v)}
+              autoCapitalize="words"
+              returnKeyType="next"
+            />
 
             {/* Email */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputContainer, errors.email ? styles.inputError : null]}>
-                <Icon name="mail-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="nama@email.com"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={form.email}
-                  onChangeText={(v) => handleChange('email', v)}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="next"
-                />
-              </View>
-              {errors.email && <Text style={styles.errorText}>{errors.email}</Text>}
-            </View>
+            <Input
+              label="Email"
+              icon="mail-outline"
+              error={errors.email || undefined}
+              placeholder="nama@email.com"
+              value={form.email}
+              onChangeText={(v) => handleChange('email', v)}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="next"
+            />
 
             {/* Phone */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>No. Telepon (WhatsApp)</Text>
-              <View style={[styles.inputContainer, errors.phone ? styles.inputError : null]}>
-                <Icon name="call-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="08xxxxxxxxxx"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={form.phone}
-                  onChangeText={(v) => handleChange('phone', v)}
-                  keyboardType="phone-pad"
-                  returnKeyType="next"
-                />
-              </View>
-              {errors.phone && <Text style={styles.errorText}>{errors.phone}</Text>}
-            </View>
+            <Input
+              label="No. Telepon (WhatsApp)"
+              icon="call"
+              error={errors.phone || undefined}
+              placeholder="08xxxxxxxxxx"
+              value={form.phone}
+              onChangeText={(v) => handleChange('phone', v)}
+              keyboardType="phone-pad"
+              returnKeyType="next"
+            />
 
             {/* Password */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputContainer, errors.password ? styles.inputError : null]}>
-                <Icon name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  style={[styles.input, styles.inputPassword]}
-                  placeholder="Min. 8 karakter, huruf besar, angka"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={form.password}
-                  onChangeText={(v) => handleChange('password', v)}
-                  secureTextEntry={!showPassword}
-                  returnKeyType="next"
-                />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
-                  <Icon name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={20} color={Colors.textTertiary} />
-                </TouchableOpacity>
-              </View>
-              {errors.password && <Text style={styles.errorText}>{errors.password}</Text>}
-            </View>
+            <Input
+              label="Password"
+              icon="lock"
+              error={errors.password || undefined}
+              placeholder="Min. 8 karakter, huruf besar, angka"
+              value={form.password}
+              onChangeText={(v) => handleChange('password', v)}
+              secureTextEntry
+              returnKeyType="next"
+            />
 
             {/* Confirm Password */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Konfirmasi Password</Text>
-              <View style={[styles.inputContainer, errors.confirmPassword ? styles.inputError : null]}>
-                <Icon name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  style={styles.input}
-                  placeholder="Ketik ulang password"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={form.confirmPassword}
-                  onChangeText={(v) => handleChange('confirmPassword', v)}
-                  secureTextEntry={!showPassword}
-                  returnKeyType="done"
-                />
-              </View>
-              {errors.confirmPassword && <Text style={styles.errorText}>{errors.confirmPassword}</Text>}
-            </View>
+            <Input
+              label="Konfirmasi Password"
+              icon="lock"
+              error={errors.confirmPassword || undefined}
+              placeholder="Ketik ulang password"
+              value={form.confirmPassword}
+              onChangeText={(v) => handleChange('confirmPassword', v)}
+              secureTextEntry
+              returnKeyType="done"
+            />
 
             {/* Terms */}
             <TouchableOpacity
@@ -224,18 +191,13 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             {error ? <ErrorMessage message={error} variant="card" /> : null}
 
             {/* Register Button */}
-            <TouchableOpacity
-              style={[styles.button, isLoading && styles.buttonDisabled]}
+            <Button
+              title="Daftar"
               onPress={handleRegister}
-              disabled={isLoading}
-              activeOpacity={0.8}
-            >
-              {isLoading ? (
-                <ActivityIndicator color={Colors.textInverse} />
-              ) : (
-                <Text style={styles.buttonText}>Daftar</Text>
-              )}
-            </TouchableOpacity>
+              loading={isLoading}
+              size="lg"
+              style={styles.submitButton}
+            />
           </View>
 
           {/* Login Link */}
@@ -259,34 +221,16 @@ const styles = StyleSheet.create({
   title: { ...Typography.h2, color: Colors.text },
   subtitle: { ...Typography.body2, color: Colors.textSecondary, marginTop: Spacing.xs },
   form: { gap: Spacing.md },
-  inputGroup: { gap: 6 },
-  label: { ...Typography.subtitle2, color: Colors.text, fontWeight: '600' },
-  inputContainer: {
-    flexDirection: 'row', alignItems: 'center',
-    backgroundColor: Colors.surface, borderRadius: BorderRadius.md,
-    borderWidth: 1, borderColor: Colors.border,
-    paddingHorizontal: Spacing.md, height: 52,
-  },
-  inputError: { borderColor: Colors.danger },
-  inputIcon: { marginRight: Spacing.sm },
-  input: { flex: 1, ...Typography.body1, color: Colors.text, paddingVertical: 0 },
-  inputPassword: { paddingRight: 40 },
-  eyeButton: { padding: 4 },
-  errorText: { ...Typography.caption, color: Colors.danger, marginTop: 2 },
+  submitButton: { marginTop: Spacing.sm },
   termsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm },
   checkboxBox: {
     width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: Colors.border,
     alignItems: 'center', justifyContent: 'center', marginTop: 2,
   },
   checkboxChecked: { backgroundColor: Colors.primary, borderColor: Colors.primary },
+  errorText: { ...Typography.caption, color: Colors.danger, marginTop: 2 },
   termsText: { flex: 1, ...Typography.body2, color: Colors.textSecondary, lineHeight: 20 },
   termsLink: { color: Colors.primary, fontWeight: '600' },
-  button: {
-    backgroundColor: Colors.primary, borderRadius: BorderRadius.md, height: 52,
-    alignItems: 'center', justifyContent: 'center', marginTop: Spacing.sm, ...Shadows.md,
-  },
-  buttonDisabled: { backgroundColor: Colors.disabled },
-  buttonText: { ...Typography.button, color: Colors.textInverse },
   footer: { flexDirection: 'row', justifyContent: 'center', marginTop: Spacing.xl, marginBottom: Spacing.lg },
   footerText: { ...Typography.body2, color: Colors.textSecondary },
   footerLink: { ...Typography.body2, color: Colors.primary, fontWeight: '700' },

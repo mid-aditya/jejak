@@ -32,6 +32,13 @@ class EncryptionService {
 
   // Hermes has no native crypto module, which makes CryptoJS's
   // WordArray.random() throw. Fall back to Math.random-based bytes.
+  //
+  // NOTE: `length` is a BYTE count (same as WordArray.random). The fallback
+  // must pack the bytes into 32-bit words with sigBytes = length — passing
+  // the byte array straight to WordArray.create() would treat each byte as a
+  // full word (sigBytes = length * 4), inflating salt/iv and breaking the
+  // AES-256-CBC key derivation against the backend's EVP_BytesToKey
+  // (CryptoJS derives from the oversized salt, backend reads only 8 bytes).
   private randomWords(length: number): CryptoJS.lib.WordArray {
     try {
       return CryptoJS.lib.WordArray.random(length);
@@ -40,7 +47,16 @@ class EncryptionService {
       for (let i = 0; i < length; i++) {
         bytes.push(Math.floor(Math.random() * 256));
       }
-      return CryptoJS.lib.WordArray.create(bytes);
+      const words: number[] = [];
+      for (let i = 0; i < length; i += 4) {
+        words.push(
+          ((bytes[i] ?? 0) << 24) |
+            ((bytes[i + 1] ?? 0) << 16) |
+            ((bytes[i + 2] ?? 0) << 8) |
+            (bytes[i + 3] ?? 0),
+        );
+      }
+      return CryptoJS.lib.WordArray.create(words, length);
     }
   }
 

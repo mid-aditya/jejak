@@ -27,6 +27,7 @@ interface ButtonProps {
   loading?: boolean;
   disabled?: boolean;
   style?: StyleProp<ViewStyle>;
+  testID?: string;
 }
 
 const VARIANT_STYLES: Record<
@@ -58,6 +59,7 @@ const Button: React.FC<ButtonProps> = ({
   loading = false,
   disabled = false,
   style,
+  testID,
 }) => {
   const variantStyle = VARIANT_STYLES[variant];
   const sizeStyle = SIZE_STYLES[size];
@@ -68,6 +70,7 @@ const Button: React.FC<ButtonProps> = ({
       activeOpacity={0.8}
       onPress={onPress}
       disabled={isDisabled}
+      testID={testID}
       style={[
         styles.base,
         {

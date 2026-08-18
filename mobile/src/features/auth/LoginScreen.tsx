@@ -2,13 +2,11 @@ import React, { useState, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
-  TextInput,
   TouchableOpacity,
   StyleSheet,
   KeyboardAvoidingView,
   Platform,
   ScrollView,
-  ActivityIndicator,
   Alert,
 } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
@@ -19,6 +17,7 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config
 import { featureFlags } from '../../config/env';
 import { validateEmail, validatePassword } from '../../shared/utils/validators';
 import ErrorMessage from '../../shared/components/ErrorMessage';
+import { Input, Button } from '../../shared/components/ui';
 import type { AuthScreenProps } from '../../navigation/types';
 
 type Props = AuthScreenProps<'Login'>;
@@ -29,7 +28,6 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-  const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
 
   const [emailError, setEmailError] = useState('');
@@ -111,51 +109,32 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
           {/* Form */}
           <View style={styles.form}>
             {/* Email */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Email</Text>
-              <View style={[styles.inputContainer, emailError ? styles.inputError : null]}>
-                <Icon name="mail-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  testID="login-email"
-                  style={styles.input}
-                  placeholder="nama@email.com"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={email}
-                  onChangeText={handleEmailChange}
-                  keyboardType="email-address"
-                  autoCapitalize="none"
-                  autoCorrect={false}
-                  returnKeyType="next"
-                />
-              </View>
-              {emailError ? <Text style={styles.errorText}>{emailError}</Text> : null}
-            </View>
+            <Input
+              testID="login-email"
+              label="Email"
+              icon="mail-outline"
+              error={emailError || undefined}
+              placeholder="nama@email.com"
+              value={email}
+              onChangeText={handleEmailChange}
+              keyboardType="email-address"
+              autoCapitalize="none"
+              autoCorrect={false}
+              returnKeyType="next"
+            />
 
             {/* Password */}
-            <View style={styles.inputGroup}>
-              <Text style={styles.label}>Password</Text>
-              <View style={[styles.inputContainer, passwordError ? styles.inputError : null]}>
-                <Icon name="lock-closed-outline" size={20} color={Colors.textTertiary} style={styles.inputIcon} />
-                <TextInput
-                  testID="login-password"
-                  style={[styles.input, styles.inputPassword]}
-                  placeholder="Password"
-                  placeholderTextColor={Colors.textTertiary}
-                  value={password}
-                  onChangeText={handlePasswordChange}
-                  secureTextEntry={!showPassword}
-                  returnKeyType="done"
-                />
-                <TouchableOpacity onPress={() => setShowPassword(!showPassword)} style={styles.eyeButton}>
-                  <Icon
-                    name={showPassword ? 'eye-off-outline' : 'eye-outline'}
-                    size={20}
-                    color={Colors.textTertiary}
-                  />
-                </TouchableOpacity>
-              </View>
-              {passwordError ? <Text style={styles.errorText}>{passwordError}</Text> : null}
-            </View>
+            <Input
+              testID="login-password"
+              label="Password"
+              icon="lock"
+              error={passwordError || undefined}
+              placeholder="Password"
+              value={password}
+              onChangeText={handlePasswordChange}
+              secureTextEntry
+              returnKeyType="done"
+            />
 
             {/* Remember & Forgot */}
             <View style={styles.row}>
@@ -174,19 +153,15 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             {error ? <ErrorMessage message={error} variant="card" /> : null}
 
             {/* Login Button */}
-            <TouchableOpacity
+            <Button
               testID="login-submit"
-              style={[styles.button, (!isFormValid || isLoading) && styles.buttonDisabled]}
+              title="Masuk"
               onPress={handleLogin}
-              disabled={!isFormValid || isLoading}
-              activeOpacity={0.8}
-            >
-              {isLoading ? (
-                <ActivityIndicator color={Colors.textInverse} />
-              ) : (
-                <Text style={styles.buttonText}>Masuk</Text>
-              )}
-            </TouchableOpacity>
+              loading={isLoading}
+              disabled={!isFormValid}
+              size="lg"
+              style={styles.submitButton}
+            />
           </View>
 
           {/* Divider */}
@@ -254,24 +229,7 @@ const styles = StyleSheet.create({
   title: { ...Typography.h1, color: Colors.primary, fontWeight: '800' },
   subtitle: { ...Typography.body2, color: Colors.textSecondary, marginTop: Spacing.xs },
   form: { gap: Spacing.md },
-  inputGroup: { gap: 6 },
-  label: { ...Typography.subtitle2, color: Colors.text, fontWeight: '600' },
-  inputContainer: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: Colors.surface,
-    borderRadius: BorderRadius.md,
-    borderWidth: 1,
-    borderColor: Colors.border,
-    paddingHorizontal: Spacing.md,
-    height: 52,
-  },
-  inputError: { borderColor: Colors.danger },
-  inputIcon: { marginRight: Spacing.sm },
-  input: { flex: 1, ...Typography.body1, color: Colors.text, paddingVertical: 0 },
-  inputPassword: { paddingRight: 40 },
-  eyeButton: { padding: 4 },
-  errorText: { ...Typography.caption, color: Colors.danger, marginTop: 2 },
+  submitButton: { marginTop: Spacing.sm },
   row: { flexDirection: 'row', justifyContent: 'space-between', alignItems: 'center' },
   checkbox: { flexDirection: 'row', alignItems: 'center', gap: Spacing.xs },
   checkboxBox: {
@@ -286,17 +244,6 @@ const styles = StyleSheet.create({
   checkboxChecked: { backgroundColor: Colors.primary, borderColor: Colors.primary },
   checkboxLabel: { ...Typography.body2, color: Colors.textSecondary },
   forgotLink: { ...Typography.body2, color: Colors.primary, fontWeight: '600' },
-  button: {
-    backgroundColor: Colors.primary,
-    borderRadius: BorderRadius.md,
-    height: 52,
-    alignItems: 'center',
-    justifyContent: 'center',
-    marginTop: Spacing.sm,
-    ...Shadows.md,
-  },
-  buttonDisabled: { backgroundColor: Colors.disabled },
-  buttonText: { ...Typography.button, color: Colors.textInverse },
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: Spacing.lg },
   dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
   dividerText: { ...Typography.caption, color: Colors.textTertiary, marginHorizontal: Spacing.md },

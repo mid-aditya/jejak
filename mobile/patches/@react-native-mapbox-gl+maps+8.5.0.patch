@@ -1,0 +1,12 @@
+diff --git a/node_modules/@react-native-mapbox-gl/maps/javascript/utils/index.js b/node_modules/@react-native-mapbox-gl/maps/javascript/utils/index.js
+index bc3c28f..24e2bb0 100644
+--- a/node_modules/@react-native-mapbox-gl/maps/javascript/utils/index.js
++++ b/node_modules/@react-native-mapbox-gl/maps/javascript/utils/index.js
+@@ -1,6 +1,6 @@
+ import React from 'react';
++import { ViewPropTypes } from 'deprecated-react-native-prop-types';
+ import {
+-  ViewPropTypes,
+   View,
+   NativeModules,
+   findNodeHandle,
