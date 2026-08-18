@@ -10,7 +10,7 @@ const QUICK_ACTIONS = [
   { id: '1', label: 'SOS', icon: 'warning', color: Colors.danger, bg: Colors.dangerFaded, route: 'Emergency' },
   { id: '2', label: 'Check In', icon: 'login', color: Colors.warning, bg: Colors.warningFaded, route: 'CheckInOut' },
   { id: '3', label: 'Cari Tim', icon: 'group', color: Colors.primary, bg: Colors.primaryFaded, route: 'FindTeam' },
-  { id: '4', label: 'Forum', icon: 'forum', color: Colors.info, bg: Colors.infoFaded, route: 'Forum' },
+  { id: '4', label: 'Forum', icon: 'forum', color: Colors.info, bg: Colors.infoFaded, route: 'Community' },
   { id: '5', label: 'Map', icon: 'map', color: Colors.secondary, bg: Colors.secondaryFaded, route: 'Maps' },
   { id: '6', label: 'Market', icon: 'store', color: Colors.accent, bg: Colors.accentFaded, route: 'Marketplace' },
 ];
@@ -182,7 +182,7 @@ const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         <SectionHeader
           title="Forum Terbaru"
           actionLabel="Lihat semua"
-          onAction={() => navigation.navigate('Forum')}
+          onAction={() => navigation.navigate('Community')}
         />
         <Card padded={false} style={styles.postsCard}>
           <FlatList

@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import { createBottomTabNavigator } from '@react-navigation/bottom-tabs';
-import { View, Text, StyleSheet } from 'react-native';
+import { StyleSheet } from 'react-native';
 import Icon from 'react-native-vector-icons/Ionicons';
 
 import { useAppSelector, useAppDispatch } from '../shared/store';
@@ -18,6 +18,9 @@ import OfflineIndicator from '../shared/components/OfflineIndicator';
 import LoginScreen from '../features/auth/LoginScreen';
 import RegisterScreen from '../features/auth/RegisterScreen';
 import VerifyIdentityScreen from '../features/auth/VerifyIdentityScreen';
+import VerifyEmailScreen from '../features/auth/VerifyEmailScreen';
+import ForgotPasswordScreen from '../features/auth/ForgotPasswordScreen';
+import SettingsScreen from '../features/auth/SettingsScreen';
 
 // Dashboard
 import DashboardScreen from '../features/dashboard/DashboardScreen';
@@ -27,11 +30,13 @@ import MapsScreen from '../features/maps/MapsScreen';
 import MountainDetailScreen from '../features/maps/MountainDetailScreen';
 import OfflineMapManagerScreen from '../features/maps/OfflineMapManager';
 import GPSTrackerScreen from '../features/maps/GPSTrackerScreen';
+import TripDetailScreen from '../features/maps/TripDetailScreen';
 
 // Community
 import ForumScreen from '../features/community/ForumScreen';
 import ThreadDetailScreen from '../features/community/ThreadDetailScreen';
 import FindTeamScreen from '../features/community/FindTeamScreen';
+import ChatScreen from '../features/community/ChatScreen';
 
 // Marketplace
 import MarketplaceScreen from '../features/marketplace/MarketplaceScreen';
@@ -64,12 +69,16 @@ const AuthNavigator: React.FC = () => {
     >
       <AuthStack.Screen name="Login" component={LoginScreen} />
       <AuthStack.Screen name="Register" component={RegisterScreen} />
-      <AuthStack.Screen name="VerifyEmail" options={{ title: 'Verifikasi Email' }}>
-        {() => <View><Text>Verify Email</Text></View>}
-      </AuthStack.Screen>
-      <AuthStack.Screen name="ForgotPassword" options={{ title: 'Lupa Password' }}>
-        {() => <View><Text>Forgot Password</Text></View>}
-      </AuthStack.Screen>
+      <AuthStack.Screen
+        name="VerifyEmail"
+        component={VerifyEmailScreen}
+        options={{ title: 'Verifikasi Email' }}
+      />
+      <AuthStack.Screen
+        name="ForgotPassword"
+        component={ForgotPasswordScreen}
+        options={{ title: 'Lupa Password' }}
+      />
     </AuthStack.Navigator>
   );
 };
@@ -260,13 +269,23 @@ const AppNavigator: React.FC = () => {
             />
             <Stack.Screen
               name="TripDetail"
-              component={() => <View />}
+              component={TripDetailScreen}
               options={{ title: 'Detail Trip' }}
             />
             <Stack.Screen
               name="Chat"
-              component={() => <View />}
+              component={ChatScreen}
               options={{ title: 'Chat' }}
+            />
+            <Stack.Screen
+              name="FindTeam"
+              component={FindTeamScreen}
+              options={{ title: 'Cari Tim' }}
+            />
+            <Stack.Screen
+              name="Settings"
+              component={SettingsScreen}
+              options={{ title: 'Pengaturan' }}
             />
             <Stack.Screen
               name="ThreadDetail"

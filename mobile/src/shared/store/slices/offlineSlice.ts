@@ -52,9 +52,11 @@ const initialState: OfflineState = {
 const MAX_RETRIES = 3;
 const BASE_RETRY_DELAY = 1000; // 1 second
 
-// Start network monitoring as a side effect
+// Start network monitoring as a side effect. The listener lives for the whole
+// app session and is never unsubscribed — return void (not the unsubscribe fn)
+// so the thunk payload stays serializable for redux-toolkit's check.
 export const startNetworkMonitoring = createAsyncThunk<
-  () => void,
+  void,
   void,
   { dispatch: any }
 >('offline/startNetworkMonitoring', async (_, { dispatch }) => {
@@ -72,7 +74,9 @@ export const startNetworkMonitoring = createAsyncThunk<
   const isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
   dispatch(setOnlineStatus(isOnline));
 
-  return () => unsubscribe();
+  // Keep the subscription alive for the app lifetime; the returned cleanup is
+  // intentionally dropped to avoid storing a function in the Redux state.
+  void unsubscribe;
 });
 
 export const processOfflineQueue = createAsyncThunk<

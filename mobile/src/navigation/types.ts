@@ -1,6 +1,6 @@
 import type { StackScreenProps } from '@react-navigation/stack';
 import type { BottomTabScreenProps } from '@react-navigation/bottom-tabs';
-import type { CompositeScreenProps } from '@react-navigation/native';
+import type { CompositeScreenProps, NavigatorScreenParams } from '@react-navigation/native';
 
 // ── Auth Stack ────────────────────────────────────────────────────────────────
 export type AuthStackParamList = {
@@ -32,10 +32,12 @@ export type MainTabScreenProps<T extends keyof MainTabParamList> = CompositeScre
 // ── Root Stack ────────────────────────────────────────────────────────────────
 export type RootStackParamList = {
   Auth: undefined;
-  Main: undefined;
+  Main: NavigatorScreenParams<MainTabParamList>;
   SOS: undefined;
   TripDetail: { tripId: string };
-  Chat: { threadId: string };
+  Chat: { team?: { title?: string; host?: string }; threadId?: string };
+  FindTeam: undefined;
+  Settings: undefined;
   MountainDetail: { mountainId: string };
   ThreadDetail: { threadId: string };
   GearDetail: { listingId: string };
