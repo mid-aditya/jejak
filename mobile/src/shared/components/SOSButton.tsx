@@ -9,6 +9,7 @@ import {
   Vibration,
   Alert,
 } from 'react-native';
+import { useNavigation } from '@react-navigation/native';
 import { useAppDispatch, useAppSelector } from '../store';
 import { triggerSOS, selectIsSOSActive, startSOSCountdown, decrementCountdown, clearSOSCountdown } from '../store/slices/emergencySlice';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
@@ -24,6 +25,7 @@ interface SOSButtonProps {
 
 const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
   const dispatch = useAppDispatch();
+  const navigation = useNavigation<any>();
   const isSOSActive = useAppSelector(selectIsSOSActive);
   const countdown = useAppSelector((s) => s.emergency.countdownSeconds);
 
@@ -86,8 +88,11 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
           }),
         );
       });
+
+      // Open emergency screen so user sees status / can cancel
+      navigation.navigate('SOS');
     }
-  }, [countdown, isSOSActive, dispatch]);
+  }, [countdown, isSOSActive, dispatch, navigation]);
 
   const cancelCountdown = useCallback(() => {
     if (countdownTimer.current) {
