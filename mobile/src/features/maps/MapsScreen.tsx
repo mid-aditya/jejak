@@ -1,11 +1,9 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Dimensions } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import MapViewComponent from '../../shared/components/MapView';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
 import { Card, SearchBar, Chip, Button } from '../../shared/components/ui';
-
-const { width, height } = Dimensions.get('window');
 
 const MOUNTAINS = [
   { id: '1', name: 'Gunung Gede', region: 'Jawa Barat', elevation: 2958, difficulty: 6, lat: -6.789, lng: 106.822, routes: 3, weather: 'Berawan', temp: 18 },
@@ -62,7 +60,7 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
       <MapViewComponent
         centerCoordinate={{ latitude: -6.9, longitude: 110.5 }}
         zoomLevel={5}
-        style={{ width, height }}
+        style={StyleSheet.absoluteFillObject}
         markers={filteredMountains.map(m => ({
           id: m.id,
           coordinate: { latitude: m.lat, longitude: m.lng },
@@ -75,7 +73,6 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             setShowCard(true);
           }
         }}
-        showUserLocation
         showBreadcrumb={false}
       />
 

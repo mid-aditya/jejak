@@ -63,7 +63,6 @@ const GPSTrackerScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         zoomLevel={15}
         style={{ width, height: height * 0.5 }}
         markers={[]}
-        showUserLocation
         showBreadcrumb
       />
 

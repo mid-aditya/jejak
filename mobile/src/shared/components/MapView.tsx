@@ -62,7 +62,7 @@ const MapView: React.FC<MapViewProps> = ({
   style,
   centerCoordinate = [106.8275, -6.1754], // Default: Jakarta
   zoomLevel = 5,
-  showUserLocation = true,
+  showUserLocation = false,
   showBreadcrumb = false,
   breadcrumbTrail = [],
   offlineRegion = null,
@@ -170,7 +170,7 @@ const MapView: React.FC<MapViewProps> = ({
         logoEnabled={false}
         compassEnabled={true}
         attributionEnabled={false}
-        surfaceView={true}
+        surfaceView={false}
         onLongPress={handleLongPress}
       >
         {/* Camera */}
