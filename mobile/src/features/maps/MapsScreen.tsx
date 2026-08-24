@@ -73,6 +73,7 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
             setShowCard(true);
           }
         }}
+        showUserLocation
         showBreadcrumb={false}
       />
 

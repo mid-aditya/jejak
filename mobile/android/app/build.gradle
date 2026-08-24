@@ -2,6 +2,11 @@ apply plugin: "com.android.application"
 apply plugin: "org.jetbrains.kotlin.android"
 apply plugin: "com.facebook.react"
 
+// Bundle the react-native-vector-icons font files (e.g. MaterialIcons.ttf) into the
+// APK so icon glyphs render. Without this, the icon fonts are absent from the app
+// assets and every vector icon shows up blank.
+apply from: file("../../node_modules/react-native-vector-icons/fonts.gradle")
+
 /**
  * This is the configuration block to customize your React Native Android app.
  * By default you don't need to apply any configuration, just uncomment the lines you need.
@@ -101,6 +106,18 @@ android {
             minifyEnabled enableProguardInReleaseBuilds
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
+    }
+}
+
+// Force an older Google Play Services location that exposes FusedLocationProviderClient
+// as a concrete CLASS. @react-native-mapbox-gl/maps 8.x (Mapbox SDK 9.1.0) is compiled
+// against play-services-location <=16.x and throws IncompatibleClassChangeError against
+// 21.x where FusedLocationProviderClient became an interface. @react-native-community/
+// geolocation only relies on long-stable APIs (getLastLocation/requestLocationUpdates),
+// so a 16.x downgrade keeps it compiling too.
+configurations.all {
+    resolutionStrategy {
+        force 'com.google.android.gms:play-services-location:16.0.0'
     }
 }
 
