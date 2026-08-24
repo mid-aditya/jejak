@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import MapViewComponent from '../../shared/components/MapView';
+import SOSButton from '../../shared/components/SOSButton';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
 import { Card, SearchBar, Chip, Button } from '../../shared/components/ui';
@@ -161,6 +162,9 @@ const MapsScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           <Icon name="layers" size={20} color={Colors.textSecondary} />
         </TouchableOpacity>
       </View>
+
+      {/* SOS - hanya muncul di mode peta */}
+      <SOSButton />
     </View>
   );
 };

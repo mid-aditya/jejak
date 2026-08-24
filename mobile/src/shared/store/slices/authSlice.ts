@@ -282,6 +282,11 @@ const authSlice = createSlice({
       state.verificationLevel = 0;
       state.error = null;
     },
+    setTokens(state, action: PayloadAction<{ accessToken: string; refreshToken: string }>) {
+      state.token = action.payload.accessToken;
+      state.refreshToken = action.payload.refreshToken;
+      state.error = null;
+    },
     updateVerification(
       state,
       action: PayloadAction<{ level: VerificationLevel; user: Partial<User> }>,
@@ -440,6 +445,7 @@ const authSlice = createSlice({
 
 export const {
   setCredentials,
+  setTokens,
   clearCredentials,
   updateVerification,
   setDeviceToken,

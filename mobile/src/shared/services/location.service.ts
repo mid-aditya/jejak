@@ -91,31 +91,41 @@ class LocationService {
   }
 
   // ── Get Current Position ──────────────────────────────────────────────────────
+  // Tries a high-accuracy fix first; if it fails or times out (common when GPS
+  // can't lock, e.g. indoors/urban canyons), falls back to a low-accuracy fix
+  // (network/Wi-Fi) so callers like SOS still get an approximate position.
   getCurrentPosition(): Promise<Location> {
     return new Promise((resolve, reject) => {
-      Geolocation.getCurrentPosition(
-        (position: GeolocationResponse) => {
-          const location: Location = {
-            latitude: position.coords.latitude,
-            longitude: position.coords.longitude,
-            altitude: position.coords.altitude ?? undefined,
-            accuracy: position.coords.accuracy,
-            timestamp: position.timestamp,
-            speed: position.coords.speed ?? undefined,
-            heading: position.coords.heading ?? undefined,
-          };
-          resolve(location);
-        },
-        (error: GeolocationError) => {
-          console.error('[Location] getCurrentPosition error:', error);
-          reject(error);
-        },
-        {
-          enableHighAccuracy: true,
-          timeout: 15000,
-          maximumAge: 10000,
-        },
-      );
+      const attempt = (enableHighAccuracy: boolean) => {
+        Geolocation.getCurrentPosition(
+          (position: GeolocationResponse) => {
+            const location: Location = {
+              latitude: position.coords.latitude,
+              longitude: position.coords.longitude,
+              altitude: position.coords.altitude ?? undefined,
+              accuracy: position.coords.accuracy,
+              timestamp: position.timestamp,
+              speed: position.coords.speed ?? undefined,
+              heading: position.coords.heading ?? undefined,
+            };
+            resolve(location);
+          },
+          () => {
+            if (enableHighAccuracy) {
+              // Retry once with low accuracy before giving up.
+              attempt(false);
+            } else {
+              reject(new Error('Location request failed'));
+            }
+          },
+          {
+            enableHighAccuracy,
+            timeout: 8000,
+            maximumAge: 10000,
+          },
+        );
+      };
+      attempt(true);
     });
   }
 

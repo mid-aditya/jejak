@@ -29,6 +29,12 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
   const isSOSActive = useAppSelector(selectIsSOSActive);
   const countdown = useAppSelector((s) => s.emergency.countdownSeconds);
 
+  // Local flag for the pre-send countdown. Redux `isSOSActive` is only true
+  // *after* triggerSOS succeeds, so the initial activation countdown must not
+  // depend on it (otherwise the first SOS can never be sent).
+  const [activating, setActivating] = React.useState(false);
+  const active = isSOSActive || activating;
+
   // Animations
   const pulseAnim = useRef(new Animated.Value(1)).current;
   const scaleAnim = useRef(new Animated.Value(1)).current;
@@ -36,9 +42,9 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
   const holdTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const countdownTimer = useRef<ReturnType<typeof setInterval> | null>(null);
 
-  // Pulsing animation when SOS is active
+  // Pulsing animation when SOS is active (during countdown or already sent)
   useEffect(() => {
-    if (isSOSActive) {
+    if (active) {
       const pulse = Animated.loop(
         Animated.sequence([
           Animated.timing(pulseAnim, {
@@ -59,10 +65,35 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
     } else {
       pulseAnim.setValue(1);
     }
-  }, [isSOSActive, pulseAnim]);
+  }, [active, pulseAnim]);
 
   // Countdown logic
+  const sendSOS = useCallback(() => {
+    locationService
+      .getCurrentPosition()
+      .then((location) => {
+        dispatch(
+          triggerSOS({
+            location,
+            message: 'SOS Emergency - Saya butuh bantuan!',
+          }),
+        );
+        setActivating(false);
+        navigation.navigate('SOS');
+      })
+      .catch(() => {
+        dispatch(clearSOSCountdown());
+        setActivating(false);
+        Alert.alert(
+          'Lokasi tidak tersedia',
+          'Tidak dapat mendapatkan lokasi Anda. Pastikan GPS aktif dan izin lokasi diberikan.',
+          [{ text: 'OK' }],
+        );
+      });
+  }, [dispatch, navigation]);
+
   const startCountdown = useCallback(() => {
+    setActivating(true);
     dispatch(startSOSCountdown(COUNTDOWN_SECONDS));
     countdownTimer.current = setInterval(() => {
       dispatch(decrementCountdown());
@@ -70,35 +101,40 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
   }, [dispatch]);
 
   useEffect(() => {
-    if (countdown > 0 && isSOSActive) {
+    if (activating && countdown > 0) {
       Vibration.vibrate(200);
     }
 
-    if (countdown === 0 && isSOSActive) {
+    if (activating && countdown === 0) {
       // Countdown finished - actually send SOS
       if (countdownTimer.current) {
         clearInterval(countdownTimer.current);
       }
 
-      locationService.getCurrentPosition().then((location) => {
-        dispatch(
-          triggerSOS({
-            location,
-            message: 'SOS Emergency - Saya butuh bantuan!',
-          }),
-        );
-      });
-
-      // Open emergency screen so user sees status / can cancel
-      navigation.navigate('SOS');
+      locationService
+        .requestPermissions()
+        .then((granted) => {
+          if (granted) {
+            sendSOS();
+          } else {
+            dispatch(clearSOSCountdown());
+            setActivating(false);
+            Alert.alert(
+              'Izin Lokasi Diperlukan',
+              'Aktifkan izin lokasi agar SOS dapat mengirim posisi Anda.',
+              [{ text: 'OK' }],
+            );
+          }
+        });
     }
-  }, [countdown, isSOSActive, dispatch, navigation]);
+  }, [countdown, activating, dispatch, navigation, sendSOS]);
 
   const cancelCountdown = useCallback(() => {
     if (countdownTimer.current) {
       clearInterval(countdownTimer.current);
     }
     dispatch(clearSOSCountdown());
+    setActivating(false);
     Animated.timing(scaleAnim, {
       toValue: 1,
       duration: 200,
@@ -107,7 +143,7 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
   }, [dispatch, scaleAnim]);
 
   const handlePressIn = useCallback(() => {
-    if (disabled || isSOSActive) return;
+    if (disabled || isSOSActive || activating) return;
 
     Vibration.vibrate(100);
 
@@ -155,13 +191,13 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
   }, [isSOSActive, holdProgress, scaleAnim]);
 
   const handlePress = useCallback(() => {
-    if (isSOSActive) {
+    if (isSOSActive || activating) {
       // Short press while active - cancel countdown
       cancelCountdown();
       return;
     }
     onPress?.();
-  }, [isSOSActive, onPress, cancelCountdown]);
+  }, [isSOSActive, activating, onPress, cancelCountdown]);
 
   // Hold progress width
   const holdWidth = holdProgress.interpolate({
@@ -179,7 +215,7 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
 
   return (
     <Animated.View style={[styles.container, containerStyle]}>
-      {isSOSActive && countdown > 0 && (
+      {active && countdown > 0 && (
         <View style={styles.countdownContainer}>
           <Text style={styles.countdownText}>SOS in {countdown}s</Text>
           <View style={styles.countdownBar}>
@@ -200,23 +236,23 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
         activeOpacity={0.8}
         style={[
           styles.button,
-          isSOSActive && styles.buttonActive,
+          active && styles.buttonActive,
         ]}
-        accessibilityLabel={isSOSActive ? 'SOS Aktif' : 'Tahan 3 detik untuk SOS'}
+        accessibilityLabel={active ? 'SOS Aktif' : 'Tahan 3 detik untuk SOS'}
         accessibilityRole="button"
         accessibilityState={{ disabled }}
       >
         <Animated.View
           style={[
             styles.pulseRing,
-            isSOSActive && { opacity: pulseAnim, transform: [{ scale: pulseAnim }] },
+            active && { opacity: pulseAnim, transform: [{ scale: pulseAnim }] },
           ]}
         />
         <Text style={styles.icon}>🆘</Text>
         <Text style={styles.label}>SOS</Text>
       </TouchableOpacity>
 
-      {isSOSActive && (
+      {active && (
         <View style={styles.statusContainer}>
           <Text style={styles.statusDot}>🔴</Text>
           <Text style={styles.statusText}>
@@ -228,13 +264,13 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
       )}
 
       {/* Hold progress bar */}
-      {!isSOSActive && (
+      {!active && (
         <View style={styles.progressContainer}>
           <Animated.View style={[styles.progressBar, { width: holdWidth }]} />
         </View>
       )}
 
-      {!isSOSActive && (
+      {!active && (
         <Text style={styles.hint}>Tahan 3 detik</Text>
       )}
     </Animated.View>

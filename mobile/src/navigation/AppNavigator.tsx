@@ -11,7 +11,6 @@ import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../config/th
 import { featureFlags } from '../config/env';
 
 // Shared Components
-import SOSButton from '../shared/components/SOSButton';
 import OfflineIndicator from '../shared/components/OfflineIndicator';
 
 // Auth Screens
@@ -115,12 +114,11 @@ const TabNavigator: React.FC = () => {
           backgroundColor: Colors.surface,
           borderTopWidth: 1,
           borderTopColor: Colors.border,
-          paddingBottom: Spacing.sm,
           height: Spacing.tabBarHeight,
           ...Shadows.sm,
         },
         tabBarLabelStyle: {
-          ...Typography.caption,
+          fontSize: 11,
           fontWeight: '600',
         },
         headerShown: true,
@@ -315,9 +313,6 @@ const AppNavigator: React.FC = () => {
           </>
         )}
       </Stack.Navigator>
-
-      {/* SOS Button - Accessible from ANY screen */}
-      {isAuthenticated && <SOSButton />}
     </>
   );
 };
