@@ -38,10 +38,10 @@ export default function DataTable<T extends Record<string, any>>({
   onRowClick,
   actions,
   searchable = true,
-  searchPlaceholder = 'Search...',
+  searchPlaceholder = 'Cari...',
   pageSize = 10,
   isLoading = false,
-  emptyMessage = 'No data found',
+  emptyMessage = 'Tidak ada data',
   selectedIds = [],
   onSelectionChange,
 }: DataTableProps<T>) {
@@ -168,7 +168,7 @@ export default function DataTable<T extends Record<string, any>>({
                   </div>
                 </th>
               ))}
-              {actions && <th className="p-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Actions</th>}
+              {actions && <th className="p-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">Aksi</th>}
             </tr>
           </thead>
           <tbody className="divide-y divide-gray-50">
@@ -224,7 +224,7 @@ export default function DataTable<T extends Record<string, any>>({
       {totalPages > 1 && (
         <div className="flex items-center justify-between px-4 py-3 border-t border-gray-100 bg-gray-50/50">
           <p className="text-sm text-gray-500">
-            Showing {page * pageSize + 1} to {Math.min((page + 1) * pageSize, filtered.length)} of {filtered.length}
+            Menampilkan {page * pageSize + 1} hingga {Math.min((page + 1) * pageSize, filtered.length)} dari {filtered.length}
           </p>
           <div className="flex items-center gap-1">
             <button

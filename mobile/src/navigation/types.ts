@@ -34,7 +34,7 @@ export type RootStackParamList = {
   Auth: undefined;
   Main: NavigatorScreenParams<MainTabParamList>;
   SOS: undefined;
-  TripDetail: { tripId?: string };
+  TripDetail: { trip?: Record<string, any> };
   Chat: { team?: { title?: string; host?: string }; threadId?: string };
   FindTeam: { teamId?: string };
   Settings: undefined;
@@ -42,6 +42,7 @@ export type RootStackParamList = {
   ThreadDetail: { thread: Record<string, any> };
   GearDetail: { item: Record<string, any> };
   CreateListing: undefined;
+  CreateThread: undefined;
   OfflineMapManager: undefined;
   GPSTracker: undefined;
   Emergency: undefined;

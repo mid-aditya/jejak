@@ -24,9 +24,9 @@ export default function Header({ onMenuClick }: HeaderProps) {
   const [showNotifications, setShowNotifications] = useState(false);
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [notifications] = useState([
-    { id: 1, text: 'New SOS alert from Mount Semeru', time: '2 min ago', type: 'danger' },
-    { id: 2, text: 'Pending trip approval required', time: '15 min ago', type: 'warning' },
-    { id: 3, text: 'New user registration spike', time: '1 hr ago', type: 'info' },
+    { id: 1, text: 'Peringatan SOS baru dari Gunung Semeru', time: '2 menit lalu', type: 'danger' },
+    { id: 2, text: 'Persetujuan trip tertunda diperlukan', time: '15 menit lalu', type: 'warning' },
+    { id: 3, text: 'Peningkatan pendaftaran pengguna baru', time: '1 jam lalu', type: 'info' },
   ]);
   const userMenuRef = useRef<HTMLDivElement>(null);
   const notifRef = useRef<HTMLDivElement>(null);
@@ -70,7 +70,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
               type="text"
               value={searchQuery}
               onChange={(e) => setSearchQuery(e.target.value)}
-              placeholder="Search users, trips, mountains..."
+              placeholder="Cari pengguna, trip, gunung..."
               className="w-full pl-9 pr-4 py-2 text-sm bg-gray-50 border border-gray-100 rounded-lg focus:outline-none focus:ring-2 focus:ring-primary-500 focus:bg-white focus:border-transparent"
             />
           </div>
@@ -93,7 +93,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
             {showNotifications && (
               <div className="absolute right-0 mt-2 w-80 bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden animate-fade-in">
                 <div className="p-3 border-b border-gray-100">
-                  <p className="text-sm font-semibold text-gray-900">Notifications</p>
+                  <p className="text-sm font-semibold text-gray-900">Notifikasi</p>
                 </div>
                 <div className="max-h-64 overflow-y-auto">
                   {notifications.map((n) => (
@@ -112,7 +112,7 @@ export default function Header({ onMenuClick }: HeaderProps) {
                 </div>
                 <div className="p-2 border-t border-gray-100">
                   <button className="w-full text-center text-xs text-primary-600 hover:text-primary-700 py-1 font-medium">
-                    View all notifications
+                    Lihat semua notifikasi
                   </button>
                 </div>
               </div>
@@ -149,14 +149,14 @@ export default function Header({ onMenuClick }: HeaderProps) {
                     className="flex items-center gap-2 px-3 py-2 text-sm text-gray-700 hover:bg-gray-50 rounded-lg"
                   >
                     <Cog6ToothIcon className="w-4 h-4" />
-                    Settings
+                    Pengaturan
                   </Link>
                   <button
                     onClick={() => { setShowUserMenu(false); logout(); }}
                     className="flex items-center gap-2 px-3 py-2 text-sm text-danger-600 hover:bg-danger-50 rounded-lg w-full"
                   >
                     <ArrowRightOnRectangleIcon className="w-4 h-4" />
-                    Logout
+                    Keluar
                   </button>
                 </div>
               </div>

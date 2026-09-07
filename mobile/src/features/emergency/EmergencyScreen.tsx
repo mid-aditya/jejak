@@ -10,7 +10,7 @@ import { Card, Button } from '../../shared/components/ui';
 
 const { width } = Dimensions.get('window');
 
-const EmergencyScreen: React.FC<{ navigation: any; route: any }> = ({ navigation, route }) => {
+const EmergencyScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
   const dispatch = useDispatch<AppDispatch>();
   const { currentSOS } = useSelector((state: RootState) => state.emergency);
   const [currentStep, setCurrentStep] = useState(0);

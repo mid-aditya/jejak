@@ -179,9 +179,7 @@ const MapView: React.FC<MapViewProps> = ({
         logoEnabled={false}
         compassEnabled={true}
         attributionEnabled={false}
-        surfaceView={false}
         onLongPress={handleLongPress}
-        onError={(e) => setMapError('Gagal memuat peta')}
       >
         {/* Camera */}
         <MapboxGL.Camera
@@ -203,43 +201,32 @@ const MapView: React.FC<MapViewProps> = ({
         )}
 
         {/* Markers */}
-        {markers.map((marker) => (
-          // @ts-ignore PointAnnotation accepts children at runtime; v8 types omit it
-          <MapboxGL.PointAnnotation
-            key={marker.id}
-            id={marker.id}
-            coordinate={toGeoPosition(marker.coordinate)}
-            title={marker.title}
-            onSelected={() => onMarkerPress?.(marker.id)}
-          >
-            <View
-              style={[
-                styles.marker,
-                {
-                  backgroundColor:
-                    marker.color ||
-                    (marker.type === "mountain"
-                      ? Colors.primary
-                      : marker.type === "danger"
-                        ? Colors.danger
-                        : marker.type === "water"
-                          ? Colors.waterSource
-                          : Colors.accent),
-                },
-              ]}
+        {markers.map((marker) => {
+          const markerBg =
+            marker.color ||
+            (marker.type === "mountain"
+              ? Colors.primary
+              : marker.type === "danger"
+                ? Colors.danger
+                : marker.type === "water"
+                  ? Colors.waterSource
+                  : Colors.accent);
+          const emoji = marker.icon || (marker.type === "mountain" ? "🏔️" : "📍");
+          return (
+            // @ts-ignore - PointAnnotation children work at runtime for custom icons
+            <MapboxGL.PointAnnotation
+              key={marker.id}
+              id={marker.id}
+              coordinate={toGeoPosition(marker.coordinate)}
+              title={marker.title}
+              onSelected={() => onMarkerPress?.(marker.id)}
             >
-              <MapboxGL.SymbolLayer
-                id={`${marker.id}-icon`}
-                style={
-                  {
-                    textField: marker.icon || "📍",
-                    textSize: 14,
-                  } as SymbolLayerStyle
-                }
-              />
-            </View>
-          </MapboxGL.PointAnnotation>
-        ))}
+              <View style={[styles.marker, { backgroundColor: markerBg }]}>
+                <Text style={styles.markerIcon}>{emoji}</Text>
+              </View>
+            </MapboxGL.PointAnnotation>
+          );
+        })}
 
         {/* Breadcrumb Trail */}
         {breadcrumbGeoJSON && (
@@ -299,6 +286,10 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+  },
+  markerIcon: {
+    fontSize: 14,
+    textAlign: "center",
   },
   errorContainer: {
     flex: 1,

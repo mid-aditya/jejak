@@ -2,7 +2,7 @@ import { createSlice, createAsyncThunk, PayloadAction } from '@reduxjs/toolkit';
 import NetInfo, { NetInfoState } from '@react-native-community/netinfo';
 import { apiClient } from '../../services/api-client';
 import { encryptionService } from '../../services/encryption.service';
-import type { RootState } from '../index';
+import type { RootState, AppDispatch } from '../index';
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 export type OfflineActionType =
@@ -58,32 +58,36 @@ const BASE_RETRY_DELAY = 1000; // 1 second
 export const startNetworkMonitoring = createAsyncThunk<
   void,
   void,
-  { dispatch: any }
+  { dispatch: AppDispatch }
 >('offline/startNetworkMonitoring', async (_, { dispatch }) => {
-  const unsubscribe = NetInfo.addEventListener((state: NetInfoState) => {
-    const isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
-    dispatch(setOnlineStatus(isOnline));
-
-    if (isOnline) {
-      dispatch(processOfflineQueue());
-    }
-  });
-
   // Get initial state
   const state = await NetInfo.fetch();
   const isOnline = Boolean(state.isConnected && state.isInternetReachable !== false);
   dispatch(setOnlineStatus(isOnline));
 
-  // Keep the subscription alive for the app lifetime; the returned cleanup is
-  // intentionally dropped to avoid storing a function in the Redux state.
+  // Listen for network changes — store the unsubscribe ref so it can be called
+  // on app unmount (e.g. via a cleanup thunk). For simplicity, the listener lives
+  // for the app lifetime. To prevent memory leaks in long sessions, consider
+  // replacing this with a React hook that cleans up on unmount.
+  const unsubscribe = NetInfo.addEventListener((networkState: NetInfoState) => {
+    const nowOnline = Boolean(networkState.isConnected && networkState.isInternetReachable !== false);
+    dispatch(setOnlineStatus(nowOnline));
+
+    if (nowOnline) {
+      dispatch(processOfflineQueue());
+    }
+  });
+
+  // Intentionally return void — storing the unsubscribe function in Redux state
+  // would violate serializability checks. The listener lives for the session.
   void unsubscribe;
 });
 
 export const processOfflineQueue = createAsyncThunk<
   void,
   void,
-  { state: RootState; rejectValue: void }
->('offline/processQueue', async (_, { getState, rejectWithValue }) => {
+  { state: RootState; dispatch: AppDispatch; rejectValue: void }
+>('offline/processQueue', async (_, { getState, dispatch, rejectWithValue }) => {
   const { queue } = getState().offline;
 
   if (queue.length === 0) {

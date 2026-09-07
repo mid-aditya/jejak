@@ -35,6 +35,7 @@ import ForumScreen from '../features/community/ForumScreen';
 import ThreadDetailScreen from '../features/community/ThreadDetailScreen';
 import FindTeamScreen from '../features/community/FindTeamScreen';
 import ChatScreen from '../features/community/ChatScreen';
+import CreateThreadScreen from '../features/community/CreateThreadScreen';
 
 // Marketplace
 import MarketplaceScreen from '../features/marketplace/MarketplaceScreen';
@@ -92,6 +93,7 @@ const CommunityNavigator: React.FC = () => (
     }}
   >
     <CommunityStack.Screen name="Forum" component={ForumScreen} options={{ title: 'Forum' }} />
+    <CommunityStack.Screen name="CreateThread" component={CreateThreadScreen} options={{ title: 'Buat Thread' }} />
     <CommunityStack.Screen name="ThreadDetail" component={ThreadDetailScreen} options={{ title: 'Thread' }} />
     <CommunityStack.Screen name="FindTeam" component={FindTeamScreen} options={{ title: 'Cari Tim' }} />
   </CommunityStack.Navigator>
@@ -184,12 +186,7 @@ const AppNavigator: React.FC = () => {
             <Stack.Screen name="OfflineMapManager" component={OfflineMapManagerScreen} options={{ title: 'Peta Offline' }} />
             <Stack.Screen name="GPSTracker" component={GPSTrackerScreen} options={{ title: 'GPS Tracker' }} />
             <Stack.Screen name="TripDetail" component={TripDetailScreen} options={{ title: 'Detail Trip' }} />
-            <Stack.Screen name="Chat" component={ChatScreen} options={{ title: 'Chat' }} />
-            <Stack.Screen name="FindTeam" component={FindTeamScreen} options={{ title: 'Cari Tim' }} />
             <Stack.Screen name="Settings" component={SettingsScreen} options={{ title: 'Pengaturan' }} />
-            <Stack.Screen name="ThreadDetail" component={ThreadDetailScreen} options={{ title: 'Thread' }} />
-            <Stack.Screen name="GearDetail" component={GearDetailScreen} options={{ title: 'Detail Gear' }} />
-            <Stack.Screen name="CreateListing" component={CreateListingScreen} options={{ title: 'Jual Gear' }} />
             <Stack.Screen name="CheckInOut" component={CheckInOutScreen} options={{ title: 'Check-in/Out' }} />
             <Stack.Screen name="VerifyIdentity" component={VerifyIdentityScreen} options={{ title: 'Verifikasi Identitas' }} />
           </>

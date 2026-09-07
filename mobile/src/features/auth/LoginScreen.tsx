@@ -72,7 +72,13 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             { text: 'Batal', style: 'cancel' },
             {
               text: 'Lanjutkan',
-              onPress: () => dispatch(socialLogin({ provider, token: 'placeholder' })),
+              onPress: async () => {
+                try {
+                  await dispatch(socialLogin({ provider, token: 'placeholder' })).unwrap();
+                } catch (err: any) {
+                  Alert.alert('Login Gagal', err || `Gagal login dengan ${provider}`);
+                }
+              },
             },
           ],
         );

@@ -26,13 +26,13 @@ interface NavItem {
 }
 
 const navItems: NavItem[] = [
-  { label: 'Dashboard', href: '/dashboard', icon: <HomeIcon className="w-5 h-5" /> },
-  { label: 'Users', href: '/dashboard/users', icon: <UsersIcon className="w-5 h-5" />, roles: ['admin', 'moderator'] },
-  { label: 'Mountains', href: '/dashboard/mountains', icon: <MapIcon className="w-5 h-5" />, roles: ['admin', 'tn_admin'] },
-  { label: 'Emergency', href: '/dashboard/emergency', icon: <ExclamationTriangleIcon className="w-5 h-5" />, roles: ['admin', 'tn_admin'] },
+  { label: 'Dasbor', href: '/dashboard', icon: <HomeIcon className="w-5 h-5" /> },
+  { label: 'Pengguna', href: '/dashboard/users', icon: <UsersIcon className="w-5 h-5" />, roles: ['admin', 'moderator'] },
+  { label: 'Gunung', href: '/dashboard/mountains', icon: <MapIcon className="w-5 h-5" />, roles: ['admin', 'tn_admin'] },
+  { label: 'Darurat', href: '/dashboard/emergency', icon: <ExclamationTriangleIcon className="w-5 h-5" />, roles: ['admin', 'tn_admin'] },
   { label: 'Marketplace', href: '/dashboard/marketplace', icon: <ShoppingBagIcon className="w-5 h-5" />, roles: ['admin', 'moderator'] },
-  { label: 'Analytics', href: '/dashboard/analytics', icon: <ChartBarIcon className="w-5 h-5" />, roles: ['admin'] },
-  { label: 'Settings', href: '/dashboard/settings', icon: <Cog6ToothIcon className="w-5 h-5" /> },
+  { label: 'Analitik', href: '/dashboard/analytics', icon: <ChartBarIcon className="w-5 h-5" />, roles: ['admin'] },
+  { label: 'Pengaturan', href: '/dashboard/settings', icon: <Cog6ToothIcon className="w-5 h-5" /> },
 ];
 
 interface SidebarProps {
@@ -69,7 +69,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           {!collapsed && (
             <div className="min-w-0">
               <p className="text-sm font-bold text-gray-900 truncate">Jejak</p>
-              <p className="text-xs text-gray-500 truncate">Admin Panel</p>
+              <p className="text-xs text-gray-500 truncate">Panel Admin</p>
             </div>
           )}
         </div>
@@ -121,7 +121,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
             </div>
             <div className="min-w-0">
               <p className="text-sm font-medium text-gray-900 truncate">{user.name}</p>
-              <p className="text-xs text-gray-500 truncate capitalize">{user.role?.replace('_', ' ')}</p>
+              <p className="text-xs text-gray-500 truncate capitalize">{(user.role === 'admin' ? 'Admin' : user.role === 'user' ? 'Pengguna' : user.role === 'operator' ? 'Operator' : user.role === 'tn_admin' ? 'Admin TN' : user.role === 'moderator' ? 'Moderator' : String(user.role ?? '').replace('_', ' '))}</p>
             </div>
           </div>
         )}
@@ -133,7 +133,7 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
           )}
         >
           <ArrowRightOnRectangleIcon className="w-5 h-5 flex-shrink-0" />
-          {!collapsed && <span>Logout</span>}
+          {!collapsed && <span>Keluar</span>}
         </button>
       </div>
     </aside>

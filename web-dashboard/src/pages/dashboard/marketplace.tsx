@@ -49,12 +49,12 @@ const MarketplacePage: NextPage = () => {
 
   const handleApprove = (id: string) => {
     setListings(prev => prev.map(l => l.id === id ? { ...l, status: 'approved' } : l));
-    toast.success('Listing approved');
+    toast.success('Iklan disetujui');
   };
 
   const handleReject = (id: string) => {
     setListings(prev => prev.map(l => l.id === id ? { ...l, status: 'rejected' } : l));
-    toast.success('Listing rejected');
+    toast.success('Iklan ditolak');
   };
 
   const pendingListings = listings.filter(l => l.status === 'pending');
@@ -63,7 +63,7 @@ const MarketplacePage: NextPage = () => {
   const listingColumns: Column<Listing>[] = [
     {
       key: 'title',
-      header: 'Listing',
+      header: 'Iklan',
       render: (l) => (
         <div>
           <p className="font-medium text-gray-900">{l.title}</p>
@@ -71,20 +71,20 @@ const MarketplacePage: NextPage = () => {
         </div>
       ),
     },
-    { key: 'category', header: 'Category' },
+    { key: 'category', header: 'Kategori' },
     {
       key: 'price',
-      header: 'Price',
+      header: 'Harga',
       render: (l) => `Rp ${l.price.toLocaleString()}`,
     },
-    { key: 'createdAt', header: 'Submitted', render: (l) => format(new Date(l.createdAt), 'MMM d, yyyy') },
-    { key: 'reports', header: 'Reports', render: (l) => l.reports || 0 },
+    { key: 'createdAt', header: 'Dikirim', render: (l) => format(new Date(l.createdAt), 'd MMM yyyy') },
+    { key: 'reports', header: 'Laporan', render: (l) => l.reports || 0 },
   ];
 
   const disputeColumns: Column<Dispute>[] = [
     {
       key: 'listingTitle',
-      header: 'Listing',
+      header: 'Iklan',
       render: (d) => (
         <div>
           <p className="font-medium text-gray-900">{d.listingTitle}</p>
@@ -92,20 +92,20 @@ const MarketplacePage: NextPage = () => {
         </div>
       ),
     },
-    { key: 'buyer', header: 'Buyer' },
-    { key: 'seller', header: 'Seller' },
+    { key: 'buyer', header: 'Pembeli' },
+    { key: 'seller', header: 'Penjual' },
     {
       key: 'amount',
-      header: 'Amount',
+      header: 'Jumlah',
       render: (d) => `Rp ${d.amount.toLocaleString()}`,
     },
-    { key: 'reason', header: 'Reason' },
+    { key: 'reason', header: 'Alasan' },
     {
       key: 'status',
       header: 'Status',
       render: (d) => (
         <span className={`badge ${d.status === 'open' ? 'bg-red-100 text-red-700' : d.status === 'reviewing' ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}`}>
-          {d.status}
+          {d.status === 'open' ? 'Terbuka' : d.status === 'reviewing' ? 'Ditinjau' : 'Selesai'}
         </span>
       ),
     },
@@ -113,18 +113,18 @@ const MarketplacePage: NextPage = () => {
 
   return (
     <>
-      <Head><title>Marketplace - Jejak</title></Head>
+      <Head><title>Moderasi Marketplace - Jejak</title></Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Marketplace Moderation</h1>
-              <p className="text-gray-500 mt-1">Manage listings, reports, and escrow disputes</p>
+              <h1 className="text-2xl font-bold text-gray-900">Moderasi Marketplace</h1>
+              <p className="text-gray-500 mt-1">Kelola listing, laporan, dan sengketa escrow</p>
             </div>
             <div className="flex items-center gap-2">
-              <span className="badge bg-yellow-100 text-yellow-700">{pendingListings.length} pending</span>
-              <span className="badge bg-red-100 text-red-700">{reportedListings.length} reported</span>
-              <span className="badge bg-purple-100 text-purple-700">{disputes.length} disputes</span>
+              <span className="badge bg-yellow-100 text-yellow-700">{pendingListings.length} menunggu</span>
+              <span className="badge bg-red-100 text-red-700">{reportedListings.length} dilaporan</span>
+              <span className="badge bg-purple-100 text-purple-700">{disputes.length} sengketa</span>
             </div>
           </div>
 
@@ -151,7 +151,7 @@ const MarketplacePage: NextPage = () => {
               columns={listingColumns}
               data={pendingListings}
               keyExtractor={(l) => l.id}
-              searchPlaceholder="Search listings..."
+              searchPlaceholder="Cari iklan..."
               actions={(l) => (
                 <div className="flex items-center justify-end gap-2">
                   <button onClick={() => handleApprove(l.id)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg">
@@ -171,7 +171,7 @@ const MarketplacePage: NextPage = () => {
               columns={listingColumns}
               data={reportedListings}
               keyExtractor={(l) => l.id}
-              searchPlaceholder="Search reported listings..."
+              searchPlaceholder="Cari iklan yang dilaporkan..."
               actions={(l) => (
                 <div className="flex items-center justify-end gap-2">
                   <button onClick={() => handleApprove(l.id)} className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg" title="Dismiss reports">
@@ -191,10 +191,10 @@ const MarketplacePage: NextPage = () => {
               columns={disputeColumns}
               data={disputes}
               keyExtractor={(d) => d.id}
-              searchPlaceholder="Search disputes..."
+              searchPlaceholder="Cari sengketa..."
               actions={(d) => (
                 d.status !== 'resolved' && (
-                  <button className="btn-danger text-xs py-1.5">Review</button>
+                  <button className="btn-danger text-xs py-1.5">Tinjau</button>
                 )
               )}
             />

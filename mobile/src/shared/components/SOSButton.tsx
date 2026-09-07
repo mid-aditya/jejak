@@ -217,7 +217,7 @@ const SOSButton: React.FC<SOSButtonProps> = ({ onPress, disabled = false }) => {
     <Animated.View style={[styles.container, containerStyle]}>
       {active && countdown > 0 && (
         <View style={styles.countdownContainer}>
-          <Text style={styles.countdownText}>SOS in {countdown}s</Text>
+          <Text style={styles.countdownText}>SOS dalam {countdown} detik</Text>
           <View style={styles.countdownBar}>
             <Animated.View
               style={[

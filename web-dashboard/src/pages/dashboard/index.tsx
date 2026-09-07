@@ -87,7 +87,7 @@ const DashboardPage: NextPage = () => {
     labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul'],
     datasets: [
       {
-        label: 'Total Users',
+        label: 'Total Pengguna',
         data: [8200, 9100, 9800, 10400, 11100, 11800, 12450],
         borderColor: '#2E7D32',
         backgroundColor: 'rgba(46, 125, 50, 0.1)',
@@ -100,7 +100,7 @@ const DashboardPage: NextPage = () => {
     labels: ['Rinjani', 'Semeru', 'Merbabu', 'Merapi', 'Bromo', 'Sumbawa'],
     datasets: [
       {
-        label: 'Trips',
+        label: 'Trip',
         data: [125, 98, 87, 76, 65, 45],
         backgroundColor: [
           'rgba(46, 125, 50, 0.8)',
@@ -115,13 +115,13 @@ const DashboardPage: NextPage = () => {
   };
 
   const recentActivity = [
-    { id: 1, type: 'user', message: 'New user registered: Ahmad Wijaya', time: '2 min ago' },
-    { id: 2, type: 'trip', message: 'Trip "Summit Rinjani" confirmed', time: '5 min ago' },
-    { id: 3, type: 'sos', message: 'SOS alert resolved on Mount Merbabu', time: '12 min ago' },
-    { id: 4, type: 'payment', message: 'Payment received: Rp 2,500,000', time: '15 min ago' },
-    { id: 5, type: 'review', message: 'New review on Mount Semeru route', time: '20 min ago' },
-    { id: 6, type: 'user', message: 'User verification completed', time: '25 min ago' },
-    { id: 7, type: 'trip', message: 'Booking cancelled: Mount Bromo', time: '30 min ago' },
+    { id: 1, type: 'user', message: 'Pengguna baru terdaftar: Ahmad Wijaya', time: '2 menit lalu' },
+    { id: 2, type: 'trip', message: 'Trip "Summit Rinjani" dikonfirmasi', time: '5 menit lalu' },
+    { id: 3, type: 'sos', message: 'Peringatan SOS terselesaikan di Gunung Merbabu', time: '12 menit lalu' },
+    { id: 4, type: 'payment', message: 'Pembayaran diterima: Rp 2.500.000', time: '15 menit lalu' },
+    { id: 5, type: 'review', message: 'Ulasan baru di jalur Gunung Semeru', time: '20 menit lalu' },
+    { id: 6, type: 'user', message: 'Verifikasi pengguna selesai', time: '25 menit lalu' },
+    { id: 7, type: 'trip', message: 'Pemesanan dibatalkan: Gunung Bromo', time: '30 menit lalu' },
   ];
 
   const chartOptions = {
@@ -147,10 +147,10 @@ const DashboardPage: NextPage = () => {
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
               <h1 className="text-2xl font-bold text-gray-900">
-                {isOperator ? 'Operator Dashboard' : 'Admin Dashboard'}
+                {isOperator ? 'Dasbor Operator' : 'Dasbor Admin'}
               </h1>
               <p className="text-gray-500 mt-1">
-                Welcome back, {session?.user?.name || 'Admin'}. {format(new Date(), 'EEEE, MMMM d, yyyy')}
+                Selamat datang, {session?.user?.name || 'Admin'}. {format(new Date(), 'EEEE, d MMMM yyyy')}
               </p>
             </div>
             {isOperator && (
@@ -159,7 +159,7 @@ const DashboardPage: NextPage = () => {
                 className="btn-primary inline-flex items-center gap-2"
               >
                 <MapIcon className="w-4 h-4" />
-                Create New Trip
+                Buat Trip Baru
               </a>
             )}
           </div>
@@ -168,28 +168,28 @@ const DashboardPage: NextPage = () => {
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <StatCard
               icon={<UserGroupIcon className="w-6 h-6" />}
-              label="Total Users"
+              label="Total Pengguna"
               value={stats.totalUsers.toLocaleString()}
               trend={{ value: stats.userGrowth, isUp: stats.userGrowth > 0 }}
               color="primary"
             />
             <StatCard
               icon={<MapIcon className="w-6 h-6" />}
-              label="Active Trips"
+              label="Trip Aktif"
               value={stats.activeTrips.toLocaleString()}
               trend={{ value: stats.tripGrowth, isUp: stats.tripGrowth > 0 }}
               color="secondary"
             />
             <StatCard
               icon={<CurrencyDollarIcon className="w-6 h-6" />}
-              label="Revenue (IDR)"
+              label="Pendapatan (IDR)"
               value={`Rp ${(stats.revenue / 1000000).toFixed(0)}M`}
               trend={{ value: stats.revenueGrowth, isUp: stats.revenueGrowth > 0 }}
               color="accent"
             />
             <StatCard
               icon={<ExclamationTriangleIcon className="w-6 h-6" />}
-              label="SOS Incidents"
+              label="Insiden SOS"
               value={stats.sosIncidents}
               trend={{ value: stats.sosGrowth, isUp: stats.sosGrowth < 0 }}
               color="danger"
@@ -201,7 +201,7 @@ const DashboardPage: NextPage = () => {
             {/* User Growth Chart */}
             <div className="card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">User Growth</h2>
+                <h2 className="text-lg font-semibold text-gray-900">Pertumbuhan Pengguna</h2>
                 <span className="text-sm text-secondary-600 font-medium flex items-center gap-1">
                   <ArrowTrendingUpIcon className="w-4 h-4" />
                   +{stats.userGrowth}%
@@ -215,8 +215,8 @@ const DashboardPage: NextPage = () => {
             {/* Trips by Mountain */}
             <div className="card p-6">
               <div className="flex items-center justify-between mb-6">
-                <h2 className="text-lg font-semibold text-gray-900">Trips by Mountain</h2>
-                <span className="text-sm text-gray-500">This month</span>
+                <h2 className="text-lg font-semibold text-gray-900">Trip per Gunung</h2>
+                <span className="text-sm text-gray-500">Bulan ini</span>
               </div>
               <div className="h-64">
                 <Bar data={tripsChartData} options={chartOptions} />
@@ -227,7 +227,7 @@ const DashboardPage: NextPage = () => {
           {/* Activity Feed */}
           <div className="card">
             <div className="p-6 border-b border-gray-100">
-              <h2 className="text-lg font-semibold text-gray-900">Recent Activity</h2>
+              <h2 className="text-lg font-semibold text-gray-900">Aktivitas Terbaru</h2>
             </div>
             <div className="divide-y divide-gray-50">
               {recentActivity.map((activity) => (

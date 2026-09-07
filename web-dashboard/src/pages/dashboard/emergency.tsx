@@ -18,7 +18,7 @@ const MapWidget = dynamic(() => import('@/components/MapWidget'), {
   ssr: false,
   loading: () => (
     <div className="h-64 bg-gray-100 rounded-xl animate-pulse flex items-center justify-center text-gray-400 text-sm">
-      Loading map…
+      Memuat peta…
     </div>
   ),
 });
@@ -61,12 +61,12 @@ const EmergencyPage: NextPage = () => {
 
   const resolveSOS = (id: string) => {
     setSosAlerts(prev => prev.map(a => a.id === id ? { ...a, status: 'resolved' } : a));
-    toast.success('SOS alert resolved');
+    toast.success('Peringatan SOS diselesaikan');
   };
 
   const contactSAR = (hikeId: string) => {
     setOverdueHikes(prev => prev.map(h => h.id === hikeId ? { ...h, status: 'contacted' } : h));
-    toast.success('SAR team contacted');
+    toast.success('Tim SAR dihubungi');
   };
 
   const alertLevelColors = {
@@ -76,20 +76,27 @@ const EmergencyPage: NextPage = () => {
     critical: 'bg-red-600 text-white animate-pulse',
   };
 
+  const alertLevelLabels: Record<string, string> = {
+    low: 'RENDAH',
+    medium: 'SEDANG',
+    high: 'TINGGI',
+    critical: 'KRITIS',
+  };
+
   return (
     <>
-      <Head><title>Emergency - Jejak</title></Head>
+      <Head><title>Darurat - Jejak</title></Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex items-center justify-between">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Emergency Monitoring</h1>
-              <p className="text-gray-500 mt-1">Real-time SOS alerts and overdue hikes</p>
+              <h1 className="text-2xl font-bold text-gray-900">Monitoring Darurat</h1>
+              <p className="text-gray-500 mt-1">Peringatan SOS real-time dan pendakian terlambat</p>
             </div>
             <div className="flex items-center gap-2">
               <span className="flex items-center gap-1.5 px-3 py-1.5 bg-red-100 text-red-700 rounded-full text-sm font-medium">
                 <span className="w-2 h-2 bg-red-500 rounded-full animate-pulse" />
-                {sosAlerts.filter(a => a.status === 'active').length} Active SOS
+                {sosAlerts.filter(a => a.status === 'active').length} SOS Aktif
               </span>
             </div>
           </div>
@@ -98,7 +105,7 @@ const EmergencyPage: NextPage = () => {
             {/* Map */}
             <div className="card overflow-hidden">
               <div className="p-4 border-b border-gray-100">
-                <h2 className="font-semibold text-gray-900">Live Map</h2>
+                <h2 className="font-semibold text-gray-900">Peta Langsung</h2>
               </div>
               <MapWidget
                 center={[-2.5, 118]}
@@ -107,13 +114,13 @@ const EmergencyPage: NextPage = () => {
                   ...sosAlerts.filter(a => a.status === 'active').map(a => ({
                     position: a.location,
                     title: `SOS: ${a.userName}`,
-                    description: `${a.mountain} - ${a.duration} min ago`,
+                    description: `${a.mountain} - ${a.duration} menit lalu`,
                     color: 'red' as const,
                     pulsing: true,
                   })),
                   ...sosAlerts.filter(a => a.status === 'responding').map(a => ({
                     position: a.location,
-                    title: `Responding: ${a.userName}`,
+                    title: `Merespons: ${a.userName}`,
                     description: a.mountain,
                     color: 'orange' as const,
                   })),
@@ -125,7 +132,7 @@ const EmergencyPage: NextPage = () => {
             {/* SOS List */}
             <div className="card">
               <div className="p-4 border-b border-gray-100 flex items-center justify-between">
-                <h2 className="font-semibold text-gray-900">SOS Alerts</h2>
+                <h2 className="font-semibold text-gray-900">Peringatan SOS</h2>
                 <span className="text-sm text-gray-500">{sosAlerts.length} total</span>
               </div>
               <div className="divide-y divide-gray-50 max-h-[400px] overflow-y-auto">
@@ -142,11 +149,11 @@ const EmergencyPage: NextPage = () => {
                           <div className="flex items-center gap-3 mt-1 text-xs text-gray-400">
                             <span className="flex items-center gap-1">
                               <ClockIcon className="w-3 h-3" />
-                              {formatDistanceToNow(new Date(alert.triggeredAt))} ago
+                              {formatDistanceToNow(new Date(alert.triggeredAt))} lalu
                             </span>
                             <span className="flex items-center gap-1">
                               <UserGroupIcon className="w-3 h-3" />
-                              {alert.contacts} contacts
+                              {alert.contacts} kontak
                             </span>
                           </div>
                         </div>
@@ -156,16 +163,16 @@ const EmergencyPage: NextPage = () => {
                           onClick={() => resolveSOS(alert.id)}
                           className="btn-primary text-xs py-1.5"
                         >
-                          Resolve
+                          Selesaikan
                         </button>
                       )}
                       {alert.status === 'responding' && (
-                        <span className="badge bg-orange-100 text-orange-700">Responding</span>
+                        <span className="badge bg-orange-100 text-orange-700">Merespons</span>
                       )}
                       {alert.status === 'resolved' && (
                         <span className="badge bg-green-100 text-green-700 flex items-center gap-1">
                           <CheckCircleIcon className="w-3 h-3" />
-                          Resolved
+                          Selesai
                         </span>
                       )}
                     </div>
@@ -178,19 +185,19 @@ const EmergencyPage: NextPage = () => {
           {/* Overdue Hikes */}
           <div className="card">
             <div className="p-4 border-b border-gray-100">
-              <h2 className="font-semibold text-gray-900">Overdue Hikes</h2>
+              <h2 className="font-semibold text-gray-900">Pendakian Terlambat</h2>
             </div>
             <div className="overflow-x-auto">
               <table className="w-full text-sm">
                 <thead>
                   <tr className="bg-gray-50 text-xs text-gray-500 uppercase">
-                    <th className="p-3 text-left">Hiker</th>
-                    <th className="p-3 text-left">Mountain</th>
-                    <th className="p-3 text-left">Last Location</th>
-                    <th className="p-3 text-left">Overdue By</th>
-                    <th className="p-3 text-left">Alert</th>
+                    <th className="p-3 text-left">Pendaki</th>
+                    <th className="p-3 text-left">Gunung</th>
+                    <th className="p-3 text-left">Lokasi Terakhir</th>
+                    <th className="p-3 text-left">Terlambat</th>
+                    <th className="p-3 text-left">Peringatan</th>
                     <th className="p-3 text-left">Status</th>
-                    <th className="p-3 text-right">Action</th>
+                    <th className="p-3 text-right">Aksi</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-50">
@@ -202,12 +209,12 @@ const EmergencyPage: NextPage = () => {
                       <td className="p-3 text-gray-600">{formatDistanceToNow(new Date(hike.expectedReturn))}</td>
                       <td className="p-3">
                         <span className={`badge ${alertLevelColors[hike.alertLevel]}`}>
-                          {hike.alertLevel.toUpperCase()}
+                          {alertLevelLabels[hike.alertLevel] ?? hike.alertLevel.toUpperCase()}
                         </span>
                       </td>
                       <td className="p-3">
                         <span className={`badge ${hike.status === 'resolved' ? 'bg-green-100 text-green-700' : hike.status === 'contacted' ? 'bg-blue-100 text-blue-700' : 'bg-gray-100 text-gray-600'}`}>
-                          {hike.status}
+                          {hike.status === 'resolved' ? 'Selesai' : hike.status === 'contacted' ? 'Dikontak' : 'Menunggu'}
                         </span>
                       </td>
                       <td className="p-3 text-right">
@@ -216,7 +223,7 @@ const EmergencyPage: NextPage = () => {
                             onClick={() => contactSAR(hike.id)}
                             className="btn-danger text-xs py-1.5"
                           >
-                            Contact SAR
+                            Hubungi SAR
                           </button>
                         )}
                       </td>

@@ -94,7 +94,11 @@ const ForumScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
         }
       />
 
-      <TouchableOpacity style={styles.fab} activeOpacity={0.85}>
+      <TouchableOpacity
+        style={styles.fab}
+        onPress={() => navigation.navigate('CreateThread')}
+        activeOpacity={0.85}
+      >
         <Icon name="add" size={26} color={Colors.textInverse} />
       </TouchableOpacity>
     </View>

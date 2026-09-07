@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, FlatList } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity } from 'react-native';
 import { useSelector } from 'react-redux';
 import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RootState } from '../../shared/store';
@@ -185,29 +185,25 @@ const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           onAction={() => navigation.navigate('Community')}
         />
         <Card padded={false} style={styles.postsCard}>
-          <FlatList
-            data={RECENT_POSTS}
-            keyExtractor={i => i.id}
-            scrollEnabled={false}
-            renderItem={({ item, index }) => (
-              <TouchableOpacity
-                style={[styles.postRow, index > 0 && styles.postRowBorder]}
-                onPress={() => navigation.navigate('ThreadDetail', { thread: item })}
-                activeOpacity={0.7}
-              >
-                <Avatar name={item.author} size={36} />
-                <View style={styles.postInfo}>
-                  <Text style={styles.postTitle} numberOfLines={1}>
-                    {item.title}
-                  </Text>
-                  <Text style={styles.postMeta}>
-                    {item.author} · {item.category}
-                  </Text>
-                </View>
-                <Icon name="chevron-right" size={20} color={Colors.textTertiary} />
-              </TouchableOpacity>
-            )}
-          />
+          {RECENT_POSTS.map((item, index) => (
+            <TouchableOpacity
+              key={item.id}
+              style={[styles.postRow, index > 0 && styles.postRowBorder]}
+              onPress={() => navigation.navigate('ThreadDetail', { thread: item })}
+              activeOpacity={0.7}
+            >
+              <Avatar name={item.author} size={36} />
+              <View style={styles.postInfo}>
+                <Text style={styles.postTitle} numberOfLines={1}>
+                  {item.title}
+                </Text>
+                <Text style={styles.postMeta}>
+                  {item.author} · {item.category}
+                </Text>
+              </View>
+              <Icon name="chevron-right" size={20} color={Colors.textTertiary} />
+            </TouchableOpacity>
+          ))}
         </Card>
       </View>
     </ScrollView>

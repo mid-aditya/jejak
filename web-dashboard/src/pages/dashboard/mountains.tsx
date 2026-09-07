@@ -28,11 +28,11 @@ interface Mountain {
 }
 
 const difficultyColors: Record<number, { bg: string; text: string; label: string }> = {
-  1: { bg: 'bg-green-100', text: 'text-green-700', label: 'Easy' },
-  2: { bg: 'bg-lime-100', text: 'text-lime-700', label: 'Moderate' },
-  3: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Challenging' },
-  4: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Hard' },
-  5: { bg: 'bg-red-100', text: 'text-red-700', label: 'Extreme' },
+  1: { bg: 'bg-green-100', text: 'text-green-700', label: 'Mudah' },
+  2: { bg: 'bg-lime-100', text: 'text-lime-700', label: 'Sedang' },
+  3: { bg: 'bg-yellow-100', text: 'text-yellow-700', label: 'Sulit' },
+  4: { bg: 'bg-orange-100', text: 'text-orange-700', label: 'Sangat Sulit' },
+  5: { bg: 'bg-red-100', text: 'text-red-700', label: 'Ekstrem' },
 };
 
 const MountainsPage: NextPage = () => {
@@ -62,13 +62,13 @@ const MountainsPage: NextPage = () => {
 
   const handleSubmit = () => {
     if (!formData.name || !formData.region) {
-      toast.error('Please fill in required fields');
+      toast.error('Mohon isi kolom yang diperlukan');
       return;
     }
 
     if (editingMountain) {
       setMountains(prev => prev.map(m => m.id === editingMountain.id ? { ...m, ...formData, elevation: parseInt(formData.elevation) || 0 } : m));
-      toast.success('Mountain updated successfully');
+      toast.success('Gunung berhasil diperbarui');
     } else {
       const newMountain: Mountain = {
         id: Date.now().toString(),
@@ -78,7 +78,7 @@ const MountainsPage: NextPage = () => {
         createdAt: format(new Date(), 'yyyy-MM-dd'),
       };
       setMountains(prev => [...prev, newMountain]);
-      toast.success('Mountain added successfully');
+      toast.success('Gunung berhasil ditambahkan');
     }
 
     setShowModal(false);
@@ -101,15 +101,15 @@ const MountainsPage: NextPage = () => {
   };
 
   const handleDelete = (id: string) => {
-    if (!confirm('Delete this mountain?')) return;
+    if (!confirm('Hapus gunung ini?')) return;
     setMountains(prev => prev.filter(m => m.id !== id));
-    toast.success('Mountain deleted');
+    toast.success('Gunung berhasil dihapus');
   };
 
   const columns: Column<Mountain>[] = [
     {
       key: 'name',
-      header: 'Mountain',
+      header: 'Gunung',
       sortable: true,
       render: (mountain) => (
         <div className="flex items-center gap-3">
@@ -125,13 +125,13 @@ const MountainsPage: NextPage = () => {
     },
     {
       key: 'elevation',
-      header: 'Elevation',
+      header: 'Ketinggian',
       sortable: true,
       render: (m) => `${m.elevation.toLocaleString()}m`,
     },
     {
       key: 'difficulty',
-      header: 'Difficulty',
+      header: 'Kesulitan',
       sortable: true,
       render: (m) => (
         <span className={`badge ${difficultyColors[m.difficulty].bg} ${difficultyColors[m.difficulty].text}`}>
@@ -144,18 +144,18 @@ const MountainsPage: NextPage = () => {
       header: 'Status',
       render: (m) => (
         <span className={`badge ${m.status === 'open' ? 'bg-green-100 text-green-700' : m.status === 'closed' ? 'bg-red-100 text-red-700' : 'bg-yellow-100 text-yellow-700'}`}>
-          {m.status}
+          {m.status === 'open' ? 'Buka' : m.status === 'closed' ? 'Tutup' : 'Terbatas'}
         </span>
       ),
     },
     {
       key: 'routes',
-      header: 'Routes',
+      header: 'Rute',
       render: (m) => m.routes,
     },
     {
       key: 'createdAt',
-      header: 'Added',
+      header: 'Ditambahkan',
       sortable: true,
       render: (m) => format(new Date(m.createdAt), 'MMM d, yyyy'),
     },
@@ -163,20 +163,20 @@ const MountainsPage: NextPage = () => {
 
   return (
     <>
-      <Head><title>Mountains - Jejak</title></Head>
+      <Head><title>Gunung - Jejak</title></Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">Mountain Management</h1>
-              <p className="text-gray-500 mt-1">Manage trails, routes, and mountain data</p>
+              <h1 className="text-2xl font-bold text-gray-900">Manajemen Gunung</h1>
+              <p className="text-gray-500 mt-1">Kelola jalur, rute, dan data gunung</p>
             </div>
             <button
               onClick={() => { setEditingMountain(null); setShowModal(true); }}
               className="btn-primary inline-flex items-center gap-2"
             >
               <PlusIcon className="w-4 h-4" />
-              Add Mountain
+              Tambah Gunung
             </button>
           </div>
 
@@ -184,7 +184,7 @@ const MountainsPage: NextPage = () => {
             columns={columns}
             data={mountains}
             keyExtractor={(m) => m.id}
-            searchPlaceholder="Search mountains..."
+            searchPlaceholder="Cari gunung..."
             pageSize={10}
             isLoading={loading}
             actions={(mountain) => (
@@ -206,11 +206,11 @@ const MountainsPage: NextPage = () => {
             <div className="absolute inset-0 bg-black/50" onClick={() => setShowModal(false)} />
             <div className="relative bg-white rounded-2xl shadow-xl w-full max-w-lg p-6 animate-fade-in">
               <h2 className="text-xl font-bold text-gray-900 mb-6">
-                {editingMountain ? 'Edit Mountain' : 'Add New Mountain'}
+                {editingMountain ? 'Edit Gunung' : 'Tambah Gunung Baru'}
               </h2>
               <div className="space-y-4">
                 <div>
-                  <label className="block text-sm font-medium text-gray-700 mb-1">Name *</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1">Nama *</label>
                   <input
                     type="text"
                     value={formData.name}
@@ -221,7 +221,7 @@ const MountainsPage: NextPage = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Region</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Wilayah</label>
                     <input
                       type="text"
                       value={formData.region}
@@ -231,7 +231,7 @@ const MountainsPage: NextPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Province</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Provinsi</label>
                     <input
                       type="text"
                       value={formData.province}
@@ -243,7 +243,7 @@ const MountainsPage: NextPage = () => {
                 </div>
                 <div className="grid grid-cols-2 gap-4">
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Elevation (m)</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Ketinggian (m)</label>
                     <input
                       type="number"
                       value={formData.elevation}
@@ -253,17 +253,17 @@ const MountainsPage: NextPage = () => {
                     />
                   </div>
                   <div>
-                    <label className="block text-sm font-medium text-gray-700 mb-1">Difficulty</label>
+                    <label className="block text-sm font-medium text-gray-700 mb-1">Kesulitan</label>
                     <select
                       value={formData.difficulty}
                       onChange={(e) => setFormData({ ...formData, difficulty: parseInt(e.target.value) as Mountain['difficulty'] })}
                       className="input"
                     >
-                      <option value={1}>Easy</option>
-                      <option value={2}>Moderate</option>
-                      <option value={3}>Challenging</option>
-                      <option value={4}>Hard</option>
-                      <option value={5}>Extreme</option>
+                      <option value={1}>Mudah</option>
+                      <option value={2}>Sedang</option>
+                      <option value={3}>Sulit</option>
+                      <option value={4}>Sangat Sulit</option>
+                      <option value={5}>Ekstrem</option>
                     </select>
                   </div>
                 </div>
@@ -274,16 +274,16 @@ const MountainsPage: NextPage = () => {
                     onChange={(e) => setFormData({ ...formData, status: e.target.value as Mountain['status'] })}
                     className="input"
                   >
-                    <option value="open">Open</option>
-                    <option value="closed">Closed</option>
-                    <option value="restricted">Restricted</option>
+                    <option value="open">Buka</option>
+                    <option value="closed">Tutup</option>
+                    <option value="restricted">Terbatas</option>
                   </select>
                 </div>
               </div>
               <div className="flex items-center justify-end gap-3 mt-6">
-                <button onClick={() => setShowModal(false)} className="btn-secondary">Cancel</button>
+                <button onClick={() => setShowModal(false)} className="btn-secondary">Batal</button>
                 <button onClick={handleSubmit} className="btn-primary">
-                  {editingMountain ? 'Update' : 'Add'} Mountain
+                  {editingMountain ? 'Perbarui' : 'Tambah'} Gunung
                 </button>
               </div>
             </div>

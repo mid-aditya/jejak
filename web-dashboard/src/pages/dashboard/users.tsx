@@ -35,9 +35,9 @@ const roleColors: Record<string, string> = {
 };
 
 const verificationLabels: Record<number, { label: string; color: string }> = {
-  0: { label: 'Unverified', color: 'bg-gray-100 text-gray-600' },
-  1: { label: 'Basic', color: 'bg-blue-100 text-blue-700' },
-  2: { label: 'Verified', color: 'bg-green-100 text-green-700' },
+  0: { label: 'Belum Terverifikasi', color: 'bg-gray-100 text-gray-600' },
+  1: { label: 'Dasar', color: 'bg-blue-100 text-blue-700' },
+  2: { label: 'Terverifikasi', color: 'bg-green-100 text-green-700' },
   3: { label: 'Premium', color: 'bg-purple-100 text-purple-700' },
 };
 
@@ -57,15 +57,15 @@ const UsersPage: NextPage = () => {
   const [filterVerification, setFilterVerification] = useState<string>('all');
 
   const handleBanUser = useCallback(async (userId: string) => {
-    if (!confirm('Are you sure you want to ban this user?')) return;
+    if (!confirm('Yakin ingin melarang pengguna ini?')) return;
 
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, status: 'banned' } : u));
-    toast.success('User has been banned');
+    toast.success('Pengguna telah dilarang');
   }, []);
 
   const handleVerifyUser = useCallback(async (userId: string) => {
     setUsers(prev => prev.map(u => u.id === userId ? { ...u, verificationLevel: Math.min(3, u.verificationLevel + 1) as User['verificationLevel'] } : u));
-    toast.success('User verification updated');
+    toast.success('Verifikasi pengguna diperbarui');
   }, []);
 
   const filteredUsers = users.filter(user => {
@@ -77,7 +77,7 @@ const UsersPage: NextPage = () => {
   const columns: Column<User>[] = [
     {
       key: 'name',
-      header: 'User',
+      header: 'Pengguna',
       sortable: true,
       render: (user) => (
         <div className="flex items-center gap-3">
@@ -95,17 +95,17 @@ const UsersPage: NextPage = () => {
     },
     {
       key: 'role',
-      header: 'Role',
+      header: 'Peran',
       sortable: true,
       render: (user) => (
         <span className={`badge ${roleColors[user.role]}`}>
-          {user.role.replace('_', ' ')}
+          {({user: 'Pengguna', operator: 'Operator', admin: 'Admin', tn_admin: 'TN Admin', moderator: 'Moderator'})[user.role] ?? user.role}
         </span>
       ),
     },
     {
       key: 'verificationLevel',
-      header: 'Verification',
+      header: 'Verifikasi',
       sortable: true,
       render: (user) => (
         <span className={`badge ${verificationLabels[user.verificationLevel].color}`}>
@@ -115,13 +115,13 @@ const UsersPage: NextPage = () => {
     },
     {
       key: 'joinedAt',
-      header: 'Joined',
+      header: 'Bergabung',
       sortable: true,
       render: (user) => format(new Date(user.joinedAt), 'MMM d, yyyy'),
     },
     {
       key: 'tripsCount',
-      header: 'Trips',
+      header: 'Trip',
       sortable: true,
       render: (user) => user.tripsCount,
     },
@@ -130,7 +130,7 @@ const UsersPage: NextPage = () => {
       header: 'Status',
       render: (user) => (
         <span className={`badge ${user.status === 'active' ? 'bg-green-100 text-green-700' : 'bg-red-100 text-red-700'}`}>
-          {user.status}
+          {user.status === 'active' ? 'Aktif' : 'Dilarang'}
         </span>
       ),
     },
@@ -139,14 +139,14 @@ const UsersPage: NextPage = () => {
   return (
     <>
       <Head>
-        <title>Users - Jejak</title>
+        <title>Pengguna - Jejak</title>
       </Head>
       <Layout>
         <div className="space-y-6 animate-fade-in">
           <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
             <div>
-              <h1 className="text-2xl font-bold text-gray-900">User Management</h1>
-              <p className="text-gray-500 mt-1">Manage and verify platform users</p>
+              <h1 className="text-2xl font-bold text-gray-900">Manajemen Pengguna</h1>
+              <p className="text-gray-500 mt-1">Kelola dan verifikasi pengguna platform</p>
             </div>
             <div className="flex items-center gap-3">
               <div className="flex items-center gap-2">
@@ -156,8 +156,8 @@ const UsersPage: NextPage = () => {
                   onChange={(e) => setFilterRole(e.target.value)}
                   className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">All Roles</option>
-                  <option value="user">User</option>
+                  <option value="all">Semua Peran</option>
+                  <option value="user">Pengguna</option>
                   <option value="operator">Operator</option>
                   <option value="admin">Admin</option>
                   <option value="tn_admin">TN Admin</option>
@@ -168,10 +168,10 @@ const UsersPage: NextPage = () => {
                   onChange={(e) => setFilterVerification(e.target.value)}
                   className="text-sm border border-gray-200 rounded-lg px-3 py-2 focus:outline-none focus:ring-2 focus:ring-primary-500"
                 >
-                  <option value="all">All Levels</option>
-                  <option value="0">Unverified</option>
-                  <option value="1">Basic</option>
-                  <option value="2">Verified</option>
+                  <option value="all">Semua Level</option>
+                  <option value="0">Belum Terverifikasi</option>
+                  <option value="1">Dasar</option>
+                  <option value="2">Terverifikasi</option>
                   <option value="3">Premium</option>
                 </select>
               </div>
@@ -182,15 +182,15 @@ const UsersPage: NextPage = () => {
             columns={columns}
             data={filteredUsers}
             keyExtractor={(user) => user.id}
-            searchPlaceholder="Search by name or email..."
+            searchPlaceholder="Cari nama atau email..."
             pageSize={10}
             isLoading={loading}
             actions={(user) => (
               <div className="flex items-center justify-end gap-2">
                 <button
-                  onClick={() => toast.success('View user details')}
+                  onClick={() => toast.success('Melihat detail pengguna')}
                   className="p-1.5 text-gray-400 hover:text-primary-600 hover:bg-primary-50 rounded-lg transition-colors"
-                  title="View"
+                  title="Lihat"
                 >
                   <EyeIcon className="w-4 h-4" />
                 </button>
@@ -198,7 +198,7 @@ const UsersPage: NextPage = () => {
                   <button
                     onClick={() => handleVerifyUser(user.id)}
                     className="p-1.5 text-gray-400 hover:text-green-600 hover:bg-green-50 rounded-lg transition-colors"
-                    title="Verify"
+                    title="Verifikasi"
                   >
                     <CheckBadgeIcon className="w-4 h-4" />
                   </button>
@@ -207,7 +207,7 @@ const UsersPage: NextPage = () => {
                   <button
                     onClick={() => handleBanUser(user.id)}
                     className="p-1.5 text-gray-400 hover:text-danger-600 hover:bg-danger-50 rounded-lg transition-colors"
-                    title="Ban"
+                    title="Larang"
                   >
                     <BanIcon className="w-4 h-4" />
                   </button>
