@@ -1,14 +1,15 @@
-import React, { useMemo, useCallback } from "react";
-import { View, StyleSheet, ViewStyle } from "react-native";
+import React, { useMemo, useCallback, useState } from "react";
+import { View, Text, StyleSheet, ViewStyle } from "react-native";
 import MapboxGL, {
-  SymbolLayerStyle,
   LineLayerStyle,
 } from "@react-native-mapbox-gl/maps";
-import { MAPBOX_TOKEN, MAPBOX_STYLE_URL } from "../../config/env";
-import { Colors } from "../../config/theme";
+import { MAPBOX_STYLE_URL } from "../../config/env";
+import { Colors, Typography, Spacing } from "../../config/theme";
 import type { Location } from "../store/slices/emergencySlice";
 
-MapboxGL.setAccessToken(MAPBOX_TOKEN);
+// CartoDB free tiles don't need a Mapbox token. If token is needed later,
+// set MAPBOX_TOKEN in env.ts. Empty token works with CartoDB.
+MapboxGL.setAccessToken('');
 
 // ── Types ─────────────────────────────────────────────────────────────────────
 // Accept either a GeoJSON position tuple [lng, lat] or a {latitude, longitude}
@@ -60,7 +61,7 @@ export interface MapViewProps {
 
 const MapView: React.FC<MapViewProps> = ({
   style,
-  centerCoordinate = [106.8275, -6.1754], // Default: Jakarta
+  centerCoordinate = [106.8275, -6.1754], // Default: Indonesia center
   zoomLevel = 5,
   showUserLocation = false,
   showBreadcrumb = false,
@@ -74,6 +75,7 @@ const MapView: React.FC<MapViewProps> = ({
   children,
 }) => {
   const cameraRef = React.useRef<MapboxGL.Camera>(null);
+  const [mapError, setMapError] = useState<string | null>(null);
 
   const defaultStyleURL = MAPBOX_STYLE_URL;
 
@@ -164,6 +166,13 @@ const MapView: React.FC<MapViewProps> = ({
 
   return (
     <View style={[styles.container, style]}>
+      {mapError ? (
+        <View style={styles.errorContainer}>
+          <Text style={styles.errorIcon}>🗺️</Text>
+          <Text style={styles.errorText}>Peta tidak tersedia</Text>
+          <Text style={styles.errorSub}>{mapError}</Text>
+        </View>
+      ) : (
       <MapboxGL.MapView
         style={styles.map}
         styleURL={defaultStyleURL}
@@ -172,6 +181,7 @@ const MapView: React.FC<MapViewProps> = ({
         attributionEnabled={false}
         surfaceView={false}
         onLongPress={handleLongPress}
+        onError={(e) => setMapError('Gagal memuat peta')}
       >
         {/* Camera */}
         <MapboxGL.Camera
@@ -270,6 +280,7 @@ const MapView: React.FC<MapViewProps> = ({
         {/* Children (Weather overlay, etc.) */}
         {children}
       </MapboxGL.MapView>
+      )}
     </View>
   );
 };
@@ -288,6 +299,28 @@ const styles = StyleSheet.create({
     borderRadius: 15,
     justifyContent: "center",
     alignItems: "center",
+  },
+  errorContainer: {
+    flex: 1,
+    backgroundColor: Colors.borderLight,
+    justifyContent: "center",
+    alignItems: "center",
+    padding: Spacing.lg,
+  },
+  errorIcon: {
+    fontSize: 40,
+    marginBottom: Spacing.sm,
+  },
+  errorText: {
+    ...Typography.subtitle1,
+    color: Colors.text,
+    fontWeight: '700',
+    marginBottom: 4,
+  },
+  errorSub: {
+    ...Typography.caption,
+    color: Colors.textSecondary,
+    textAlign: 'center',
   },
 });
 

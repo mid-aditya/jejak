@@ -3,13 +3,12 @@
 
 // Dev API points at the local backend (port 4000). On emulator/physical device
 // run `adb reverse tcp:4000 tcp:4000` so `localhost` reaches this machine.
-// MAPBOX_STYLE_URL uses Carto's tokenless GL basemap (OSM-based, covers Indonesia)
-// because the project has no real Mapbox token: `mapbox://styles/...` URLs return
-// 403 with a placeholder token. Swap back to mapbox://styles/... once a valid
-// MAPBOX_TOKEN is configured.
+// MAPBOX_STYLE_URL uses Carto's free Voyager basemap (OSM-based, covers Indonesia).
+// This tile server requires no authentication and works out of the box.
+// To use Mapbox instead: set a valid MAPBOX_TOKEN and use mapbox://styles/...
 const DevConfig = {
   API_BASE_URL: 'http://localhost:4000/api/v1',
-  MAPBOX_TOKEN: 'pk.mapbox-dev-token-placeholder',
+  MAPBOX_TOKEN: '', // Not used with CartoDB free tiles
   SOCKET_URL: 'https://dev-socket.jejak.id',
   MAPBOX_STYLE_URL: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
   featureFlags: {

@@ -83,7 +83,7 @@ export const processOfflineQueue = createAsyncThunk<
   void,
   void,
   { state: RootState; rejectValue: void }
->('offline/processQueue', async (_, { getState, dispatch, rejectWithValue }) => {
+>('offline/processQueue', async (_, { getState, rejectWithValue }) => {
   const { queue } = getState().offline;
 
   if (queue.length === 0) {
