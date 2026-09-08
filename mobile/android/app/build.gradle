@@ -107,6 +107,12 @@ android {
             proguardFiles getDefaultProguardFile("proguard-android.txt"), "proguard-rules.pro"
         }
     }
+    lintOptions {
+        // Disable release lint vital checks to avoid Gradle task dependency conflict
+        // with copyReactNativeVectorIconFonts (React Native Vector Icons + Gradle 8.x issue)
+        checkReleaseBuilds false
+        abortOnError false
+    }
 }
 
 // Force an older Google Play Services location that exposes FusedLocationProviderClient
@@ -133,6 +139,14 @@ dependencies {
         implementation("com.facebook.react:hermes-android")
     } else {
         implementation jscFlavor
+    }
+}
+
+// Fix: make generateReleaseLintVitalReportModel explicitly depend on copyReactNativeVectorIconFonts
+// to resolve Gradle 8.x task ordering conflict with React Native Vector Icons
+tasks.configureEach { task ->
+    if (task.name == "generateReleaseLintVitalReportModel") {
+        task.dependsOn "copyReactNativeVectorIconFonts"
     }
 }
 

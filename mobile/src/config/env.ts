@@ -24,7 +24,7 @@ const DevConfig = {
 };
 
 const ProdConfig = {
-  API_BASE_URL: 'https://api.jejak.id/v1',
+  API_BASE_URL: 'https://jejak.codeit.id/api/v1',
   MAPBOX_TOKEN: 'pk.mapbox-prod-token-placeholder',
   SOCKET_URL: 'https://socket.jejak.id',
   MAPBOX_STYLE_URL: 'https://basemaps.cartocdn.com/gl/voyager-gl-style/style.json',
