@@ -68,7 +68,6 @@ export interface AuthCredentials {
 export interface RegisterPayload {
   fullName: string;
   email: string;
-  phone: string;
   password: string;
 }
 
@@ -144,16 +143,33 @@ export const loginUser = createAsyncThunk<
 });
 
 export const registerUser = createAsyncThunk<
-  AuthResponse,
+  { message: string },
   RegisterPayload,
   { rejectValue: string }
 >('auth/registerUser', async (payload, { rejectWithValue }) => {
   try {
-    const response = await apiClient.post<AuthResponse>('/auth/register', payload);
+    // Backend returns { message: string } on successful registration
+    // No tokens are returned — user must verify email first
+    const response = await apiClient.post<{ message: string }>('/auth/register', payload);
     return response.data;
   } catch (error: any) {
     const message =
       error?.response?.data?.message || error?.message || 'Registration failed';
+    return rejectWithValue(message);
+  }
+});
+
+export const confirmEmail = createAsyncThunk<
+  { message: string },
+  string,
+  { rejectValue: string }
+>('auth/confirmEmail', async (token, { rejectWithValue }) => {
+  try {
+    const response = await apiClient.post<{ message: string }>('/auth/confirm-email', { token });
+    return response.data;
+  } catch (error: any) {
+    const message =
+      error?.response?.data?.message || error?.message || 'Email confirmation failed';
     return rejectWithValue(message);
   }
 });
@@ -336,19 +352,28 @@ const authSlice = createSlice({
         state.isLoading = true;
         state.error = null;
       })
-      .addCase(registerUser.fulfilled, (state, action) => {
+      .addCase(registerUser.fulfilled, (state) => {
+        // Registration returns message only — no tokens
+        // User must verify email before login. Navigation handled by RegisterScreen.
         state.isLoading = false;
-        const { user, tokens } = action.payload;
-        state.user = user;
-        state.token = tokens.accessToken;
-        state.refreshToken = tokens.refreshToken;
-        state.isAuthenticated = true;
-        state.verificationLevel = user.verificationLevel;
       })
       .addCase(registerUser.rejected, (state, action) => {
         state.isLoading = false;
         state.error = action.payload ?? 'Registration failed';
-      });
+      })
+
+      // Confirm Email
+      .addCase(confirmEmail.pending, (state) => {
+        state.isLoading = true;
+        state.error = null;
+      })
+      .addCase(confirmEmail.fulfilled, (state) => {
+        state.isLoading = false;
+      })
+      .addCase(confirmEmail.rejected, (state, action) => {
+        state.isLoading = false;
+        state.error = action.payload ?? 'Email confirmation failed';
+      })
 
     // Social Login
     builder

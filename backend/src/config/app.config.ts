@@ -5,6 +5,16 @@ export interface AppConfig {
   jwtExpiry: string;
   jwtRefreshExpiry: string;
   redisUrl: string;
+  baseUrl: string;
+  smtp: {
+    host: string;
+    port: number;
+    secure: boolean;
+    user: string;
+    pass: string;
+    fromName: string;
+    fromEmail: string;
+  };
   twilio: {
     sid: string;
     token: string;
@@ -28,6 +38,16 @@ export const getAppConfig = (configService: ConfigService): AppConfig => ({
   jwtExpiry: configService.get('JWT_EXPIRY', '15m'),
   jwtRefreshExpiry: configService.get('JWT_REFRESH_EXPIRY', '7d'),
   redisUrl: configService.get('REDIS_URL', 'redis://localhost:6379'),
+  baseUrl: configService.get('BASE_URL', 'https://jejak.codeit.id'),
+  smtp: {
+    host: configService.get('SMTP_HOST', 'smtp.gmail.com'),
+    port: configService.get<number>('SMTP_PORT', 587),
+    secure: configService.get<boolean>('SMTP_SECURE', false),
+    user: configService.get('SMTP_USER', ''),
+    pass: configService.get('SMTP_PASS', ''),
+    fromName: configService.get('SMTP_FROM_NAME', 'Jejak App'),
+    fromEmail: configService.get('SMTP_FROM_EMAIL', 'noreply@jejak.app'),
+  },
   twilio: {
     sid: configService.get('TWILIO_SID', ''),
     token: configService.get('TWILIO_TOKEN', ''),

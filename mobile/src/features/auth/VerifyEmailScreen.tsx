@@ -1,20 +1,35 @@
-import React from 'react';
-import { View, Text, StyleSheet, ScrollView } from 'react-native';
+import React, { useState, useCallback } from 'react';
+import { View, Text, StyleSheet, ScrollView, Alert } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
+import { apiClient } from '../../shared/services/api-client';
 import { Colors, Typography, Spacing, BorderRadius } from '../../config/theme';
 import { Button } from '../../shared/components/ui';
 import type { AuthScreenProps } from '../../navigation/types';
 
 type Props = AuthScreenProps<'VerifyEmail'>;
 
-/**
- * Post-registration confirmation screen. The OTP endpoint requires a logged-in
- * session, so this screen explains the email link flow instead of collecting a
- * code pre-login.
- */
 const VerifyEmailScreen: React.FC<Props> = ({ navigation, route }) => {
   const { email } = route.params ?? {};
+  const [isResending, setIsResending] = useState(false);
+  const [resent, setResent] = useState(false);
+
+  const handleResend = useCallback(async () => {
+    if (!email) return;
+
+    setIsResending(true);
+    try {
+      await apiClient.post('/auth/resend-confirmation', { email });
+      setResent(true);
+    } catch (err: any) {
+      Alert.alert(
+        'Gagal',
+        err?.response?.data?.message || err?.message || 'Tidak dapat mengirim ulang email',
+      );
+    } finally {
+      setIsResending(false);
+    }
+  }, [email]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -23,34 +38,52 @@ const VerifyEmailScreen: React.FC<Props> = ({ navigation, route }) => {
         showsVerticalScrollIndicator={false}
       >
         <View style={styles.iconWrap}>
-          <Icon name="mail-open-outline" size={48} color={Colors.primary} />
+          <Icon name="mail-unread-outline" size={48} color={Colors.primary} />
         </View>
-        <Text style={styles.title}>Cek Email Anda</Text>
+        <Text style={styles.title}>Verifikasi Email</Text>
         <Text style={styles.subtitle}>
-          Kami sudah mengirim link verifikasi ke{' '}
-          <Text style={styles.email}>{email || 'email Anda'}</Text>. Klik link
-          tersebut untuk mengaktifkan akun, lalu kembali untuk masuk.
+          Kami telah mengirim link verifikasi ke{' '}
+          <Text style={styles.email}>{email || 'email Anda'}</Text>.
+          {'\n'}Klik link tersebut untuk mengaktifkan akun.
         </Text>
 
         <View style={styles.noteCard}>
           <Icon name="information-circle-outline" size={18} color={Colors.info} />
           <Text style={styles.noteText}>
-            Tidak menerima email? Periksa folder spam, atau pastikan alamat
-            email sudah benar.
+            Tidak menemukan email? Periksa folder spam. Link berlaku selama 24 jam.
           </Text>
         </View>
 
-        <Button
-          title="Kembali ke Login"
-          size="lg"
-          onPress={() => navigation.navigate('Login')}
-          style={styles.action}
-        />
-        <Button
-          title="Daftar Ulang"
-          variant="ghost"
-          onPress={() => navigation.navigate('Register')}
-        />
+        {resent && (
+          <View style={styles.successCard}>
+            <Icon name="checkmark-circle" size={18} color={Colors.success} />
+            <Text style={styles.successText}>
+              Email verifikasi telah dikirim ulang!
+            </Text>
+          </View>
+        )}
+
+        <View style={styles.actions}>
+          <Button
+            title={resent ? 'Kirim Ulang Lagi' : 'Kirim Ulang Email'}
+            variant="outline"
+            onPress={handleResend}
+            loading={isResending}
+            disabled={isResending}
+            style={styles.actionBtn}
+          />
+          <Button
+            title="Masuk"
+            size="lg"
+            onPress={() => navigation.navigate('Login')}
+            style={styles.actionBtn}
+          />
+          <Button
+            title="Daftar Ulang"
+            variant="ghost"
+            onPress={() => navigation.navigate('Register')}
+          />
+        </View>
       </ScrollView>
     </SafeAreaView>
   );
@@ -102,7 +135,26 @@ const styles = StyleSheet.create({
     color: Colors.text,
     lineHeight: 20,
   },
-  action: { marginTop: Spacing.xl, marginBottom: Spacing.sm },
+  successCard: {
+    flexDirection: 'row',
+    gap: Spacing.sm,
+    backgroundColor: Colors.successFaded,
+    borderRadius: BorderRadius.md,
+    padding: Spacing.md,
+    marginTop: Spacing.md,
+    alignItems: 'center',
+  },
+  successText: {
+    flex: 1,
+    ...Typography.body2,
+    color: Colors.success,
+    fontWeight: '600',
+  },
+  actions: {
+    marginTop: Spacing.xl,
+    gap: Spacing.sm,
+  },
+  actionBtn: { marginBottom: 0 },
 });
 
 export default VerifyEmailScreen;

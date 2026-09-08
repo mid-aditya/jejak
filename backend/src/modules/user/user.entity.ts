@@ -110,4 +110,16 @@ export class User extends BaseEntity {
 
   @Column({ name: 'social_id', nullable: true })
   socialId: string;
+
+  @Column({ name: 'email_confirmation_token', nullable: true })
+  emailConfirmationToken: string;
+
+  @Column({ name: 'email_confirmation_expiry', type: 'datetime', nullable: true })
+  emailConfirmationExpiry: Date;
+
+  @Column({ name: 'password_reset_token', nullable: true })
+  passwordResetToken: string;
+
+  @Column({ name: 'password_reset_expiry', type: 'datetime', nullable: true })
+  passwordResetExpiry: Date;
 }

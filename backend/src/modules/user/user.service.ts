@@ -183,6 +183,51 @@ export class UserService {
     return this.userRepository.save(user);
   }
 
+  async findByEmailConfirmationToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { emailConfirmationToken: token } });
+  }
+
+  async findByPasswordResetToken(token: string): Promise<User | null> {
+    return this.userRepository.findOne({ where: { passwordResetToken: token } });
+  }
+
+  async confirmEmail(userId: string, token: string): Promise<User | null> {
+    const user = await this.userRepository.findOne({
+      where: { id: userId, emailConfirmationToken: token },
+    });
+    if (!user) return null;
+
+    const isExpired = user.emailConfirmationExpiry && new Date() > new Date(user.emailConfirmationExpiry);
+    if (isExpired) return null;
+
+    user.emailVerified = true;
+    user.emailConfirmationToken = null as any;
+    user.emailConfirmationExpiry = null as any;
+    return this.userRepository.save(user);
+  }
+
+  async setPasswordResetToken(userId: string, token: string, expiry: Date): Promise<void> {
+    await this.userRepository.update(userId, {
+      passwordResetToken: token,
+      passwordResetExpiry: expiry,
+    });
+  }
+
+  async resetPassword(userId: string, hashedPassword: string): Promise<void> {
+    await this.userRepository.update(userId, {
+      password: hashedPassword,
+      passwordResetToken: null as any,
+      passwordResetExpiry: null as any,
+    });
+  }
+
+  async setEmailConfirmationToken(userId: string, token: string, expiry: Date): Promise<void> {
+    await this.userRepository.update(userId, {
+      emailConfirmationToken: token,
+      emailConfirmationExpiry: expiry,
+    });
+  }
+
   async findBySocialProvider(
     provider: string,
     socialId: string,

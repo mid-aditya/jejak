@@ -1,5 +1,5 @@
-import { Controller, Post, Body, UseGuards, Req, HttpCode, HttpStatus } from '@nestjs/common';
-import { ApiTags, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
+import { Controller, Post, Get, Body, UseGuards, Req, HttpCode, HttpStatus, Query } from '@nestjs/common';
+import { ApiTags, ApiOperation, ApiResponse, ApiBody, ApiQuery } from '@nestjs/swagger';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -13,20 +13,50 @@ export class AuthController {
   constructor(private readonly authService: AuthService) {}
 
   @Post('register')
-  @ApiOperation({ summary: 'Register new user' })
+  @HttpCode(HttpStatus.CREATED)
+  @ApiOperation({ summary: 'Register new user — sends confirmation email' })
   @ApiBody({ type: RegisterDto })
-  @ApiResponse({ status: 201, description: 'User registered successfully' })
-  @ApiResponse({ status: 409, description: 'Email or phone already registered' })
+  @ApiResponse({ status: 201, description: 'Registration successful. Confirmation email sent.' })
+  @ApiResponse({ status: 409, description: 'Email already registered' })
   async register(@Body() registerDto: RegisterDto) {
     return this.authService.register(registerDto);
   }
 
+  @Post('confirm-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Confirm email with token (from email link or app)' })
+  @ApiBody({ schema: { type: 'object', properties: { token: { type: 'string' } } } })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async confirmEmail(@Body() body: { token: string }) {
+    return this.authService.confirmEmail(body.token);
+  }
+
+  @Get('confirm-email')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Confirm email via GET (click link in email)' })
+  @ApiQuery({ name: 'token', required: true, type: String })
+  @ApiResponse({ status: 200, description: 'Email verified successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
+  async confirmEmailGet(@Query('token') token: string) {
+    return this.authService.confirmEmail(token);
+  }
+
+  @Post('resend-confirmation')
+  @HttpCode(HttpStatus.OK)
+  @ApiOperation({ summary: 'Resend email confirmation link' })
+  @ApiBody({ schema: { type: 'object', properties: { email: { type: 'string' } } } })
+  @ApiResponse({ status: 200, description: 'New confirmation link sent if email is registered and unverified' })
+  async resendConfirmation(@Body() body: { email: string }) {
+    return this.authService.resendConfirmation(body.email);
+  }
+
   @Post('login')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Login with email/phone and password' })
+  @ApiOperation({ summary: 'Login with email and password' })
   @ApiBody({ type: LoginDto })
   @ApiResponse({ status: 200, description: 'Login successful' })
-  @ApiResponse({ status: 401, description: 'Invalid credentials' })
+  @ApiResponse({ status: 401, description: 'Invalid credentials or email not verified' })
   async login(@Body() loginDto: LoginDto) {
     return this.authService.login(loginDto);
   }
@@ -53,7 +83,7 @@ export class AuthController {
   @Post('verify-email')
   @HttpCode(HttpStatus.OK)
   @UseGuards(JwtAuthGuard)
-  @ApiOperation({ summary: 'Verify email with OTP' })
+  @ApiOperation({ summary: 'Verify email with OTP (legacy — use /confirm-email instead)' })
   @ApiResponse({ status: 200, description: 'Email verified successfully' })
   async verifyEmail(
     @CurrentUser() user: User,
@@ -76,7 +106,7 @@ export class AuthController {
 
   @Post('forgot-password')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Request password reset' })
+  @ApiOperation({ summary: 'Request password reset email' })
   @ApiResponse({ status: 200, description: 'Reset link sent if account exists' })
   async forgotPassword(@Body() body: { emailOrPhone: string }) {
     return this.authService.forgotPassword(body.emailOrPhone);
@@ -86,6 +116,7 @@ export class AuthController {
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Reset password with token' })
   @ApiResponse({ status: 200, description: 'Password reset successfully' })
+  @ApiResponse({ status: 400, description: 'Invalid or expired token' })
   async resetPassword(
     @Body() body: { token: string; newPassword: string },
   ) {
@@ -106,7 +137,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout' })
   @ApiResponse({ status: 200, description: 'Logged out' })
   async logout() {
-    // Stateless JWT — nothing to revoke server-side for now
+    // Stateless JWT — nothing to revoke server-side
     return { message: 'Logged out successfully' };
   }
 }

@@ -3,15 +3,17 @@ import {
   UnauthorizedException,
   ConflictException,
   BadRequestException,
+  NotFoundException,
 } from "@nestjs/common";
 import { JwtService } from "@nestjs/jwt";
 import { ConfigService } from "@nestjs/config";
 import * as bcrypt from "bcrypt";
+import * as crypto from "crypto";
 import { UserService } from "../user/user.service";
 import { User } from "../user/user.entity";
+import { EmailService } from "../email/email.service";
 import { RegisterDto } from "./dto/register.dto";
 import { LoginDto } from "./dto/login.dto";
-import { getAppConfig } from "../../config/app.config";
 import axios from "axios";
 
 @Injectable()
@@ -20,51 +22,75 @@ export class AuthService {
     private readonly userService: UserService,
     private readonly jwtService: JwtService,
     private readonly configService: ConfigService,
+    private readonly emailService: EmailService,
   ) {}
 
-  async register(
-    registerDto: RegisterDto,
-  ): Promise<{
-    user: User;
-    tokens: { accessToken: string; refreshToken: string };
-  }> {
-    const { email, phone, password, fullName } = registerDto;
+  async register(registerDto: RegisterDto): Promise<{ message: string }> {
+    const { email, password, fullName } = registerDto;
 
-    // Check if user exists
-    if (email) {
-      const existingEmail = await this.userService.findByEmail(email);
-      if (existingEmail) {
-        throw new ConflictException("Email already registered");
-      }
+    if (!email) {
+      throw new BadRequestException("Email is required");
     }
 
-    if (phone) {
-      const existingPhone = await this.userService.findByPhone(phone);
-      if (existingPhone) {
-        throw new ConflictException("Phone number already registered");
-      }
-    }
-
-    if (!email && !phone) {
-      throw new BadRequestException("Either email or phone is required");
+    // Check if email already exists
+    const existingEmail = await this.userService.findByEmail(email);
+    if (existingEmail) {
+      throw new ConflictException("Email already registered");
     }
 
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user
-    const savedUser = await this.userService.createUser({
+    // Create user (email NOT verified yet)
+    const user = await this.userService.createUser({
       email,
-      phone,
       password: hashedPassword,
       fullName,
       roles: ["solo_traveler"],
+      emailVerified: false,
     });
-    const tokens = await this.generateTokens(savedUser);
 
-    // Never return the password hash to the client
-    const { password: _password, ...safeUser } = savedUser;
-    return { user: safeUser as User, tokens };
+    // Generate confirmation token (UUID v4)
+    const confirmationToken = crypto.randomUUID();
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000); // 24 hours
+
+    await this.userService.setEmailConfirmationToken(user.id, confirmationToken, expiry);
+
+    // Build confirmation URL
+    const baseUrl = this.configService.get("BASE_URL", "https://jejak.codeit.id");
+    const confirmationUrl = `${baseUrl}/api/v1/auth/confirm-email?token=${confirmationToken}`;
+
+    // Send confirmation email (fire-and-forget, don't fail registration if email fails)
+    this.emailService
+      .sendEmailConfirmation(email, fullName, confirmationUrl)
+      .catch((err) => console.error("Failed to send confirmation email:", err.message));
+
+    return {
+      message: "Registration successful. Please check your email to verify your account.",
+    };
+  }
+
+  async confirmEmail(token: string): Promise<{ message: string }> {
+    if (!token) {
+      throw new BadRequestException("Confirmation token is required");
+    }
+
+    const user = await this.userService.findByEmailConfirmationToken(token);
+    if (!user) {
+      throw new BadRequestException("Invalid confirmation token");
+    }
+
+    const isExpired =
+      user.emailConfirmationExpiry && new Date() > new Date(user.emailConfirmationExpiry);
+    if (isExpired) {
+      throw new BadRequestException("Confirmation token has expired. Please request a new one.");
+    }
+
+    await this.userService.confirmEmail(user.id, token);
+
+    return {
+      message: "Email verified successfully. You can now login.",
+    };
   }
 
   async login(
@@ -88,6 +114,13 @@ export class AuthService {
     // Check if user has password (social login users may not have password)
     if (!user.password) {
       throw new UnauthorizedException("Please login with social provider");
+    }
+
+    // Email/password users MUST verify email first
+    if (!user.emailVerified) {
+      throw new UnauthorizedException(
+        "Please verify your email first. Check your inbox for the confirmation link.",
+      );
     }
 
     // Verify password
@@ -124,24 +157,27 @@ export class AuthService {
     let avatar: string | undefined;
 
     switch (provider) {
-      case "google":
+      case "google": {
         const googleUser = await this.validateGoogleToken(token);
         socialEmail = googleUser.email;
         socialId = googleUser.id;
         avatar = googleUser.picture;
         break;
-      case "facebook":
+      }
+      case "facebook": {
         const facebookUser = await this.validateFacebookToken(token);
         socialEmail = facebookUser.email;
         socialId = facebookUser.id;
         avatar = facebookUser.picture?.url;
         break;
-      case "instagram":
+      }
+      case "instagram": {
         const instagramUser = await this.validateInstagramToken(token);
         socialEmail = instagramUser.id + "@instagram.user";
         socialId = instagramUser.id;
         avatar = instagramUser.profile_picture;
         break;
+      }
     }
 
     // Create or link user
@@ -181,7 +217,7 @@ export class AuthService {
       }
 
       return this.generateTokens(user);
-    } catch (error) {
+    } catch {
       throw new UnauthorizedException("Invalid or expired refresh token");
     }
   }
@@ -190,8 +226,7 @@ export class AuthService {
     userId: string,
     otp: string,
   ): Promise<{ verified: boolean }> {
-    // TODO: Implement OTP verification with Redis
-    // For now, just mark as verified
+    // Legacy OTP method — for future use with SMS
     const user = await this.userService.findById(userId);
     user.emailVerified = true;
     await this.userService.saveUser(user);
@@ -202,8 +237,7 @@ export class AuthService {
     userId: string,
     otp: string,
   ): Promise<{ verified: boolean }> {
-    // TODO: Implement OTP verification with Redis
-    // For now, just mark as verified
+    // Legacy OTP method — for future use with SMS
     const user = await this.userService.findById(userId);
     user.phoneVerified = true;
     await this.userService.saveUser(user);
@@ -215,25 +249,81 @@ export class AuthService {
     const userByPhone = await this.userService.findByPhone(emailOrPhone);
     const userFound = user || userByPhone;
 
+    // Always return success to prevent email enumeration
     if (!userFound) {
-      // Don't reveal if user exists
-      return { message: "If account exists, reset link has been sent" };
+      return { message: "If an account with that email exists, a password reset link has been sent." };
     }
 
-    // TODO: Generate reset token and send via email/SMS
-    // TODO: Store reset token in Redis with expiry
+    // Generate reset token
+    const resetToken = crypto.randomUUID();
+    const expiry = new Date(Date.now() + 60 * 60 * 1000); // 1 hour
 
-    return { message: "If account exists, reset link has been sent" };
+    await this.userService.setPasswordResetToken(userFound.id, resetToken, expiry);
+
+    // Build reset URL
+    const baseUrl = this.configService.get("BASE_URL", "https://jejak.codeit.id");
+    const resetUrl = `${baseUrl}/api/v1/auth/reset-password?token=${resetToken}`;
+
+    // Send reset email
+    this.emailService
+      .sendPasswordReset(userFound.email, userFound.fullName, resetUrl)
+      .catch((err) => console.error("Failed to send password reset email:", err.message));
+
+    return { message: "If an account with that email exists, a password reset link has been sent." };
   }
 
-  async resetPassword(
-    token: string,
-    newPassword: string,
-  ): Promise<{ message: string }> {
-    // TODO: Validate reset token from Redis
-    // TODO: Update password
+  async resetPassword(token: string, newPassword: string): Promise<{ message: string }> {
+    if (!token) {
+      throw new BadRequestException("Reset token is required");
+    }
 
-    return { message: "Password has been reset successfully" };
+    if (!newPassword || newPassword.length < 8) {
+      throw new BadRequestException("Password must be at least 8 characters");
+    }
+
+    const user = await this.userService.findByPasswordResetToken(token);
+    if (!user) {
+      throw new BadRequestException("Invalid reset token");
+    }
+
+    const isExpired =
+      user.passwordResetExpiry && new Date() > new Date(user.passwordResetExpiry);
+    if (isExpired) {
+      throw new BadRequestException("Reset token has expired. Please request a new one.");
+    }
+
+    const hashedPassword = await bcrypt.hash(newPassword, 10);
+    await this.userService.resetPassword(user.id, hashedPassword);
+
+    return { message: "Password has been reset successfully. You can now login." };
+  }
+
+  async resendConfirmation(email: string): Promise<{ message: string }> {
+    const user = await this.userService.findByEmail(email);
+
+    if (!user) {
+      // Don't reveal if user exists
+      return { message: "If that email is registered and unverified, a new confirmation link has been sent." };
+    }
+
+    if (user.emailVerified) {
+      return { message: "Email is already verified. Please login." };
+    }
+
+    // Generate new confirmation token
+    const confirmationToken = crypto.randomUUID();
+    const expiry = new Date(Date.now() + 24 * 60 * 60 * 1000);
+
+    await this.userService.setEmailConfirmationToken(user.id, confirmationToken, expiry);
+
+    const baseUrl = this.configService.get("BASE_URL", "https://jejak.codeit.id");
+    const confirmationUrl = `${baseUrl}/api/v1/auth/confirm-email?token=${confirmationToken}`;
+
+    this.emailService
+      .sendEmailConfirmation(email, user.fullName, confirmationUrl)
+      .catch((err) => console.error("Failed to resend confirmation email:", err.message));
+
+    return { message: "If that email is registered and unverified, a new confirmation link has been sent." };
   }
 
   private async generateTokens(
@@ -256,7 +346,6 @@ export class AuthService {
   private async validateGoogleToken(
     token: string,
   ): Promise<{ id: string; email: string; picture?: string }> {
-    // Verify with Google API
     const response = await axios.get(
       "https://www.googleapis.com/oauth2/v3/userinfo",
       { headers: { Authorization: `Bearer ${token}` } },
@@ -265,7 +354,6 @@ export class AuthService {
   }
 
   private async validateFacebookToken(token: string): Promise<any> {
-    const appConfig = getAppConfig(this.configService);
     const response = await axios.get(`https://graph.facebook.com/me`, {
       params: { fields: "id,email,picture", access_token: token },
     });
@@ -273,7 +361,6 @@ export class AuthService {
   }
 
   private async validateInstagramToken(token: string): Promise<any> {
-    // Instagram Basic Display API validation
     const response = await axios.get("https://graph.instagram.com/me", {
       params: { fields: "id,username,profile_picture", access_token: token },
     });

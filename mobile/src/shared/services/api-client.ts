@@ -41,7 +41,7 @@ const processQueue = (error: AxiosError | null, token: string | null = null) => 
 // error from the user.
 const isPublicAuthEndpoint = (url?: string): boolean =>
   !!url &&
-  /^\/auth\/(login|register|social-login|refresh|logout|forgot-password|reset-password)(\/|\?|$)/.test(
+  /^\/auth\/(login|register|social-login|refresh|logout|forgot-password|reset-password|confirm-email|resend-confirmation)(\/|\?|$)/.test(
     url,
   );
 

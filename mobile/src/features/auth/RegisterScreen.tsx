@@ -8,11 +8,8 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppDispatch } from '../../shared/store';
 import { registerUser } from '../../shared/store/slices/authSlice';
-import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
-import {
-  validateEmail, validatePhone, validatePassword, validateConfirmPassword,
-  validateFullName, validateRequired,
-} from '../../shared/utils/validators';
+import { Colors, Typography, Spacing, BorderRadius } from '../../config/theme';
+import { validateEmail, validatePassword, validateConfirmPassword, validateFullName } from '../../shared/utils/validators';
 import ErrorMessage from '../../shared/components/ErrorMessage';
 import { Input, Button } from '../../shared/components/ui';
 import type { AuthScreenProps } from '../../navigation/types';
@@ -25,7 +22,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   const [form, setForm] = useState({
     fullName: '',
     email: '',
-    phone: '',
     password: '',
     confirmPassword: '',
   });
@@ -49,9 +45,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
     const emailResult = validateEmail(form.email);
     if (!emailResult.isValid) newErrors.email = emailResult.message;
 
-    const phoneResult = validatePhone(form.phone);
-    if (!phoneResult.isValid) newErrors.phone = phoneResult.message;
-
     const passwordResult = validatePassword(form.password);
     if (!passwordResult.isValid) newErrors.password = passwordResult.message;
 
@@ -74,21 +67,17 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       await dispatch(registerUser({
         fullName: form.fullName,
         email: form.email,
-        phone: form.phone,
         password: form.password,
       })).unwrap();
 
-      Alert.alert(
-        'Berhasil',
-        'Akun berhasil dibuat! Silakan verifikasi email Anda.',
-        [{ text: 'OK' }],
-      );
+      // Navigate to email verification screen after successful registration
+      navigation.navigate('VerifyEmail', { email: form.email });
     } catch (err: any) {
       setError(err || 'Pendaftaran gagal');
     } finally {
       setIsLoading(false);
     }
-  }, [dispatch, form, validateAll]);
+  }, [dispatch, form, validateAll, navigation]);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -129,18 +118,6 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
               keyboardType="email-address"
               autoCapitalize="none"
               autoCorrect={false}
-              returnKeyType="next"
-            />
-
-            {/* Phone */}
-            <Input
-              label="No. Telepon (WhatsApp)"
-              icon="call"
-              error={errors.phone || undefined}
-              placeholder="08xxxxxxxxxx"
-              value={form.phone}
-              onChangeText={(v) => handleChange('phone', v)}
-              keyboardType="phone-pad"
               returnKeyType="next"
             />
 

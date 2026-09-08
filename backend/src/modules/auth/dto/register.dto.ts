@@ -1,16 +1,10 @@
-import { IsEmail, IsPhoneNumber, IsString, MinLength, MaxLength, IsOptional } from 'class-validator';
-import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { IsEmail, IsString, MinLength, MaxLength } from 'class-validator';
+import { ApiProperty } from '@nestjs/swagger';
 
 export class RegisterDto {
-  @ApiPropertyOptional({ description: 'User email address' })
-  @IsOptional()
+  @ApiProperty({ description: 'User email address (required for verification)' })
   @IsEmail({}, { message: 'Please provide a valid email address' })
-  email?: string;
-
-  @ApiPropertyOptional({ description: 'User phone number' })
-  @IsOptional()
-  @IsString()
-  phone?: string;
+  email: string;
 
   @ApiProperty({ description: 'User password (min 8 characters)' })
   @IsString()
