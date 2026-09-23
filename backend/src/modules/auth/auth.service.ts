@@ -25,6 +25,17 @@ export class AuthService {
     private readonly emailService: EmailService,
   ) {}
 
+  /**
+   * Email verification is only enforceable when SMTP is configured.
+   * Without SMTP there is no way to receive the confirmation link, so the gate
+   * is bypassed (registration auto-verifies) instead of locking users out.
+   */
+  private isSmtpConfigured(): boolean {
+    return Boolean(
+      this.configService.get("SMTP_USER") && this.configService.get("SMTP_PASS"),
+    );
+  }
+
   async register(registerDto: RegisterDto): Promise<{ message: string }> {
     const { email, password, fullName } = registerDto;
 
@@ -41,14 +52,27 @@ export class AuthService {
     // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create user (email NOT verified yet)
+    const smtpReady = this.isSmtpConfigured();
+
+    // Create user. Without SMTP, auto-verify so the account is usable.
     const user = await this.userService.createUser({
       email,
       password: hashedPassword,
       fullName,
       roles: ["solo_traveler"],
-      emailVerified: false,
+      emailVerified: !smtpReady,
     });
+
+    if (!smtpReady) {
+      console.warn(
+        "SMTP not configured — user registered without email verification:",
+        email,
+      );
+      return {
+        message:
+          "Registration successful. Your account is ready — you can login now.",
+      };
+    }
 
     // Generate confirmation token (UUID v4)
     const confirmationToken = crypto.randomUUID();
@@ -116,8 +140,9 @@ export class AuthService {
       throw new UnauthorizedException("Please login with social provider");
     }
 
-    // Email/password users MUST verify email first
-    if (!user.emailVerified) {
+    // Email/password users MUST verify email first — but only when SMTP is
+    // configured (otherwise verification is impossible).
+    if (!user.emailVerified && this.isSmtpConfigured()) {
       throw new UnauthorizedException(
         "Please verify your email first. Check your inbox for the confirmation link.",
       );

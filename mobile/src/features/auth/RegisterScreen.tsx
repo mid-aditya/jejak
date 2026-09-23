@@ -8,7 +8,7 @@ import { SafeAreaView } from 'react-native-safe-area-context';
 import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppDispatch } from '../../shared/store';
 import { registerUser } from '../../shared/store/slices/authSlice';
-import { Colors, Typography, Spacing, BorderRadius } from '../../config/theme';
+import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
 import { validateEmail, validatePassword, validateConfirmPassword, validateFullName } from '../../shared/utils/validators';
 import ErrorMessage from '../../shared/components/ErrorMessage';
 import { Input, Button } from '../../shared/components/ui';
@@ -27,6 +27,7 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
   });
   const [agreeTerms, setAgreeTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
   const [error, setError] = useState('');
 
   const [errors, setErrors] = useState<Record<string, string>>({});
@@ -78,6 +79,21 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
       setIsLoading(false);
     }
   }, [dispatch, form, validateAll, navigation]);
+
+  const handleGoogleRegister = useCallback(async () => {
+    setIsGoogleLoading(true);
+    try {
+      // Google Sign-In native (react-native-google-signin) belum dikonfigurasi.
+      // Sementara memakai alur placeholder; ganti dengan GoogleSignin.signIn()
+      // lalu kirim idToken ke POST /auth/social-login { provider: 'google', token }.
+      Alert.alert(
+        'Daftar dengan Google',
+        'Fitur Google Sign-In akan segera tersedia. Gunakan email & password untuk saat ini.',
+      );
+    } finally {
+      setIsGoogleLoading(false);
+    }
+  }, []);
 
   return (
     <SafeAreaView style={styles.container}>
@@ -177,6 +193,24 @@ const RegisterScreen: React.FC<Props> = ({ navigation }) => {
             />
           </View>
 
+          {/* Divider */}
+          <View style={styles.divider}>
+            <View style={styles.dividerLine} />
+            <Text style={styles.dividerText}>atau</Text>
+            <View style={styles.dividerLine} />
+          </View>
+
+          {/* Google register */}
+          <TouchableOpacity
+            style={styles.googleButton}
+            onPress={handleGoogleRegister}
+            disabled={isGoogleLoading}
+            activeOpacity={0.7}
+          >
+            <Icon name="logo-google" size={20} color={Colors.text} />
+            <Text style={styles.googleText}>Daftar dengan Google</Text>
+          </TouchableOpacity>
+
           {/* Login Link */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>Sudah punya akun? </Text>
@@ -199,6 +233,22 @@ const styles = StyleSheet.create({
   subtitle: { ...Typography.body2, color: Colors.textSecondary, marginTop: Spacing.xs },
   form: { gap: Spacing.md },
   submitButton: { marginTop: Spacing.sm },
+  divider: { flexDirection: 'row', alignItems: 'center', marginVertical: Spacing.md },
+  dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
+  dividerText: { ...Typography.caption, color: Colors.textTertiary, marginHorizontal: Spacing.md },
+  googleButton: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'center',
+    backgroundColor: Colors.surface,
+    borderRadius: BorderRadius.md,
+    height: 52,
+    gap: Spacing.sm,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    ...Shadows.sm,
+  },
+  googleText: { ...Typography.button, color: Colors.text, fontWeight: '600' },
   termsRow: { flexDirection: 'row', alignItems: 'flex-start', gap: Spacing.sm },
   checkboxBox: {
     width: 20, height: 20, borderRadius: 4, borderWidth: 2, borderColor: Colors.border,

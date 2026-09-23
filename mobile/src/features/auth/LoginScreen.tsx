@@ -14,7 +14,6 @@ import Icon from 'react-native-vector-icons/Ionicons';
 import { useAppDispatch, useAppSelector } from '../../shared/store';
 import { loginUser, socialLogin } from '../../shared/store/slices/authSlice';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
-import { featureFlags } from '../../config/env';
 import { validateEmail, validatePassword } from '../../shared/utils/validators';
 import ErrorMessage from '../../shared/components/ErrorMessage';
 import { Input, Button } from '../../shared/components/ui';
@@ -22,15 +21,18 @@ import type { AuthScreenProps } from '../../navigation/types';
 
 type Props = AuthScreenProps<'Login'>;
 
+/**
+ * Login — hanya 2 opsi: Email/Password atau Google.
+ */
 const LoginScreen: React.FC<Props> = ({ navigation }) => {
   const dispatch = useAppDispatch();
   const { isLoading, error } = useAppSelector((s) => s.auth);
 
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
-
   const [emailError, setEmailError] = useState('');
   const [passwordError, setPasswordError] = useState('');
+  const [isGoogleLoading, setIsGoogleLoading] = useState(false);
 
   const handleEmailChange = useCallback((text: string) => {
     setEmail(text);
@@ -61,31 +63,19 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
   }, [dispatch, email, password, validate]);
 
   const handleGoogleLogin = useCallback(async () => {
+    setIsGoogleLoading(true);
     try {
-      // In production, integrate with react-native-google-signin
-      // This opens a browser for OAuth authorization
+      // Google Sign-In native (react-native-google-signin) belum dikonfigurasi.
+      // Sementara memakai alur placeholder; ganti dengan GoogleSignin.signIn()
+      // lalu kirim idToken ke POST /auth/social-login { provider: 'google', token }.
       Alert.alert(
-        'Login dengan Google',
-        'Login Google akan terbuka di browser untuk otorisasi.',
-        [
-          { text: 'Batal', style: 'cancel' },
-          {
-            text: 'Lanjutkan',
-            onPress: async () => {
-              try {
-                // Placeholder - replace with actual Google OAuth token
-                await dispatch(socialLogin({ provider: 'google', token: 'placeholder' })).unwrap();
-              } catch (err: any) {
-                Alert.alert('Login Gagal', err || 'Gagal login dengan Google');
-              }
-            },
-          },
-        ],
+        'Masuk dengan Google',
+        'Fitur Google Sign-In akan segera tersedia. Gunakan email & password untuk saat ini.',
       );
-    } catch (err: any) {
-      Alert.alert('Login Gagal', err || 'Gagal login dengan Google');
+    } finally {
+      setIsGoogleLoading(false);
     }
-  }, [dispatch]);
+  }, []);
 
   const isFormValid = useMemo(
     () => email.length > 0 && password.length > 0,
@@ -110,7 +100,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             <Text style={styles.subtitle}>Masuk ke akun Anda</Text>
           </View>
 
-          {/* Form */}
+          {/* Email login */}
           <View style={styles.form}>
             <Input
               testID="login-email"
@@ -139,7 +129,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             />
 
             <TouchableOpacity
-              style={styles.forgotLink}
+              style={styles.forgotWrap}
               onPress={() => navigation.navigate('ForgotPassword', { email })}
             >
               <Text style={styles.forgotText}>Lupa password?</Text>
@@ -165,17 +155,18 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
             <View style={styles.dividerLine} />
           </View>
 
-          {/* Google Button */}
+          {/* Google login */}
           <TouchableOpacity
             style={styles.googleButton}
             onPress={handleGoogleLogin}
+            disabled={isGoogleLoading}
             activeOpacity={0.7}
           >
             <Icon name="logo-google" size={20} color={Colors.text} />
             <Text style={styles.googleText}>Masuk dengan Google</Text>
           </TouchableOpacity>
 
-          {/* Register Link */}
+          {/* Register link */}
           <View style={styles.footer}>
             <Text style={styles.footerText}>Belum punya akun? </Text>
             <TouchableOpacity onPress={() => navigation.navigate('Register')}>
@@ -198,7 +189,7 @@ const styles = StyleSheet.create({
   subtitle: { ...Typography.body2, color: Colors.textSecondary, marginTop: Spacing.xs },
   form: { gap: Spacing.md },
   submitButton: { marginTop: Spacing.sm },
-  forgotLink: { alignItems: 'flex-end', marginTop: -Spacing.xs },
+  forgotWrap: { alignItems: 'flex-end', marginTop: -Spacing.xs },
   forgotText: { ...Typography.body2, color: Colors.primary, fontWeight: '600' },
   divider: { flexDirection: 'row', alignItems: 'center', marginVertical: Spacing.lg },
   dividerLine: { flex: 1, height: 1, backgroundColor: Colors.border },
