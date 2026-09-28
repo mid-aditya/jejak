@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import { StatusBar, LogBox, Linking, Alert } from 'react-native';
 import { Provider } from 'react-redux';
 import { PersistGate } from 'redux-persist/integration/react';
-import { NavigationContainer, useNavigation } from '@react-navigation/native';
+import { NavigationContainer } from '@react-navigation/native';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import { SafeAreaProvider } from 'react-native-safe-area-context';
 
@@ -42,8 +42,6 @@ const handleDeepLink = async (url: string) => {
 };
 
 const AppContent: React.FC = () => {
-  const navigation = useNavigation();
-
   useEffect(() => {
     const init = async () => {
       try {
@@ -69,7 +67,7 @@ const AppContent: React.FC = () => {
     return () => {
       subscription.remove();
     };
-  }, [navigation]);
+  }, []);
 
   return (
     <GestureHandlerRootView style={{ flex: 1 }}>
