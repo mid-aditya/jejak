@@ -32,11 +32,9 @@ export interface Badge {
 
 @Entity('users')
 export class User extends BaseEntity {
-  @Index()
   @Column({ unique: true, nullable: true })
   email: string;
 
-  @Index()
   @Column({ unique: true, nullable: true })
   phone: string;
 
