@@ -12,6 +12,7 @@ import {
 } from "@heroicons/react/24/outline";
 import { api } from "@/services/api";
 import Dropdown from "@/components/Dropdown";
+import Logo from "@/components/Logo";
 import {
   fetchMountains, fetchDifficultyScale, flattenTrails,
   difficultyLabels, difficultyColors,
@@ -219,6 +220,7 @@ export default function LandingPage() {
       <Head>
         <title>Jejak — Indonesia's Mountain Ecosystem Platform</title>
         <meta name="description" content="Safety, conservation, and community — united under one peak." />
+        <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
       </Head>
 
       <div className="min-h-screen bg-white font-sans">
@@ -227,10 +229,7 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
             <div className="flex items-center justify-between h-16 lg:h-20">
               <div className="flex items-center gap-3">
-                <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center shadow-lg shadow-primary-500/20">
-                  <GlobeAsiaAustraliaIcon className="w-6 h-6 text-white" />
-                </div>
-                <span className={`text-xl font-bold font-display ${scrolled ? "text-gray-900" : "text-white"}`}>Jejak</span>
+                <Logo size={40} variant={scrolled ? 'color' : 'white'} showWordmark={true} dark={!scrolled} />
               </div>
               <div className="hidden md:flex items-center gap-8">
                 <a href="#trails" className={`text-sm font-medium transition-colors ${scrolled ? "text-gray-600 hover:text-primary-600" : "text-white/70 hover:text-white"}`}>Jalur</a>
@@ -870,11 +869,8 @@ export default function LandingPage() {
           <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-16">
             <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
               <div className="col-span-2 md:col-span-1">
-                <div className="flex items-center gap-3 mb-4">
-                  <div className="w-10 h-10 bg-gradient-to-br from-primary-500 to-primary-700 rounded-xl flex items-center justify-center">
-                    <GlobeAsiaAustraliaIcon className="w-6 h-6 text-white" />
-                  </div>
-                  <span className="text-xl font-bold font-display text-white">Jejak</span>
+                <div className="mb-4">
+                  <Logo size={40} variant="white" dark />
                 </div>
                 <p className="text-sm leading-relaxed">Safety, conservation, and community — united under one peak.</p>
               </div>
@@ -905,7 +901,7 @@ export default function LandingPage() {
             <div className="relative bg-white rounded-3xl shadow-2xl w-full max-w-md p-8 animate-fade-in" onClick={(e) => e.stopPropagation()}>
               <button onClick={() => setShowLogin(false)} className="absolute top-4 right-4 p-2 rounded-xl hover:bg-gray-100 text-gray-400 transition-colors"><XMarkIcon className="w-5 h-5" /></button>
               <div className="text-center mb-8">
-                <div className="w-14 h-14 bg-gradient-to-br from-primary-500 to-primary-700 rounded-2xl flex items-center justify-center mx-auto mb-4 shadow-lg shadow-primary-500/20"><GlobeAsiaAustraliaIcon className="w-7 h-7 text-white" /></div>
+                <div className="mx-auto mb-4 flex justify-center"><Logo size={56} showWordmark={false} /></div>
                 <h2 className="text-2xl font-bold font-display text-gray-900">Welcome Back</h2>
                 <p className="text-gray-500 mt-1">Sign in to continue your adventure</p>
               </div>

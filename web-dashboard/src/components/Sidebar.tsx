@@ -16,6 +16,7 @@ import {
   GlobeAsiaAustraliaIcon as MountainIcon,
 } from '@heroicons/react/24/outline';
 import { useAuth } from '@/hooks/useAuth';
+import Logo from '@/components/Logo';
 
 interface NavItem {
   label: string;
@@ -62,17 +63,11 @@ export default function Sidebar({ open, onClose }: SidebarProps) {
     >
       {/* Logo */}
       <div className={clsx('flex items-center h-16 px-6 border-b border-gray-100', collapsed && 'justify-center px-0')}>
-        <div className="flex items-center gap-3 min-w-0">
-          <div className="w-9 h-9 bg-primary-500 rounded-xl flex items-center justify-center flex-shrink-0">
-            <MountainIcon className="w-5 h-5 text-white" />
-          </div>
-          {!collapsed && (
-            <div className="min-w-0">
-              <p className="text-sm font-bold text-gray-900 truncate">Jejak</p>
-              <p className="text-xs text-gray-500 truncate">Panel Admin</p>
-            </div>
-          )}
-        </div>
+        {collapsed ? (
+          <Logo size={36} showWordmark={false} />
+        ) : (
+          <Logo size={36} subtitle="Panel Admin" />
+        )}
         <button
           onClick={() => setCollapsed(!collapsed)}
           className="hidden lg:flex ml-auto p-1.5 rounded-lg hover:bg-gray-100 text-gray-400"

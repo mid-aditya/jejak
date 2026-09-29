@@ -5,6 +5,7 @@ import Icon from 'react-native-vector-icons/MaterialIcons';
 import { RootState } from '../../shared/store';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
 import { Card, SectionHeader, Avatar, Chip } from '../../shared/components/ui';
+import Logo from '../../shared/components/ui/Logo';
 
 const QUICK_ACTIONS = [
   { id: '1', label: 'SOS', icon: 'warning', color: Colors.danger, bg: Colors.dangerFaded, route: 'Emergency' },
@@ -44,11 +45,7 @@ const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
       {/* Header */}
       <View style={styles.header}>
-        <Avatar
-          name={user?.fullName || 'Pendaki'}
-          uri={user?.avatar}
-          size={48}
-        />
+        <Logo size={36} showWordmark={false} />
         <View style={styles.greeting}>
           <Text style={styles.greetingTitle}>
             Hai, {user?.fullName?.split(' ')[0] || 'Pendaki'}!
@@ -60,7 +57,7 @@ const DashboardScreen: React.FC<{ navigation: any }> = ({ navigation }) => {
           style={styles.profileBtn}
           hitSlop={{ top: 8, bottom: 8, left: 8, right: 8 }}
         >
-          <Icon name="account-circle" size={28} color={Colors.textSecondary} />
+          <Avatar name={user?.fullName || 'Pendaki'} uri={user?.avatar} size={36} />
         </TouchableOpacity>
       </View>
 

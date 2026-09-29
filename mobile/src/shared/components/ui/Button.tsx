@@ -8,15 +8,10 @@ import {
   StyleProp,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/MaterialIcons';
-import { Colors, Typography, BorderRadius, Spacing, Shadows } from '../../../config/theme';
+import { Colors, BorderRadius, Spacing } from '../../../config/theme';
 
-export type ButtonVariant =
-  | 'primary'
-  | 'secondary'
-  | 'outline'
-  | 'danger'
-  | 'ghost';
-export type ButtonSize = 'sm' | 'md' | 'lg';
+export type ButtonVariant = 'default' | 'secondary' | 'outline' | 'ghost' | 'destructive' | 'danger' | 'primary';
+export type ButtonSize = 'sm' | 'md' | 'lg' | 'icon';
 
 interface ButtonProps {
   title: string;
@@ -30,79 +25,47 @@ interface ButtonProps {
   testID?: string;
 }
 
-const VARIANT_STYLES: Record<
-  ButtonVariant,
-  { bg: string; text: string; border?: string }
-> = {
-  primary: { bg: Colors.primary, text: Colors.textInverse },
-  secondary: { bg: Colors.primaryFaded, text: Colors.primaryDark },
-  outline: { bg: 'transparent', text: Colors.primary, border: Colors.primary },
-  danger: { bg: Colors.danger, text: Colors.textInverse },
-  ghost: { bg: 'transparent', text: Colors.primary },
+// shadcn/ui button port: solid zinc-900 / emerald, outline hairline, ghost.
+const VARIANT_STYLES: Record<ButtonVariant, { bg: string; text: string; border: string }> = {
+  default: { bg: '#09090B', text: '#FAFAF9', border: '#09090B' },
+  primary: { bg: Colors.primary, text: '#FFFFFF', border: Colors.primary },
+  secondary: { bg: Colors.secondaryFaded, text: Colors.text, border: 'transparent' },
+  outline: { bg: 'transparent', text: Colors.text, border: Colors.border },
+  ghost: { bg: 'transparent', text: Colors.text, border: 'transparent' },
+  destructive: { bg: Colors.danger, text: '#FFFFFF', border: Colors.danger },
+  danger: { bg: Colors.danger, text: '#FFFFFF', border: Colors.danger },
 };
 
-const SIZE_STYLES: Record<
-  ButtonSize,
-  { height: number; paddingHorizontal: number; fontSize: number; radius: number }
-> = {
-  sm: { height: 36, paddingHorizontal: Spacing.md, fontSize: 13, radius: BorderRadius.sm },
-  md: { height: 48, paddingHorizontal: Spacing.lg, fontSize: 15, radius: BorderRadius.md },
-  lg: { height: 54, paddingHorizontal: Spacing.xl, fontSize: 16, radius: BorderRadius.md },
+const SIZE_STYLES: Record<ButtonSize, { height: number; px: number; fontSize: number }> = {
+  sm: { height: 36, px: 12, fontSize: 13 },
+  md: { height: 44, px: 16, fontSize: 14 },
+  lg: { height: 52, px: 20, fontSize: 15 },
+  icon: { height: 44, px: 0, fontSize: 16 },
 };
 
 const Button: React.FC<ButtonProps> = ({
-  title,
-  onPress,
-  variant = 'primary',
-  size = 'md',
-  icon,
-  loading = false,
-  disabled = false,
-  style,
-  testID,
+  title, onPress, variant = 'primary', size = 'md',
+  icon, loading = false, disabled = false, style, testID,
 }) => {
-  const variantStyle = VARIANT_STYLES[variant];
-  const sizeStyle = SIZE_STYLES[size];
+  const v = VARIANT_STYLES[variant];
+  const s = SIZE_STYLES[size];
   const isDisabled = disabled || loading;
-
   return (
     <TouchableOpacity
-      activeOpacity={0.8}
+      activeOpacity={0.85}
       onPress={onPress}
       disabled={isDisabled}
       testID={testID}
-      style={[
-        styles.base,
-        {
-          backgroundColor: variantStyle.bg,
-          borderColor: variantStyle.border ?? 'transparent',
-          height: sizeStyle.height,
-          paddingHorizontal: sizeStyle.paddingHorizontal,
-          borderRadius: sizeStyle.radius,
-          opacity: isDisabled ? 0.5 : 1,
-        },
-        variant === 'outline' && styles.outlineBorder,
-        style,
-      ]}
+      style={[styles.base, { backgroundColor: v.bg, borderColor: v.border, height: s.height, paddingHorizontal: s.px, opacity: isDisabled ? 0.5 : 1 }, style]}
       accessibilityRole="button"
       accessibilityState={{ disabled: isDisabled }}
     >
       {loading ? (
-        <ActivityIndicator color={variantStyle.text} />
+        <ActivityIndicator color={v.text} size="small" />
       ) : (
         <>
-          {icon && <Icon name={icon} size={sizeStyle.fontSize + 2} color={variantStyle.text} />}
-          <Text
-            style={[
-              styles.text,
-              {
-                color: variantStyle.text,
-                fontSize: sizeStyle.fontSize,
-              },
-            ]}
-          >
-            {title}
-          </Text>
+          {icon && <Icon name={icon} size={s.fontSize + 4} color={v.text} />}
+          <Text style={[styles.text, { color: v.text, fontSize: s.fontSize }]}>{title}</Text>
         </>
       )}
     </TouchableOpacity>
@@ -111,19 +74,12 @@ const Button: React.FC<ButtonProps> = ({
 
 const styles = StyleSheet.create({
   base: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    justifyContent: 'center',
-    borderWidth: 1,
-    gap: Spacing.sm,
+    flexDirection: 'row', alignItems: 'center', justifyContent: 'center',
+    borderWidth: 1, borderRadius: BorderRadius.md, gap: Spacing.sm,
+    shadowColor: '#000', shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.06, shadowRadius: 2, elevation: 1,
   },
-  outlineBorder: {
-    borderWidth: 1.5,
-  },
-  text: {
-    ...Typography.button,
-    fontWeight: '700',
-  },
+  text: { fontWeight: '600', letterSpacing: 0.1 },
 });
 
 export default Button;

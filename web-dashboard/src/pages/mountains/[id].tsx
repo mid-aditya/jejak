@@ -8,6 +8,7 @@ import {
   CurrencyDollarIcon, ChevronRightIcon,
   InformationCircleIcon, ExclamationTriangleIcon,
 } from "@heroicons/react/24/outline";
+import Logo from "@/components/Logo";
 import {
   fetchMountainById, fetchRoutes, fetchDifficultyScale,
   difficultyLabels, difficultyColors,
@@ -186,10 +187,7 @@ export default function MountainDetailPage() {
               href="/"
               className="flex items-center gap-2 text-gray-900 font-bold font-display text-sm"
             >
-              <div className="w-7 h-7 bg-gradient-to-br from-primary-500 to-primary-700 rounded-lg flex items-center justify-center">
-                <GlobeAsiaAustraliaIcon className="w-4 h-4 text-white" />
-              </div>
-              Jejak
+              <Logo size={28} />
             </Link>
           </div>
         </div>

@@ -1,5 +1,7 @@
-export { default as Card } from './Card';
+export { default as Card, CardHeader, CardTitle, CardDescription, CardContent, CardFooter } from './Card';
 export { default as Button, type ButtonVariant, type ButtonSize } from './Button';
+export { default as Badge } from './Badge';
+export { default as Logo } from './Logo';
 export { default as Chip } from './Chip';
 export { default as SearchBar } from './SearchBar';
 export { default as Avatar } from './Avatar';

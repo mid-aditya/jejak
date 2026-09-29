@@ -16,7 +16,7 @@ import { loginUser, socialLogin } from '../../shared/store/slices/authSlice';
 import { Colors, Typography, Spacing, BorderRadius, Shadows } from '../../config/theme';
 import { validateEmail, validatePassword } from '../../shared/utils/validators';
 import ErrorMessage from '../../shared/components/ErrorMessage';
-import { Input, Button } from '../../shared/components/ui';
+import { Input, Button, Logo } from '../../shared/components/ui';
 import type { AuthScreenProps } from '../../navigation/types';
 
 type Props = AuthScreenProps<'Login'>;
@@ -95,8 +95,7 @@ const LoginScreen: React.FC<Props> = ({ navigation }) => {
         >
           {/* Header */}
           <View style={styles.header}>
-            <Text style={styles.logo}>🏔️</Text>
-            <Text style={styles.title}>Jejak</Text>
+            <Logo size={56} />
             <Text style={styles.subtitle}>Masuk ke akun Anda</Text>
           </View>
 

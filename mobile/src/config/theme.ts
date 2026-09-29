@@ -2,51 +2,55 @@ import { TextStyle, ViewStyle, ImageStyle } from 'react-native';
 
 type NamedStyles<T> = { [P in keyof T]: TextStyle | ViewStyle | ImageStyle };
 
-// ── Color Palettes ────────────────────────────────────────────────────────────
+// ── shadcn-style tokens (RN port) ───────────────────────────────────────────
+// Base: zinc neutrals + emerald primary (mountain green). Radius & shadow
+// mengikuti gaya shadcn/ui: border halus, shadow lembut, sudut 10-14px.
 export const Colors = {
-  // Primary (Forest Green)
-  primary: '#2E7D32',
-  primaryLight: '#4CAF50',
-  primaryDark: '#1B5E20',
-  primaryFaded: '#E8F5E9',
+  // Primary (emerald-600 default shadcn)
+  primary: '#16A34A',
+  primaryLight: '#22C55E',
+  primaryDark: '#15803D',
+  primaryFaded: '#DCFCE7',
 
   // Secondary
-  secondary: '#558B2F',
-  secondaryLight: '#7CB342',
-  secondaryDark: '#33691E',
-  secondaryFaded: '#F1F8E9',
+  secondary: '#18181B',
+  secondaryLight: '#3F3F46',
+  secondaryDark: '#09090B',
+  secondaryFaded: '#F4F4F5',
 
   // Accent (Warm Amber)
-  accent: '#FF6F00',
-  accentLight: '#FFA000',
-  accentFaded: '#FFF8E1',
+  accent: '#F59E0B',
+  accentLight: '#FBBF24',
+  accentFaded: '#FEF3C7',
 
   // Semantic
-  danger: '#D32F2F',
-  dangerLight: '#EF5350',
-  dangerFaded: '#FFEBEE',
-  warning: '#F57C00',
-  warningLight: '#FFB74D',
-  warningFaded: '#FFF3E0',
-  success: '#388E3C',
-  successLight: '#66BB6A',
-  successFaded: '#E8F5E9',
-  info: '#1976D2',
-  infoLight: '#42A5F5',
-  infoFaded: '#E3F2FD',
+  danger: '#DC2626',
+  dangerLight: '#F87171',
+  dangerFaded: '#FEE2E2',
+  warning: '#D97706',
+  warningLight: '#FBBF24',
+  warningFaded: '#FEF3C7',
+  success: '#16A34A',
+  successLight: '#4ADE80',
+  successFaded: '#DCFCE7',
+  info: '#2563EB',
+  infoLight: '#60A5FA',
+  infoFaded: '#DBEAFE',
 
-  // Neutral
-  background: '#FAFAFA',
+  // Neutral (zinc)
+  background: '#FAFAF9',
   surface: '#FFFFFF',
   surfaceElevated: '#FFFFFF',
-  text: '#212121',
-  textSecondary: '#757575',
-  textTertiary: '#9E9E9E',
-  textInverse: '#FFFFFF',
-  border: '#E0E0E0',
-  borderLight: '#F5F5F5',
-  disabled: '#BDBDBD',
-  overlay: 'rgba(0,0,0,0.5)',
+  muted: '#F4F4F5',
+  text: '#09090B',
+  textSecondary: '#52525B',
+  textTertiary: '#A1A1AA',
+  textInverse: '#FAFAF9',
+  border: '#E4E4E7',
+  borderLight: '#F4F4F5',
+  ring: '#16A34A',
+  disabled: '#D4D4D8',
+  overlay: 'rgba(9,9,11,0.5)',
 
   // Verification badges
   badgeBronze: '#CD7F32',
@@ -93,16 +97,18 @@ export const DarkColors: typeof Colors = {
   infoLight: '#64B5F6',
   infoFaded: '#1565C0',
 
-  background: '#121212',
-  surface: '#1E1E1E',
-  surfaceElevated: '#2C2C2C',
-  text: '#E0E0E0',
-  textSecondary: '#B0B0B0',
-  textTertiary: '#808080',
-  textInverse: '#212121',
-  border: '#333333',
-  borderLight: '#2A2A2A',
-  disabled: '#555555',
+  background: '#09090B',
+  surface: '#18181B',
+  surfaceElevated: '#27272A',
+  muted: '#27272A',
+  text: '#FAFAF9',
+  textSecondary: '#D4D4D8',
+  textTertiary: '#71717A',
+  textInverse: '#09090B',
+  border: '#27272A',
+  borderLight: '#1F1F23',
+  ring: '#22C55E',
+  disabled: '#52525B',
   overlay: 'rgba(0,0,0,0.7)',
 
   badgeBronze: '#CD7F32',
@@ -220,17 +226,17 @@ export const Spacing = {
   sosButtonMargin: 20,
 } as const;
 
-// ── Border Radius ─────────────────────────────────────────────────────────────
+// ── Border Radius (shadcn: 0.625rem base) ────────────────────────────────────
 export const BorderRadius = {
-  xs: 4,
+  xs: 6,
   sm: 8,
-  md: 12,
-  lg: 16,
-  xl: 24,
+  md: 10,
+  lg: 14,
+  xl: 20,
   round: 9999,
 } as const;
 
-// ── Shadows ───────────────────────────────────────────────────────────────────
+// ── Shadows (shadcn soft) ───────────────────────────────────────────────────
 export const Shadows = {
   none: {
     shadowColor: 'transparent',
